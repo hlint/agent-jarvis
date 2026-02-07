@@ -1,0 +1,29 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "compile:frontend": {
+      "dependsOn": ["^compile:frontend"],
+      "outputs": ["dist/**"]
+    },
+    "compile:server": {
+      "dependsOn": ["^compile:server", "@repo/frontend#compile:frontend"],
+      "outputs": ["dist/**"]
+    },
+    "format": {
+      "dependsOn": []
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "dependsOn": ["compile:frontend", "compile:server"],
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

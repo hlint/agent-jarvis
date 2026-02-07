@@ -1,0 +1,19 @@
+{
+  "name": "@repo/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./example": "./example.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

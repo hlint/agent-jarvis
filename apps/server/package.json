@@ -1,0 +1,24 @@
+{
+  "name": "@repo/server",
+  "version": "0.1.0",
+  "module": "src/index.js",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "compile:server": "rm -rf dist && bun compile:server:code && bun compile:server:assets",
+    "compile:server:assets": "cp -r ../frontend/dist/ dist/html",
+    "compile:server:code": "bun build src/index.ts --outfile dist/index.js --minify --target bun --production",
+    "dev": "bun run --watch src/index.ts",
+    "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json",
+    "start": "cd dist && bun index.js"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.4.0",
+    "@elysiajs/static": "latest",
+    "@repo/shared": "workspace:*",
+    "elysia": "latest",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  }
+}
