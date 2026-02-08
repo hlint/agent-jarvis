@@ -2,6 +2,7 @@ import { cors } from "@elysiajs/cors";
 import { example } from "@repo/shared/example";
 import { Elysia } from "elysia";
 import z from "zod";
+import jarvisMiddleware from "./jarvis/middleware";
 import { spa } from "./spa";
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -13,6 +14,7 @@ const app = new Elysia()
       name: z.string().optional(),
     }),
   })
+  .use(jarvisMiddleware())
   .use(spa({ dir: "./html" }))
   .listen(isProduction ? 3000 : 4000);
 

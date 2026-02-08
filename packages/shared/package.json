@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./example": "./example.ts"
+    "./example": "./example.ts",
+    "./defines": "./defines.ts"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

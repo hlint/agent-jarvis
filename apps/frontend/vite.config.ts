@@ -11,4 +11,18 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    port: 3000,
+    proxy: {
+      // 代理所有 API 请求到后端服务器
+      "/jarvis/ws": {
+        target: "ws://localhost:4000",
+        ws: true,
+      },
+      "/jarvis": {
+        target: "http://localhost:4000",
+        changeOrigin: true,
+      },
+    },
+  },
 });
