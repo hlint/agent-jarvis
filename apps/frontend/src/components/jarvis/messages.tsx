@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import JarvisMessage from "./message";
 import useJarvisStore from "./use-jarvis-store";
-import useWs from "./use-ws";
 import JarvisWelcome from "./welcome";
 
 export default function JarvisMessages() {
@@ -9,7 +8,6 @@ export default function JarvisMessages() {
   const setHandleScrollToBottom = useJarvisStore(
     (state) => state.setHandleScrollToBottom,
   );
-  useWs();
   const listBottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const scrollToBottom = () => {

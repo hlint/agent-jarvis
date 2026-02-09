@@ -11,11 +11,22 @@ export function contentBuilder({
 }) {
   let content = "";
   if (time) {
-    content += `[Time: ${dayjs(time).format("YYYY-MM-DDTHH:mm:ssZ[Z]")}]\n`;
+    content += `[Time: ${getTimeString(time)}]\n`;
   }
   if (systemEventLabel) {
     content += `[System Event: ${systemEventLabel}]\n`;
   }
   content += text;
   return content;
+}
+
+export function getTimeString(time?: number) {
+  return dayjs(time).format("dddd, MMMM D, YYYY HH:mm A");
+}
+
+/** 移除 AI 误仿造的系统格式前缀，避免 [Time:...] [System Event:...] 污染回复 */
+export function stripSystemFormatPrefixes(text: string): string {
+  return text
+    .replace(/^(\s*\[(?:Time|System Event):[^\]]*\]\s*)+/g, "")
+    .trimStart();
 }

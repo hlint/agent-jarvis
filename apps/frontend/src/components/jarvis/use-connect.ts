@@ -1,13 +1,17 @@
 import type { WsMessage } from "@repo/shared/defines/miscs";
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { api } from "@/lib/api";
 import useJarvisStore from "./use-jarvis-store";
 
-const useWs = () => {
+const useConnect = () => {
   const [wsFlag, setWsFlag] = useState(1);
   const applyChatStatePatch = useJarvisStore(
     (state) => state.applyChatStatePatch,
   );
+
+  const pullFullChatState = useJarvisStore((state) => state.pullFullChatState);
+  useSWR("pullFullChatState", pullFullChatState);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: wsFlag is used to reconnect the websocket
   useEffect(() => {
@@ -52,4 +56,4 @@ const useWs = () => {
   }, [wsFlag]);
 };
 
-export default useWs;
+export default useConnect;

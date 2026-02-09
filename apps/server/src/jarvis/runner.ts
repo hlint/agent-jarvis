@@ -1,9 +1,11 @@
 import type { AssistantChatEvent } from "@repo/shared/defines/chat-event";
 import { streamText } from "ai";
 import { nanoid } from "nanoid";
-import { chatEventsToModelMessages } from "./chatEventsToModelMessages";
+import { chatEventsToModelMessages } from "./format";
 import type Jarvis from "./jarvis";
 import getGeminiModel from "./model";
+import systemPromptBuilder from "./system-prompt-builder";
+import { stripSystemFormatPrefixes } from "./utils";
 
 export default class Runner {
   private jarvis: Jarvis;
@@ -29,7 +31,13 @@ export default class Runner {
       const model = getGeminiModel(this.jarvis);
       const { fullStream } = streamText({
         model,
-        messages: chatEventsToModelMessages(this.jarvis.state.getChatEvents()),
+        messages: [
+          {
+            role: "system",
+            content: systemPromptBuilder(this.jarvis),
+          },
+          ...chatEventsToModelMessages(this.jarvis.state.getChatEvents()),
+        ],
         onError: () => {}, // 覆盖默认的 console.error 打印
       });
       this.jarvis.state.addChatEvent(assistantChatEvent);
@@ -42,6 +50,9 @@ export default class Runner {
             break;
         }
       }
+      assistantChatEvent.content = stripSystemFormatPrefixes(
+        assistantChatEvent.content,
+      );
     } catch (error) {
       assistantChatEvent.content = `Something went wrong: ${error}`;
     }
