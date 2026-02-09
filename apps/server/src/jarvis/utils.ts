@@ -1,15 +1,21 @@
-import type { ClientMessage } from "@repo/shared/defines";
-import type { ModelMessage } from "ai";
+import dayjs from "dayjs";
 
-export function toClientMessage(message: ModelMessage): ClientMessage | null {
-  if (message.role !== "assistant" && message.role !== "user") {
-    return null;
+export function contentBuilder({
+  text,
+  systemEventLabel,
+  time,
+}: {
+  text: string;
+  systemEventLabel?: string;
+  time?: number;
+}) {
+  let content = "";
+  if (time) {
+    content += `[Time: ${dayjs(time).format("YYYY-MM-DDTHH:mm:ssZ[Z]")}]\n`;
   }
-  return {
-    role: message.role,
-    content:
-      typeof message.content === "string"
-        ? message.content
-        : JSON.stringify(message.content),
-  };
+  if (systemEventLabel) {
+    content += `[System Event: ${systemEventLabel}]\n`;
+  }
+  content += text;
+  return content;
 }

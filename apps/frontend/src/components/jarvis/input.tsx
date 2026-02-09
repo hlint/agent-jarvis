@@ -8,7 +8,7 @@ export default function JarvisInput() {
   const [content, setContent] = useState("");
   const handleSend = () => {
     if (content.trim() === "") return;
-    api.jarvis.message.post({ content });
+    api.jarvis["user-message"].post({ content });
     setContent("");
   };
   return (
@@ -35,7 +35,7 @@ export default function JarvisInput() {
             variant="ghost"
             size="icon-lg"
             onClick={() => {
-              api.jarvis.messages.delete();
+              api.jarvis["chat-events"].delete();
             }}
           >
             <TrashIcon />

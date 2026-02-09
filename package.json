@@ -14,7 +14,9 @@
     "start": "turbo run start"
   },
   "dependencies": {
+    "dayjs": "^1.11.19",
     "es-toolkit": "^1.44.0",
+    "nanoid": "^5.1.6",
     "zod": "^4.3.6"
   },
   "devDependencies": {

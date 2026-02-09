@@ -1,11 +1,11 @@
-import type { WebSocketMessageForClient } from "@repo/shared/defines";
+import type { WsMessage } from "@repo/shared/defines/miscs";
 
 // import type { Jarvis } from "./jarvis";
 
 type Client = {
   id: string;
   type: "websocket";
-  pushMessage: (message: WebSocketMessageForClient) => void;
+  pushMessage: (message: WsMessage) => void;
 };
 
 export default class JarvisClientManager {
@@ -20,7 +20,7 @@ export default class JarvisClientManager {
     this.clients.delete(id);
   }
 
-  pushWebSocketMessage(message: WebSocketMessageForClient) {
+  pushWebSocketMessage(message: WsMessage) {
     for (const client of this.clients.values()) {
       if (client.type === "websocket") {
         client.pushMessage(message);

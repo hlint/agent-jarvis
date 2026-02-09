@@ -1,25 +1,22 @@
 import { Elysia } from "elysia";
 import z from "zod";
-import { Jarvis } from "./jarvis";
-import { toClientMessage } from "./utils";
+import Jarvis from "./jarvis";
 
 export default function jarvisMiddleware() {
   const jarvis = new Jarvis();
   return new Elysia()
-    .get("/jarvis/messages", () => {
-      return jarvis.messages.map(toClientMessage).filter(Boolean);
+    .get("/jarvis/chat-state", () => {
+      return jarvis.state.getState();
     })
-    .delete("/jarvis/messages", () => {
-      jarvis.clearMessages();
+    .delete("/jarvis/chat-events", () => {
+      jarvis.clearChatEvents();
       return { success: true };
     })
     .post(
-      "/jarvis/message",
+      "/jarvis/user-message",
       ({ body }: { body: { content: string } }) => {
-        jarvis.input({
-          role: "user",
-          content: body.content,
-        });
+        jarvis.incomingUserMessage(body.content);
+        return { success: true };
       },
       { body: z.object({ content: z.string() }) },
     )

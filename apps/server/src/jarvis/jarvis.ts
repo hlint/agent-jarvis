@@ -1,49 +1,35 @@
-import { type AgentConfig, AgentConfigSchema } from "@repo/shared/defines";
-import type { ModelMessage, UserModelMessage } from "ai";
-import fs from "fs-extra";
-import Bus from "./bus";
-import JarvisClientManager from "./client-manager";
-import { PATH_CONFIG } from "./defines";
+import { nanoid } from "nanoid";
+import JarvisClientManager from "./client";
+import JarvisConfigManager from "./config";
 import init from "./init";
 import Runner from "./runner";
+import { JarvisState } from "./state";
 
-export class Jarvis {
-  public messages: ModelMessage[] = [
-    {
-      role: "assistant",
-      content:
-        "Hi, I'm Jarvis, your personal assistant. How can I help you today?",
-    },
-  ];
-  public config: AgentConfig = {
-    gemini_model: "",
-    gemini_api_key: "",
-  };
-  public bus = new Bus(this);
+export default class Jarvis {
   public runner = new Runner(this);
   public clientManager = new JarvisClientManager();
+  public state = new JarvisState(this);
+  public configManager = new JarvisConfigManager();
 
   constructor() {
     init(this);
   }
 
-  reloadConfig() {
-    try {
-      const config = AgentConfigSchema.parse(fs.readJSONSync(PATH_CONFIG));
-      this.config = config;
-    } catch (_error) {
-      fs.writeJSONSync(PATH_CONFIG, this.config, { spaces: 2 });
-    }
-  }
-
-  input(message: UserModelMessage) {
-    this.bus.pushMessage(message);
-  }
-
-  clearMessages() {
-    this.messages = [];
-    this.clientManager.pushWebSocketMessage({
-      type: "clear-messages",
+  incomingUserMessage(content: string) {
+    this.state.addChatEvent({
+      role: "user",
+      content: content,
+      time: Date.now(),
+      id: nanoid(6),
     });
+    this.runner.runNext();
+  }
+
+  clearChatEvents() {
+    this.state.setState({
+      snapshotId: nanoid(6),
+      chatEvents: [],
+    });
+    this.state.notifyStateChanged();
   }
 }

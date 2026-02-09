@@ -1,5 +1,8 @@
+import type { AssistantChatEvent } from "@repo/shared/defines/chat-event";
 import { streamText } from "ai";
-import type { Jarvis } from "./jarvis";
+import { nanoid } from "nanoid";
+import { chatEventsToModelMessages } from "./chatEventsToModelMessages";
+import type Jarvis from "./jarvis";
 import getGeminiModel from "./model";
 
 export default class Runner {
@@ -15,42 +18,36 @@ export default class Runner {
     if (this.busy) return;
     this.busy = true;
     this.needRunNext = false;
+    const assistantChatEvent: AssistantChatEvent = {
+      id: nanoid(6),
+      role: "assistant",
+      time: Date.now(),
+      content: "",
+      pending: true,
+    };
     try {
-      this.jarvis.clientManager.pushWebSocketMessage({
-        type: "reply-stream-start",
-      });
       const model = getGeminiModel(this.jarvis);
-      const { fullStream, text: fullText } = streamText({
+      const { fullStream } = streamText({
         model,
-        messages: this.jarvis.messages,
+        messages: chatEventsToModelMessages(this.jarvis.state.getChatEvents()),
         onError: () => {}, // 覆盖默认的 console.error 打印
       });
+      this.jarvis.state.addChatEvent(assistantChatEvent);
       for await (const streamPart of fullStream) {
         switch (streamPart.type) {
           case "text-delta":
-            this.jarvis.clientManager.pushWebSocketMessage({
-              type: "reply-stream-delta",
-              payload: streamPart.text,
-            });
+            assistantChatEvent.content += streamPart.text;
+            assistantChatEvent.time = Date.now();
+            this.jarvis.state.notifyStateChanged();
             break;
         }
       }
-      this.jarvis.bus.pushMessage({
-        role: "assistant",
-        content: await fullText,
-      });
     } catch (error) {
-      const errorMessage = (error as Error)?.message || "";
-      console.error(`Error in Runner.run() ${errorMessage}`);
-      if (errorMessage) {
-        this.jarvis.bus.pushMessage({
-          role: "assistant",
-          content: `Something went wrong: ${errorMessage}`,
-        });
-      } else {
-        console.error(error);
-      }
+      assistantChatEvent.content = `Something went wrong: ${error}`;
     }
+    assistantChatEvent.time = Date.now();
+    assistantChatEvent.pending = false;
+    this.jarvis.state.notifyStateChanged();
     this.busy = false;
     if (this.needRunNext) {
       this.run();
