@@ -1,0 +1,10 @@
+{
+  "name": "weather",
+  "description": "Get the current and next three days weather for a specified city",
+  "inputSchema": {
+    "city": {
+      "type": "string",
+      "description": "The city to get the weather for"
+    }
+  }
+}

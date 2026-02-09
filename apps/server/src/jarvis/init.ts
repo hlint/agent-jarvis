@@ -7,9 +7,6 @@ export default function init(jarvis: Jarvis) {
   // 创建运行时目录
   fs.ensureDirSync(DIR_RUNTIME);
 
-  // 加载配置
-  jarvis.configManager.reloadConfig();
-
   // 加载Chat Events
   try {
     const chatEvents = fs.readJSONSync(PATH_CHAT_STATE) as ChatState;

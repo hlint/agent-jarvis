@@ -2,7 +2,20 @@ import type { ToolCallChatEvent } from "@repo/shared/defines/chat-event";
 import { type FlexibleSchema, tool } from "ai";
 import { omit } from "es-toolkit";
 import { nanoid } from "nanoid";
+import notifyTool from "./built-in-tools/notify";
+import updateMemoryTool from "./built-in-tools/update-memory";
+import weatherForecastTool from "./built-in-tools/weather";
+import webExtractTool from "./built-in-tools/web-extract";
+import webSearchTool from "./built-in-tools/web-search";
 import type Jarvis from "./jarvis";
+
+export const builtInTools = [
+  weatherForecastTool,
+  webSearchTool,
+  webExtractTool,
+  updateMemoryTool,
+  notifyTool,
+];
 
 export type JarvisTool<INPUT extends { brief: string } = { brief: string }> = {
   name: string;

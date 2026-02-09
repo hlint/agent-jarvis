@@ -1,12 +1,11 @@
 import type { AssistantChatEvent } from "@repo/shared/defines/chat-event";
 import { streamText } from "ai";
 import { nanoid } from "nanoid";
-import weatherForecastTool from "./built-in-tools/weather";
 import { chatEventsToModelMessages } from "./format";
 import type Jarvis from "./jarvis";
 import getGeminiModel from "./model";
 import systemPromptBuilder from "./system-prompt-builder";
-import { createAiTools } from "./tool";
+import { builtInTools, createAiTools } from "./tool";
 import { stripSystemFormatPrefixes } from "./utils";
 
 export default class Runner {
@@ -31,7 +30,7 @@ export default class Runner {
       pending: true,
     };
     try {
-      const model = getGeminiModel(this.jarvis);
+      const model = getGeminiModel();
       const { fullStream } = streamText({
         model,
         messages: [
@@ -42,7 +41,7 @@ export default class Runner {
           ...chatEventsToModelMessages(this.jarvis.state.getChatEvents()),
         ],
         onError: () => {}, // 覆盖默认的 console.error 打印
-        tools: createAiTools([weatherForecastTool], this.jarvis),
+        tools: createAiTools(builtInTools, this.jarvis),
         toolChoice: "auto",
       });
       for await (const streamPart of fullStream) {

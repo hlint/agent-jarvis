@@ -1,9 +1,11 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import type Jarvis from "./jarvis";
+import { env } from "bun";
 
-export default function getGeminiModel(jarvis: Jarvis) {
-  jarvis.configManager.reloadConfig();
-  const config = jarvis.configManager.getConfig();
+export default function getGeminiModel() {
+  const config = {
+    gemini_api_key: env.GEMINI_API_KEY!,
+    gemini_model: env.GEMINI_MODEL!,
+  };
   if (!config.gemini_api_key || !config.gemini_model) {
     throw new Error("Gemini API key or model is not set");
   }
