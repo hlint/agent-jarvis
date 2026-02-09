@@ -25,8 +25,12 @@ export function getTimeString(time?: number) {
 }
 
 /** 移除 AI 误仿造的系统格式前缀，避免 [Time:...] [System Event:...] 污染回复 */
-export function stripSystemFormatPrefixes(text: string): string {
-  return text
+export function stripSystemFormatPrefixes(text: string) {
+  const strippedText = text
     .replace(/^(\s*\[(?:Time|System Event):[^\]]*\]\s*)+/g, "")
     .trimStart();
+  return {
+    strippedText,
+    removedPrefixCount: text.length - strippedText.length,
+  };
 }

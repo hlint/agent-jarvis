@@ -26,7 +26,7 @@ export default function JarvisMessage({
     );
   }
   return (
-    <div className={cn("flex flex-row gap-3 justify-start")}>
+    <div className={cn("flex flex-row gap-0.5 justify-start")}>
       <span className={cn("text-lg relative bottom-0.5 block")}>✨</span>
       {text ? (
         <Streamdown

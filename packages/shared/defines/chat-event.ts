@@ -1,8 +1,4 @@
-export type ChatEvent =
-  | AssistantChatEvent
-  | UserChatEvent
-  | ToolRequestChatEvent
-  | ToolResponseChatEvent;
+export type ChatEvent = AssistantChatEvent | UserChatEvent | ToolCallChatEvent;
 
 export type AssistantChatEvent = {
   id: string;
@@ -19,21 +15,13 @@ export type UserChatEvent = {
   content: string;
 };
 
-export type ToolRequestChatEvent = {
+export type ToolCallChatEvent = {
   id: string;
-  role: "tool-request";
+  role: "tool-call";
   time: number;
-  reason: string;
+  brief: string;
   toolName: string;
   toolInput: any;
-  pending: boolean;
-};
-
-export type ToolResponseChatEvent = {
-  id: string;
-  role: "tool-response";
-  time: number;
-  toolName: string;
-  toolCallId: string;
   toolOutput: any;
+  pending: boolean;
 };

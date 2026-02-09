@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import JarvisMessage from "./message";
+import JarvisToolCall from "./tool-call";
 import useJarvisStore from "./use-jarvis-store";
 import JarvisWelcome from "./welcome";
 
@@ -27,17 +28,20 @@ export default function JarvisMessages() {
     return <JarvisWelcome />;
   }
   return (
-    <div className="flex flex-col gap-4 flex-1 px-2">
-      {chatEvents.map((message, index) => {
+    <div className="flex flex-col gap-3 flex-1 px-2">
+      {chatEvents.map((message) => {
         if (message.role === "user" || message.role === "assistant") {
           return (
             <JarvisMessage
-              key={index}
+              key={message.id}
               text={message.content}
               type={message.role}
               isAnimating={message.role === "assistant" && message.pending}
             />
           );
+        }
+        if (message.role === "tool-call") {
+          return <JarvisToolCall key={message.id} {...message} />;
         }
         return null;
       })}

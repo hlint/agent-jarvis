@@ -22,7 +22,7 @@ export function chatEventsToModelMessages(events: ChatEvent[]): ModelMessage[] {
               text: event.content,
             }),
           };
-        case "tool-request":
+        case "tool-call":
           return {
             role: "assistant" as const,
             content: contentBuilder({
@@ -30,21 +30,9 @@ export function chatEventsToModelMessages(events: ChatEvent[]): ModelMessage[] {
               systemEventLabel: "Tool Call Request",
               text: [
                 `Tool Name: ${event.toolName}`,
-                `Tool Call Reason: ${event.reason}`,
-                `Pending: ${event.pending}`,
+                `Brief: ${event.brief}`,
+                `Status: ${event.pending ? "Pending" : "Completed"}`,
                 `Tool Input: ${JSON.stringify(event.toolInput)}`,
-              ].join("\n"),
-            }),
-          };
-        case "tool-response":
-          return {
-            role: "assistant" as const,
-            content: contentBuilder({
-              time: event.time,
-              systemEventLabel: "Tool Call Response",
-              text: [
-                `Tool Name: ${event.toolName}`,
-                `Tool Call Request Id: ${event.toolCallId}`,
                 `Tool Output: ${JSON.stringify(event.toolOutput)}`,
               ].join("\n"),
             }),
