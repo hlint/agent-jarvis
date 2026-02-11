@@ -46,9 +46,23 @@ export const upsertCronTaskTool = defineJarvisTool({
       .describe(
         "If true, task is deleted after one trigger. Optional when updating.",
       ),
+    newEnabled: z
+      .boolean()
+      .optional()
+      .describe(
+        "If false, the task is paused and the timer will not run. Optional when updating.",
+      ),
   }),
   execute: async (
-    { mode, name, newName, newDescription, newCronPattern, newOneTimeTrigger },
+    {
+      mode,
+      name,
+      newName,
+      newDescription,
+      newCronPattern,
+      newOneTimeTrigger,
+      newEnabled,
+    },
     jarvis,
   ) => {
     const exists = jarvis.cron
@@ -73,6 +87,7 @@ export const upsertCronTaskTool = defineJarvisTool({
         description: newDescription,
         cronPattern: newCronPattern,
         oneTimeTrigger: newOneTimeTrigger ?? false,
+        enabled: newEnabled !== false,
       });
     }
 
@@ -88,6 +103,7 @@ export const upsertCronTaskTool = defineJarvisTool({
       description: newDescription,
       cronPattern: newCronPattern,
       oneTimeTrigger: newOneTimeTrigger ?? false,
+      enabled: newEnabled,
     });
     if (result === null) {
       return {

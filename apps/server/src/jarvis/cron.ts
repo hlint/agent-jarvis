@@ -12,6 +12,7 @@ type CronTask = {
   description: string;
   cronPattern: string;
   oneTimeTrigger: boolean;
+  enabled: boolean;
   cronJob?: CronJob;
 };
 
@@ -26,14 +27,15 @@ export default class JarvisCron {
   init() {
     try {
       const raw = fs.readJSONSync(PATH_CRON_TASKS) as Record<string, unknown>[];
-      this.cronTasks = raw.map((t) =>
-        pick(t as CronTask, [
+      this.cronTasks = raw.map((t) => ({
+        ...pick(t as CronTask, [
           "name",
           "description",
           "cronPattern",
           "oneTimeTrigger",
         ]),
-      ) as CronTask[];
+        enabled: (t as CronTask).enabled !== false,
+      }));
     } catch (_error) {
       fs.writeJSONSync(PATH_CRON_TASKS, this.cronTasks, { spaces: 2 });
     }
@@ -60,7 +62,9 @@ export default class JarvisCron {
           this.removeCronTask(task.name);
         }
       });
-      task.cronJob.start();
+      if (task.enabled) {
+        task.cronJob.start();
+      }
     });
     this.persist();
   }
@@ -68,7 +72,13 @@ export default class JarvisCron {
   listCronTasks() {
     return this.cronTasks.map((task, index) => ({
       index: index + 1,
-      ...pick(task, ["name", "description", "cronPattern", "oneTimeTrigger"]),
+      ...pick(task, [
+        "name",
+        "description",
+        "cronPattern",
+        "oneTimeTrigger",
+        "enabled",
+      ]),
       nextTriggerTime: getNextTriggerTime(task.cronPattern),
     }));
   }
@@ -76,10 +86,13 @@ export default class JarvisCron {
   createCronTask(
     cronTask: Pick<
       CronTask,
-      "name" | "description" | "cronPattern" | "oneTimeTrigger"
+      "name" | "description" | "cronPattern" | "oneTimeTrigger" | "enabled"
     >,
   ) {
-    const newTask: CronTask = { ...cronTask };
+    const newTask: CronTask = {
+      ...cronTask,
+      enabled: cronTask.enabled !== false,
+    };
     this.cronTasks.push(newTask);
     this.resetCronJobs();
     return {
@@ -91,7 +104,10 @@ export default class JarvisCron {
   updateCronTask(
     name: string,
     partial: Partial<
-      Pick<CronTask, "name" | "description" | "cronPattern" | "oneTimeTrigger">
+      Pick<
+        CronTask,
+        "name" | "description" | "cronPattern" | "oneTimeTrigger" | "enabled"
+      >
     >,
   ) {
     const index = this.cronTasks.findIndex((task) => task.name === name);
@@ -106,6 +122,7 @@ export default class JarvisCron {
       description: partial.description ?? task.description,
       cronPattern: partial.cronPattern ?? task.cronPattern,
       oneTimeTrigger: partial.oneTimeTrigger ?? task.oneTimeTrigger,
+      enabled: partial.enabled !== undefined ? partial.enabled : task.enabled,
     };
     this.cronTasks[index] = updated;
     this.resetCronJobs();
@@ -131,7 +148,13 @@ export default class JarvisCron {
     fs.writeJSONSync(
       PATH_CRON_TASKS,
       this.cronTasks.map((task) =>
-        pick(task, ["name", "description", "cronPattern", "oneTimeTrigger"]),
+        pick(task, [
+          "name",
+          "description",
+          "cronPattern",
+          "oneTimeTrigger",
+          "enabled",
+        ]),
       ),
       { spaces: 2 },
     );
