@@ -14,11 +14,27 @@ const weatherForecastTool = defineJarvisTool({
     city: z.string().describe("The city to get the weather for"),
   }),
   execute: async ({ city }) => {
-    const result = await fetch(
-      `https://wttr.in/${encodeURIComponent(city)}?format=j2`,
-    );
-    const data = await result.json();
-    return data;
+    const TIMEOUT_MS = 10_000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+      const result = await fetch(
+        `https://wttr.in/${encodeURIComponent(city)}?format=j2`,
+        { signal: controller.signal },
+      );
+      const data = await result.json();
+      return data;
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") {
+        return {
+          error: `Weather request timed out (${TIMEOUT_MS / 1000}s). wttr.in may be slow or unavailable; try again later.`,
+        };
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   },
 });
 

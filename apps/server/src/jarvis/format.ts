@@ -65,18 +65,27 @@ export function chatEventsToModelMessages(events: ChatEvent[]): ModelMessage[] {
               },
             ],
           } satisfies ToolModelMessage;
-        case "double-check":
+        case "request-confirmation":
           return {
             role: "tool",
             content: [
               {
                 type: "tool-result",
-                toolName: "system-tool-call-tracking",
+                toolName: "system-user-confirmation",
                 toolCallId: event.id,
                 output: {
-                  type: "text",
-                  value:
-                    "[System Event: Double Check] Please check the previous actions and decide whether to continue. If nothing more to do (completed all tasks, need user to confirm/fill in more information), call the 'do-nothing' tool.",
+                  type: "json",
+                  value: {
+                    brief: event.brief,
+                    status: event.status,
+                    lastUpdated: event.time,
+                    guidance:
+                      event.status === "pending"
+                        ? "Await explicit user confirmation. Do not proceed; call the 'do-nothing' tool until the user responds."
+                        : event.status === "confirmed"
+                          ? "User explicitly confirmed. You may proceed with the planned action."
+                          : "User rejected the request. Do not continue with the proposed action; provide alternatives or ask for clarification.",
+                  },
                 },
               },
             ],

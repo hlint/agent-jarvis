@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import JarvisCronTrigger from "./cron-trigger";
 import JarvisMessage from "./message";
+import JarvisRequestConfirmation from "./request-confirmation";
 import JarvisToolCall from "./tool-call";
 import useJarvisStore from "./use-jarvis-store";
 import JarvisWelcome from "./welcome";
@@ -48,6 +49,8 @@ export default function JarvisMessages() {
             return (
               <JarvisCronTrigger key={message.id} name={message.taskName} />
             );
+          case "request-confirmation":
+            return <JarvisRequestConfirmation key={message.id} {...message} />;
           default:
             return null;
         }

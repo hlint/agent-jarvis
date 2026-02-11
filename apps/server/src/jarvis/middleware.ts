@@ -20,6 +20,24 @@ export default function jarvisMiddleware() {
       },
       { body: z.object({ content: z.string() }) },
     )
+    .post(
+      "/jarvis/request-confirmations",
+      ({ body }: { body: { id: string; decision: "confirm" | "reject" } }) => {
+        const handled = jarvis.resolveRequestConfirmation(
+          body.id,
+          body.decision,
+        );
+        return handled
+          ? { success: true }
+          : { success: false, error: "request-confirmation-not-found" };
+      },
+      {
+        body: z.object({
+          id: z.string(),
+          decision: z.enum(["confirm", "reject"]),
+        }),
+      },
+    )
     .ws("/jarvis/ws", {
       open: (ws) => {
         jarvis.clientManager.saveClient({

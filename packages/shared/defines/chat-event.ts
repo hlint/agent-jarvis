@@ -4,13 +4,7 @@ export type ChatEvent =
   | ToolCallChatEvent
   | CronTaskTriggerChatEvent
   | ActionRoundChatEvent
-  | DoubleCheckChatEvent;
-
-export type DoubleCheckChatEvent = {
-  id: string;
-  role: "double-check";
-  time: number;
-};
+  | RequestConfirmationChatEvent;
 
 export type ActionRoundChatEvent = {
   id: string;
@@ -54,4 +48,12 @@ export type CronTaskTriggerChatEvent = {
   oneTimeTrigger: boolean;
   taskDescription: string;
   taskCronPattern: string;
+};
+
+export type RequestConfirmationChatEvent = {
+  id: string;
+  role: "request-confirmation";
+  time: number;
+  status: "pending" | "confirmed" | "rejected";
+  brief: string;
 };
