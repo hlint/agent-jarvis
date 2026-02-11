@@ -1,4 +1,8 @@
-export const WORKFLOW_INTRO = `- 系统会在以下场景调用你：
+export const WORKFLOW_INTRO = `
+WORKFLOW
+你的工作流程如下：
+
+  - 系统会在以下场景调用你：
   - 用户提出需要你回答或处理的问题
   - 工具调用完成并产生新的结果（成功或失败）
   - 定时任务或其他系统事件被触发`;

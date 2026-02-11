@@ -1,7 +1,7 @@
 import type { ChatEvent } from "@repo/shared/defines/chat-event";
 import type { ChatState } from "@repo/shared/defines/miscs";
 import { createDiff } from "@repo/shared/lib/state-sync";
-import { cloneDeep } from "es-toolkit";
+import { cloneDeep, debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import { PATH_CHAT_STATE } from "./defines";
@@ -19,8 +19,9 @@ export class JarvisState {
 
   init() {
     try {
-      const chatEvents = fs.readJSONSync(PATH_CHAT_STATE) as ChatState;
-      this.setState(chatEvents);
+      const chatState = fs.readJSONSync(PATH_CHAT_STATE) as ChatState;
+      this.setState(chatState);
+      this.previousChatEvents = cloneDeep(this.chatEvents);
     } catch (_error) {
       fs.writeJSONSync(PATH_CHAT_STATE, this.getState(), { spaces: 2 });
     }
@@ -54,10 +55,16 @@ export class JarvisState {
       toId: newSnapshotId,
       diff,
     });
+    this.persist();
   }
 
   addChatEvent(chatEvent: ChatEvent) {
     this.chatEvents.push(chatEvent);
     this.notifyStateChanged();
   }
+
+  // 持久化
+  private persist = debounce(() => {
+    fs.writeJSONSync(PATH_CHAT_STATE, this.getState(), { spaces: 2 });
+  }, 1000);
 }

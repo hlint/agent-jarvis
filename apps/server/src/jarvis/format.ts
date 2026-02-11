@@ -56,7 +56,6 @@ export function chatEventsToModelMessages(events: ChatEvent[]): ModelMessage[] {
                 output: {
                   type: "json",
                   value: pick(event, [
-                    "taskId",
                     "taskName",
                     "oneTimeTrigger",
                     "taskDescription",

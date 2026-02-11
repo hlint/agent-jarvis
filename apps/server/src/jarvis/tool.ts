@@ -3,13 +3,15 @@ import { type FlexibleSchema, tool } from "ai";
 import { omit } from "es-toolkit";
 import { nanoid } from "nanoid";
 import {
-  createCronTaskTool,
   listCronTasksTool,
   removeCronTaskTool,
+  upsertCronTaskTool,
 } from "./built-in-tools/cron";
 import notifyTool from "./built-in-tools/notify";
+import { reviewSkillTool } from "./built-in-tools/review-skill";
 import thinkTool from "./built-in-tools/think";
 import updateMemoryTool from "./built-in-tools/update-memory";
+import { upsertSkillTool } from "./built-in-tools/upsert-skill";
 import weatherForecastTool from "./built-in-tools/weather";
 import webExtractTool from "./built-in-tools/web-extract";
 import webSearchTool from "./built-in-tools/web-search";
@@ -22,7 +24,9 @@ export const builtInTools = [
   webExtractTool,
   updateMemoryTool,
   notifyTool,
-  createCronTaskTool,
+  reviewSkillTool,
+  upsertSkillTool,
+  upsertCronTaskTool,
   removeCronTaskTool,
   listCronTasksTool,
 ];

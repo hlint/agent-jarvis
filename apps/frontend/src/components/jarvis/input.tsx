@@ -3,8 +3,10 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import useJarvisStore from "./use-jarvis-store";
 
 export default function JarvisInput() {
+  const snapshotId = useJarvisStore((state) => state.snapshotId);
   const [content, setContent] = useState("");
   const handleSend = () => {
     if (content.trim() === "") return;
@@ -27,7 +29,7 @@ export default function JarvisInput() {
             }
           }}
         />
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 items-center">
           <Button variant="ghost" size="icon-lg">
             <MicIcon />
           </Button>
@@ -40,6 +42,7 @@ export default function JarvisInput() {
           >
             <TrashIcon />
           </Button>
+          <span className="text-sm text-gray-500">{snapshotId}</span>
           <Button
             variant="ghost"
             className="ml-auto"

@@ -50,7 +50,6 @@ export type CronTaskTriggerChatEvent = {
   id: string;
   role: "cron-task-trigger";
   time: number;
-  taskId: string;
   taskName: string;
   oneTimeTrigger: boolean;
   taskDescription: string;
