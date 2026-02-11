@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 import JarvisClientManager from "./client";
+import JarvisCron from "./cron";
 import init from "./init";
 import JarvisMemory from "./memory";
 import Runner from "./runner";
@@ -10,6 +11,7 @@ export default class Jarvis {
   public clientManager = new JarvisClientManager();
   public state = new JarvisState(this);
   public memory = new JarvisMemory();
+  public cron = new JarvisCron(this);
 
   constructor() {
     init(this);

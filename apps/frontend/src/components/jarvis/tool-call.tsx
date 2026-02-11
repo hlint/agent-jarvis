@@ -1,18 +1,33 @@
 import type { ToolCallChatEvent } from "@repo/shared/defines/chat-event";
-import { CheckCircleIcon, Loader2Icon } from "lucide-react";
+import { CodeIcon, Loader2Icon, WrenchIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 
-export default function JarvisToolCall({
-  pending,
-  brief,
-}: Pick<ToolCallChatEvent, "toolName" | "pending" | "brief">) {
+export default function JarvisToolCall(toolCallChatEvent: ToolCallChatEvent) {
+  const { pending, brief, toolName } = toolCallChatEvent;
   return (
-    <div className="flex flex-row gap-2 items-center pl-1">
-      {pending ? (
-        <Loader2Icon className="size-4 text-muted-foreground animate-spin" />
-      ) : (
-        <CheckCircleIcon className="size-4 text-primary" />
+    <div
+      className={cn(
+        "flex flex-row gap-2 items-center pl-1 text-muted-foreground",
       )}
-      <span className="text-sm text-muted-foreground">{brief}</span>
+    >
+      {pending ? (
+        <Loader2Icon className="size-4 animate-spin" />
+      ) : (
+        <WrenchIcon className="size-4" />
+      )}
+      <span className="text-sm">
+        {brief} ({toolName})
+      </span>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => {
+          console.log(toolCallChatEvent);
+        }}
+      >
+        <CodeIcon />
+      </Button>
     </div>
   );
 }

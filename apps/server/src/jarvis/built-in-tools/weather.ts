@@ -6,7 +6,11 @@ const weatherForecastTool = defineJarvisTool({
   description:
     "Get the current and next three days weather for a specified city",
   inputSchema: z.object({
-    brief: z.string().describe("A brief description of this tool call"),
+    brief: z
+      .string()
+      .describe(
+        "Short label for this weather request, e.g. location or purpose",
+      ),
     city: z.string().describe("The city to get the weather for"),
   }),
   execute: async ({ city }) => {

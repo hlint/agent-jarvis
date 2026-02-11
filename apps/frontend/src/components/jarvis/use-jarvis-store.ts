@@ -27,11 +27,14 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
   pullFullChatState: debounce(() => {
     api.jarvis["chat-state"].get().then((response) => {
       if (response.data) {
+        const snapshotIdChanged = response.data.snapshotId !== get().snapshotId;
+        if (snapshotIdChanged) {
+          get().handleScrollToBottom();
+        }
         set({
           snapshotId: response.data.snapshotId,
           chatEvents: response.data.chatEvents,
         });
-        get().handleScrollToBottom();
       } else {
         toast.error("Failed to pull chat state");
       }
@@ -39,8 +42,11 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
   }, 500),
   applyChatStatePatch: ({ fromId, toId, diff }) => {
     if (get().snapshotId === fromId) {
+      const snapshotIdChanged = toId !== get().snapshotId;
+      if (snapshotIdChanged) {
+        get().handleScrollToBottom();
+      }
       set({ snapshotId: toId, chatEvents: applyDiff(get().chatEvents, diff) });
-      get().handleScrollToBottom();
     } else {
       get().pullFullChatState();
     }

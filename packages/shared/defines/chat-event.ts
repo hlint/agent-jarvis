@@ -1,4 +1,24 @@
-export type ChatEvent = AssistantChatEvent | UserChatEvent | ToolCallChatEvent;
+export type ChatEvent =
+  | AssistantChatEvent
+  | UserChatEvent
+  | ToolCallChatEvent
+  | CronTaskTriggerChatEvent
+  | ActionRoundChatEvent
+  | DoubleCheckChatEvent;
+
+export type DoubleCheckChatEvent = {
+  id: string;
+  role: "double-check";
+  time: number;
+};
+
+export type ActionRoundChatEvent = {
+  id: string;
+  role: "action-round";
+  round: number;
+  time: number;
+  pending: boolean;
+};
 
 export type AssistantChatEvent = {
   id: string;
@@ -24,4 +44,15 @@ export type ToolCallChatEvent = {
   toolInput: any;
   toolOutput: any;
   pending: boolean;
+};
+
+export type CronTaskTriggerChatEvent = {
+  id: string;
+  role: "cron-task-trigger";
+  time: number;
+  taskId: string;
+  taskName: string;
+  oneTimeTrigger: boolean;
+  taskDescription: string;
+  taskCronPattern: string;
 };

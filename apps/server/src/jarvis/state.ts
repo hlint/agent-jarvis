@@ -2,7 +2,9 @@ import type { ChatEvent } from "@repo/shared/defines/chat-event";
 import type { ChatState } from "@repo/shared/defines/miscs";
 import { createDiff } from "@repo/shared/lib/state-sync";
 import { cloneDeep } from "es-toolkit";
+import fs from "fs-extra";
 import { nanoid } from "nanoid";
+import { PATH_CHAT_STATE } from "./defines";
 import type Jarvis from "./jarvis";
 
 export class JarvisState {
@@ -13,6 +15,15 @@ export class JarvisState {
 
   constructor(jarvis: Jarvis) {
     this.jarvis = jarvis;
+  }
+
+  init() {
+    try {
+      const chatEvents = fs.readJSONSync(PATH_CHAT_STATE) as ChatState;
+      this.setState(chatEvents);
+    } catch (_error) {
+      fs.writeJSONSync(PATH_CHAT_STATE, this.getState(), { spaces: 2 });
+    }
   }
 
   setState(chatState: ChatState) {

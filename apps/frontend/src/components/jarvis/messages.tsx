@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import JarvisActionRound from "./action-round";
+import JarvisCronTrigger from "./cron-trigger";
 import JarvisMessage from "./message";
 import JarvisToolCall from "./tool-call";
 import useJarvisStore from "./use-jarvis-store";
@@ -42,6 +44,12 @@ export default function JarvisMessages() {
         }
         if (message.role === "tool-call") {
           return <JarvisToolCall key={message.id} {...message} />;
+        }
+        if (message.role === "cron-task-trigger") {
+          return <JarvisCronTrigger key={message.id} name={message.taskName} />;
+        }
+        if (message.role === "action-round") {
+          return <JarvisActionRound key={message.id} {...message} />;
         }
         return null;
       })}

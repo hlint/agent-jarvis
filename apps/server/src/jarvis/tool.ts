@@ -2,7 +2,13 @@ import type { ToolCallChatEvent } from "@repo/shared/defines/chat-event";
 import { type FlexibleSchema, tool } from "ai";
 import { omit } from "es-toolkit";
 import { nanoid } from "nanoid";
+import {
+  createCronTaskTool,
+  listCronTasksTool,
+  removeCronTaskTool,
+} from "./built-in-tools/cron";
 import notifyTool from "./built-in-tools/notify";
+import thinkTool from "./built-in-tools/think";
 import updateMemoryTool from "./built-in-tools/update-memory";
 import weatherForecastTool from "./built-in-tools/weather";
 import webExtractTool from "./built-in-tools/web-extract";
@@ -10,18 +16,22 @@ import webSearchTool from "./built-in-tools/web-search";
 import type Jarvis from "./jarvis";
 
 export const builtInTools = [
+  thinkTool,
   weatherForecastTool,
   webSearchTool,
   webExtractTool,
   updateMemoryTool,
   notifyTool,
+  createCronTaskTool,
+  removeCronTaskTool,
+  listCronTasksTool,
 ];
 
 export type JarvisTool<INPUT extends { brief: string } = { brief: string }> = {
   name: string;
   description: string;
   inputSchema: FlexibleSchema<INPUT>;
-  execute: (input: INPUT) => Promise<any>;
+  execute: (input: INPUT, jarvis: Jarvis) => Promise<any>;
 };
 
 export function defineJarvisTool<INPUT extends { brief: string }>(
@@ -38,6 +48,7 @@ export function createAiTools(jarvisTools: JarvisTool<any>[], jarvis: Jarvis) {
         description: jarvisTool.description,
         inputSchema: jarvisTool.inputSchema,
         execute: async (input) => {
+          let result = null;
           const toolCallChatEvent: ToolCallChatEvent = {
             id: nanoid(6),
             role: "tool-call",
@@ -50,14 +61,15 @@ export function createAiTools(jarvisTools: JarvisTool<any>[], jarvis: Jarvis) {
           };
           jarvis.state.addChatEvent(toolCallChatEvent);
           try {
-            const result = await jarvisTool.execute(input);
-            toolCallChatEvent.toolOutput = result;
+            result = await jarvisTool.execute(input, jarvis);
           } catch (error) {
-            toolCallChatEvent.toolOutput = `Something went wrong: ${error}`;
+            result = `Something went wrong: ${error}`;
           }
+          toolCallChatEvent.toolOutput = result;
           toolCallChatEvent.pending = false;
           toolCallChatEvent.time = Date.now();
           jarvis.state.notifyStateChanged();
+          return result;
         },
       }),
     ]),
