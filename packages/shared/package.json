@@ -20,8 +20,10 @@
   },
   "type": "module",
   "dependencies": {
-    "ai": "^6.0.77",
+    "@ai-sdk/openai": "^3.0.27",
+    "ai": "^6.0.81",
     "fast-json-patch": "^3.1.1",
-    "lz-string": "^1.5.0"
+    "lz-string": "^1.5.0",
+    "openai": "^6.21.0"
   }
 }
