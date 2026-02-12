@@ -31,6 +31,8 @@ export const OutputActionSchema = z.object({
     ),
 });
 
+export type OutputAction = z.infer<typeof OutputActionSchema>;
+
 export const SilentActionSchema = z.object({
   type: z.literal("silent"),
 });

@@ -8,7 +8,7 @@ export type HistoryEntry = {
     | "system-event";
   status?: "pending" | "completed" | "failed";
   createdTime: string;
-  updatedTime: string;
+  updatedTime?: string;
   content?: string;
   action?: any;
   data?: any;

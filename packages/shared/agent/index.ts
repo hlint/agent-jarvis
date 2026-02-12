@@ -1,16 +1,29 @@
 import type { AgentContext } from "./defines/context";
 import type { AgentState } from "./defines/runtime";
+import processAbort from "./lib/process-abort";
+import processOutput from "./lib/process-output";
+import processOverSteps from "./lib/process-over-steps";
 import processThinking from "./lib/process-thinking";
 import processToolCalling from "./lib/process-tool";
 
-export default async function callAgent(
-  params: Omit<AgentContext, "lastThinkAction">,
-) {
-  const context: AgentContext = {
-    ...params,
-  };
+export default async function callAgent({
+  maxSteps = 32,
+  ...context
+}: Omit<AgentContext, "lastThinkAction"> & {
+  maxSteps?: number;
+}) {
   let agentState: AgentState = "thinking";
-  while (true) {
+  let steps = 0;
+  while (steps < maxSteps) {
+    steps++;
+    if (steps >= maxSteps) {
+      await processOverSteps(context);
+      return;
+    }
+    if (context.abortSignal?.signal === true) {
+      await processAbort(context);
+      return;
+    }
     switch (agentState) {
       case "thinking": {
         const thinkAction = await processThinking(context);
@@ -32,6 +45,7 @@ export default async function callAgent(
         agentState = "thinking";
         break;
       case "outputting":
+        await processOutput(context);
         break;
       case "completed":
         return;

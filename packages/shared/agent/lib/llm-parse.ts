@@ -1,6 +1,6 @@
 import type z from "zod";
 import { DIVIDER } from "../defines/text";
-import type { Tool } from "../defines/tool";
+import type { AgentTool } from "../defines/tool";
 
 /**
  * Parse a prompt string with parameters.
@@ -40,7 +40,7 @@ export function betterJsonParse(jsonStr: string) {
   return JSON.parse(match[0]);
 }
 
-export function getToolsInfo(tools: Tool[]) {
+export function getToolsInfo(tools: AgentTool[]) {
   return JSON.stringify(
     tools.map((tool) => ({
       name: tool.name,

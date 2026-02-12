@@ -4,16 +4,10 @@ import { shortId } from "../../lib/utils";
 import callLlm from "../../llm";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
-import { ThinkActionSchema } from "../defines/think-action";
-import { thinkPrompt } from "../prompt/think";
-import {
-  getToolsInfo,
-  parseLlmResultBeforeDivider,
-  parseLlmResultWithDivider,
-  parsePrompt,
-} from "./llm-parse";
+import { outputContentPrompt } from "../prompt/output";
+import { getToolsInfo, parsePrompt } from "./llm-parse";
 
-export default async function processThinking({
+export default async function processOutput({
   llmModel,
   llmApiKey,
   llmBaseUrl,
@@ -25,21 +19,21 @@ export default async function processThinking({
   const clonedDialogHistory = cloneDeep(dialogHistory);
   const entry: HistoryEntry = {
     id: shortId(),
-    role: "agent-thinking",
+    role: "agent-reply",
     status: "pending",
     createdTime: timeFormat(),
     updatedTime: timeFormat(),
   };
   clonedDialogHistory.push(entry);
   onDialogHistoryChange();
-  const response = await callLlm({
+  await callLlm({
     model: llmModel,
     apiKey: llmApiKey,
     baseURL: llmBaseUrl,
     dialog: [
       {
         role: "system",
-        content: parsePrompt(thinkPrompt, {
+        content: parsePrompt(outputContentPrompt, {
           "tool-descriptions": getToolsInfo(tools),
         }),
       },
@@ -56,18 +50,9 @@ ${JSON.stringify(clonedDialogHistory)}
       },
     ],
     onStream: (content) => {
-      entry.content = parseLlmResultBeforeDivider(content);
+      entry.content = content;
       entry.updatedTime = timeFormat();
       onDialogHistoryChange();
     },
   });
-  const [reasoning, thinkAction] = parseLlmResultWithDivider(
-    response.text,
-    ThinkActionSchema,
-  );
-  entry.content = reasoning;
-  entry.action = thinkAction;
-  entry.updatedTime = timeFormat();
-  onDialogHistoryChange();
-  return thinkAction;
 }

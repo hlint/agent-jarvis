@@ -1,14 +1,17 @@
 import type { DialogHistory } from "./history";
 import type { ThinkAction } from "./think-action";
-import type { Tool } from "./tool";
+import type { AgentTool } from "./tool";
 
 export type AgentContext = {
   llmModel: string;
   llmApiKey: string;
   llmBaseUrl?: string;
-  tools: Tool[];
+  tools: AgentTool[];
   dialogHistory: DialogHistory;
-  additionalThinkingInformation: string;
-  onDialogHistoryChange: () => void;
+  additionalAgentInformation: string;
   lastThinkAction?: ThinkAction;
+  abortSignal?: {
+    signal?: boolean;
+  };
+  onDialogHistoryChange: () => void;
 };
