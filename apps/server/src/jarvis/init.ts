@@ -1,3 +1,4 @@
+import { timeFormat } from "@repo/shared/lib/time";
 import fs from "fs-extra";
 import {
   DIR_RUNTIME,
@@ -6,7 +7,6 @@ import {
   PATH_INITIALIZED,
 } from "./defines";
 import type Jarvis from "./jarvis";
-import { getTimeString } from "./utils";
 
 export default function init(jarvis: Jarvis) {
   // 创建运行时目录
@@ -21,7 +21,7 @@ export default function init(jarvis: Jarvis) {
     // 写入初始化标记文件
     fs.writeJSONSync(PATH_INITIALIZED, {
       initialized: true,
-      time: getTimeString(),
+      time: timeFormat(),
     });
   }
 

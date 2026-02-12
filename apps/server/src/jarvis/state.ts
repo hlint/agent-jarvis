@@ -1,5 +1,8 @@
-import type { ChatEvent } from "@repo/shared/defines/chat-event";
-import type { ChatState } from "@repo/shared/defines/miscs";
+import type {
+  DialogHistory,
+  HistoryEntry,
+} from "@repo/shared/agent/defines/history";
+import type { JarvisState } from "@repo/shared/defines/jarvis";
 import { createDiff } from "@repo/shared/lib/state-sync";
 import { cloneDeep, debounce } from "es-toolkit";
 import fs from "fs-extra";
@@ -7,11 +10,11 @@ import { nanoid } from "nanoid";
 import { PATH_CHAT_STATE } from "./defines";
 import type Jarvis from "./jarvis";
 
-export class JarvisState {
+export class JarvisStateManager {
   private jarvis: Jarvis;
   private snapshotId: string = nanoid(6);
-  private chatEvents: ChatEvent[] = [];
-  private previousChatEvents: ChatEvent[] = [];
+  private dialogHistory: DialogHistory = [];
+  private previousDialogHistory: DialogHistory = [];
 
   constructor(jarvis: Jarvis) {
     this.jarvis = jarvis;
@@ -19,38 +22,34 @@ export class JarvisState {
 
   init() {
     try {
-      const chatState = fs.readJSONSync(PATH_CHAT_STATE) as ChatState;
+      const chatState = fs.readJSONSync(PATH_CHAT_STATE) as JarvisState;
       this.setState(chatState);
-      this.previousChatEvents = cloneDeep(this.chatEvents);
+      this.previousDialogHistory = cloneDeep(this.dialogHistory);
     } catch (_error) {
       fs.writeJSONSync(PATH_CHAT_STATE, this.getState(), { spaces: 2 });
     }
   }
 
-  setState(chatState: ChatState) {
-    this.snapshotId = chatState.snapshotId;
-    this.chatEvents = chatState.chatEvents;
+  setState(state: JarvisState) {
+    this.snapshotId = state.snapshotId;
+    this.dialogHistory = state.dialogHistory;
   }
 
-  getState(): ChatState {
+  getState(): JarvisState {
     return {
       snapshotId: this.snapshotId,
-      chatEvents: this.chatEvents,
+      dialogHistory: this.dialogHistory,
     };
-  }
-
-  getChatEvents() {
-    return this.chatEvents;
   }
 
   notifyStateChanged() {
     const previousSnapshotId = this.snapshotId;
     const newSnapshotId = nanoid(6);
     this.snapshotId = newSnapshotId;
-    const diff = createDiff(this.previousChatEvents, this.chatEvents);
-    this.previousChatEvents = cloneDeep(this.chatEvents);
+    const diff = createDiff(this.previousDialogHistory, this.dialogHistory);
+    this.previousDialogHistory = cloneDeep(this.dialogHistory);
     this.jarvis.clientManager.pushWebSocketMessage({
-      type: "chat-events-patch",
+      type: "dialog-history-patch",
       fromId: previousSnapshotId,
       toId: newSnapshotId,
       diff,
@@ -58,8 +57,8 @@ export class JarvisState {
     this.persist();
   }
 
-  addChatEvent(chatEvent: ChatEvent) {
-    this.chatEvents.push(chatEvent);
+  newHistoryEntry(historyEntry: HistoryEntry) {
+    this.dialogHistory.push(historyEntry);
     this.notifyStateChanged();
   }
 

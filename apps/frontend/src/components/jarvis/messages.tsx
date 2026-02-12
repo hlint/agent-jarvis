@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
-import JarvisCronTrigger from "./cron-trigger";
 import JarvisMessage from "./message";
-import JarvisRequestConfirmation from "./request-confirmation";
+import JarvisSystemEvent from "./system-event";
+import JarvisThinking from "./thinking";
 import JarvisToolCall from "./tool-call";
 import useJarvisStore from "./use-jarvis-store";
 import JarvisWelcome from "./welcome";
 
 export default function JarvisMessages() {
-  const chatEvents = useJarvisStore((state) => state.chatEvents);
+  const dialogHistory = useJarvisStore((state) => state.dialogHistory);
   const setHandleScrollToBottom = useJarvisStore(
     (state) => state.setHandleScrollToBottom,
   );
@@ -26,31 +26,31 @@ export default function JarvisMessages() {
     };
   }, [setHandleScrollToBottom]);
 
-  if (chatEvents.length === 0) {
+  if (dialogHistory.length === 0) {
     return <JarvisWelcome />;
   }
   return (
     <div className="flex flex-col gap-3 flex-1 px-2">
-      {chatEvents.map((message) => {
-        switch (message.role) {
+      {dialogHistory.map((historyEntry) => {
+        switch (historyEntry.role) {
           case "user":
-          case "assistant":
+          case "agent-reply":
             return (
               <JarvisMessage
-                key={message.id}
-                text={message.content}
-                type={message.role}
-                isAnimating={message.role === "assistant" && message.pending}
+                key={historyEntry.id}
+                text={historyEntry.content ?? ""}
+                type={historyEntry.role}
+                isAnimating={historyEntry.status === "pending"}
               />
             );
-          case "tool-call":
-            return <JarvisToolCall key={message.id} {...message} />;
-          case "cron-task-trigger":
+          case "agent-tool-call":
+            return <JarvisToolCall key={historyEntry.id} {...historyEntry} />;
+          case "system-event":
             return (
-              <JarvisCronTrigger key={message.id} name={message.taskName} />
+              <JarvisSystemEvent key={historyEntry.id} {...historyEntry} />
             );
-          case "request-confirmation":
-            return <JarvisRequestConfirmation key={message.id} {...message} />;
+          case "agent-thinking":
+            return <JarvisThinking key={historyEntry.id} {...historyEntry} />;
           default:
             return null;
         }

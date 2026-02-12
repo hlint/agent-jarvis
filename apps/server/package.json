@@ -13,13 +13,11 @@
     "start": "cd dist && bun index.js"
   },
   "dependencies": {
-    "@ai-sdk/google": "^3.0.22",
     "@elysiajs/cors": "^1.4.0",
     "@elysiajs/static": "latest",
     "@repo/shared": "workspace:*",
     "@tavily/core": "^0.7.1",
     "@types/fs-extra": "^11.0.4",
-    "ai": "^6.0.77",
     "cron": "^4.4.0",
     "elysia": "latest",
     "front-matter": "^4.0.2",

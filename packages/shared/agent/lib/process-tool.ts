@@ -19,9 +19,10 @@ export default async function processToolCalling({
       status: "pending",
       createdTime: timeFormat(),
       updatedTime: timeFormat(),
-      content: toolCall.brief,
-      input: toolCall.input,
-      output: null,
+      brief: toolCall.brief,
+      toolName: toolCall.toolName,
+      toolInput: toolCall.input,
+      toolOutput: null,
     });
 
     tasks.push(
@@ -34,11 +35,11 @@ export default async function processToolCalling({
               throw new Error(`Tool not found: ${toolCall.toolName}`);
             }
             const toolCallOuput = (await tool.execute(toolCall.input)) ?? null;
-            entry.output = toolCallOuput;
+            entry.toolOutput = toolCallOuput;
             entry.status = "completed";
           } catch (error) {
             entry.status = "failed";
-            entry.output = `Something went wrong: ${error}`;
+            entry.toolOutput = `Something went wrong: ${error}`;
           }
           entry.updatedTime = timeFormat();
           onDialogHistoryChange();

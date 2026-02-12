@@ -30,7 +30,7 @@ export default async function processThinking({
     createdTime: timeFormat(),
     updatedTime: timeFormat(),
   };
-  clonedDialogHistory.push(entry);
+  dialogHistory.push(entry);
   onDialogHistoryChange();
   const response = await callLlm({
     model: llmModel,
@@ -65,6 +65,7 @@ ${JSON.stringify(clonedDialogHistory)}
     response.text,
     ThinkActionSchema,
   );
+  entry.status = "completed";
   entry.content = reasoning;
   entry.action = thinkAction;
   entry.updatedTime = timeFormat();

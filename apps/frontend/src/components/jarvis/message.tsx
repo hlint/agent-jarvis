@@ -1,11 +1,6 @@
-import "katex/dist/katex.min.css";
-import { cjk } from "@streamdown/cjk";
-import { code } from "@streamdown/code";
-import { math } from "@streamdown/math";
-import { mermaid } from "@streamdown/mermaid";
 import { Loader2Icon } from "lucide-react";
-import { Streamdown } from "streamdown";
 import { cn } from "@/lib/utils";
+import JarvisMarkdown from "./markdown";
 
 export default function JarvisMessage({
   text,
@@ -13,7 +8,7 @@ export default function JarvisMessage({
   isAnimating,
 }: {
   text: string;
-  type: "assistant" | "user";
+  type: "agent-reply" | "user";
   isAnimating?: boolean;
 }) {
   if (type === "user") {
@@ -29,13 +24,11 @@ export default function JarvisMessage({
     <div className={cn("flex flex-row gap-0.5 justify-start")}>
       <span className={cn("text-lg relative bottom-0.5 block")}>✨</span>
       {text ? (
-        <Streamdown
-          className=" overflow-auto mr-2"
-          plugins={{ code, mermaid, math, cjk }}
+        <JarvisMarkdown
+          className="overflow-auto mr-2"
+          text={text}
           isAnimating={isAnimating}
-        >
-          {text}
-        </Streamdown>
+        />
       ) : (
         <Loader2Icon className="size-6 text-primary animate-spin" />
       )}

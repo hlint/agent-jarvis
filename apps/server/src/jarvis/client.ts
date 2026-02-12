@@ -1,4 +1,4 @@
-import type { WsMessage } from "@repo/shared/defines/miscs";
+import type { WsMessage } from "@repo/shared/defines/jarvis";
 
 // import type { Jarvis } from "./jarvis";
 

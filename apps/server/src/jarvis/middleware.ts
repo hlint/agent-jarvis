@@ -5,11 +5,11 @@ import Jarvis from "./jarvis";
 export default function jarvisMiddleware() {
   const jarvis = new Jarvis();
   return new Elysia()
-    .get("/jarvis/chat-state", () => {
+    .get("/jarvis/dialog-state", () => {
       return jarvis.state.getState();
     })
-    .delete("/jarvis/chat-events", () => {
-      jarvis.clearChatEvents();
+    .delete("/jarvis/dialog-history", () => {
+      jarvis.clearDialog();
       return { success: true };
     })
     .post(
@@ -19,24 +19,6 @@ export default function jarvisMiddleware() {
         return { success: true };
       },
       { body: z.object({ content: z.string() }) },
-    )
-    .post(
-      "/jarvis/request-confirmations",
-      ({ body }: { body: { id: string; decision: "confirm" | "reject" } }) => {
-        const handled = jarvis.resolveRequestConfirmation(
-          body.id,
-          body.decision,
-        );
-        return handled
-          ? { success: true }
-          : { success: false, error: "request-confirmation-not-found" };
-      },
-      {
-        body: z.object({
-          id: z.string(),
-          decision: z.enum(["confirm", "reject"]),
-        }),
-      },
     )
     .ws("/jarvis/ws", {
       open: (ws) => {

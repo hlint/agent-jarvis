@@ -1,5 +1,5 @@
-import type { ChatEvent } from "@repo/shared/defines/chat-event";
-import type { WsMessageChatEventsPatch } from "@repo/shared/defines/miscs";
+import type { DialogHistory } from "@repo/shared/agent/defines/history";
+import type { WsMessageDialogHistoryPatch } from "@repo/shared/defines/jarvis";
 import { applyDiff } from "@repo/shared/lib/state-sync";
 import { debounce } from "es-toolkit";
 import { toast } from "sonner";
@@ -9,13 +9,13 @@ import { api } from "@/lib/api";
 type State = {
   handleScrollToBottom: () => void;
   snapshotId: string;
-  chatEvents: ChatEvent[];
+  dialogHistory: DialogHistory;
 };
 
 type Actions = {
-  pullFullChatState: () => void;
-  applyChatStatePatch: (
-    wsMessageChatEventsPatch: WsMessageChatEventsPatch,
+  pullFullDialogState: () => void;
+  applyDialogHistoryPatch: (
+    wsMessageDialogHistoryPatch: WsMessageDialogHistoryPatch,
   ) => void;
   setHandleScrollToBottom: (handleScrollToBottom: () => void) => void;
 };
@@ -23,9 +23,9 @@ type Actions = {
 const useJarvisStore = create<State & Actions>((set, get) => ({
   handleScrollToBottom: () => {},
   snapshotId: "",
-  chatEvents: [],
-  pullFullChatState: debounce(() => {
-    api.jarvis["chat-state"].get().then((response) => {
+  dialogHistory: [],
+  pullFullDialogState: debounce(() => {
+    api.jarvis["dialog-state"].get().then((response) => {
       if (response.data) {
         const snapshotIdChanged = response.data.snapshotId !== get().snapshotId;
         if (snapshotIdChanged) {
@@ -33,22 +33,25 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
         }
         set({
           snapshotId: response.data.snapshotId,
-          chatEvents: response.data.chatEvents,
+          dialogHistory: response.data.dialogHistory,
         });
       } else {
         toast.error("Failed to pull chat state");
       }
     });
   }, 500),
-  applyChatStatePatch: ({ fromId, toId, diff }) => {
+  applyDialogHistoryPatch: ({ fromId, toId, diff }) => {
     if (get().snapshotId === fromId) {
       const snapshotIdChanged = toId !== get().snapshotId;
       if (snapshotIdChanged) {
         get().handleScrollToBottom();
       }
-      set({ snapshotId: toId, chatEvents: applyDiff(get().chatEvents, diff) });
+      set({
+        snapshotId: toId,
+        dialogHistory: applyDiff(get().dialogHistory, diff),
+      });
     } else {
-      get().pullFullChatState();
+      get().pullFullDialogState();
     }
   },
   setHandleScrollToBottom: (handleScrollToBottom: () => void) => {

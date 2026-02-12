@@ -46,6 +46,7 @@ export default async function callAgent({
         break;
       case "outputting":
         await processOutput(context);
+        agentState = "completed";
         break;
       case "completed":
         return;

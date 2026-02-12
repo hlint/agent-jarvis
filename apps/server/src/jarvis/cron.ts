@@ -1,10 +1,10 @@
+import { timeFormat } from "@repo/shared/lib/time";
 import { CronJob } from "cron";
 import { debounce, omit, pick } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import { PATH_CRON_TASKS } from "./defines";
 import type Jarvis from "./jarvis";
-import { getTimeString } from "./utils";
 
 /** name 为唯一标识，仅允许英文字母、数字及符号 - 和 _ */
 type CronTask = {
@@ -48,14 +48,17 @@ export default class JarvisCron {
         task.cronJob.stop();
       }
       task.cronJob = new CronJob(task.cronPattern, () => {
-        this.jarvis.state.addChatEvent({
+        this.jarvis.state.newHistoryEntry({
           id: nanoid(6),
-          role: "cron-task-trigger",
-          time: Date.now(),
-          taskName: task.name,
-          oneTimeTrigger: task.oneTimeTrigger,
-          taskDescription: task.description,
-          taskCronPattern: task.cronPattern,
+          role: "system-event",
+          createdTime: timeFormat(),
+          content: `Cron task ${task.name} triggered`,
+          data: {
+            taskName: task.name,
+            oneTimeTrigger: task.oneTimeTrigger,
+            taskDescription: task.description,
+            taskCronPattern: task.cronPattern,
+          },
         });
         this.jarvis.runner.runNext();
         if (task.oneTimeTrigger) {
@@ -163,5 +166,5 @@ export default class JarvisCron {
 
 function getNextTriggerTime(cronPattern: string) {
   const cronJob = new CronJob(cronPattern, () => {});
-  return getTimeString(cronJob.nextDate().toJSDate().getTime());
+  return timeFormat(cronJob.nextDate().toJSDate().getTime());
 }

@@ -24,7 +24,7 @@ export default async function processOutput({
     createdTime: timeFormat(),
     updatedTime: timeFormat(),
   };
-  clonedDialogHistory.push(entry);
+  dialogHistory.push(entry);
   onDialogHistoryChange();
   await callLlm({
     model: llmModel,

@@ -9,9 +9,11 @@
   },
   "exports": {
     "./example": "./example.ts",
-    "./defines/miscs": "./defines/miscs.ts",
-    "./defines/chat-event": "./defines/chat-event.ts",
-    "./lib/state-sync": "./lib/state-sync.ts"
+    "./defines/jarvis": "./defines/jarvis.ts",
+    "./agent/defines/history": "./agent/defines/history.ts",
+    "./lib/state-sync": "./lib/state-sync.ts",
+    "./lib/time": "./lib/time.ts",
+    "./agent/index": "./agent/index.ts"
   },
   "private": true,
   "scripts": {

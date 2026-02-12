@@ -1,4 +1,4 @@
-import type { WsMessage } from "@repo/shared/defines/miscs";
+import type { WsMessageDialogHistoryPatch } from "@repo/shared/defines/jarvis";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { api } from "@/lib/api";
@@ -6,12 +6,14 @@ import useJarvisStore from "./use-jarvis-store";
 
 const useConnect = () => {
   const [wsFlag, setWsFlag] = useState(1);
-  const applyChatStatePatch = useJarvisStore(
-    (state) => state.applyChatStatePatch,
+  const applyDialogHistoryPatch = useJarvisStore(
+    (state) => state.applyDialogHistoryPatch,
   );
 
-  const pullFullChatState = useJarvisStore((state) => state.pullFullChatState);
-  useSWR("pullFullChatState", pullFullChatState);
+  const pullFullDialogState = useJarvisStore(
+    (state) => state.pullFullDialogState,
+  );
+  useSWR("pullFullDialogState", pullFullDialogState);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: wsFlag is used to reconnect the websocket
   useEffect(() => {
@@ -35,10 +37,10 @@ const useConnect = () => {
       clearTimerReconnect();
     });
     ws.on("message", ({ data }) => {
-      const message = data as WsMessage;
+      const message = data as WsMessageDialogHistoryPatch;
       switch (message.type) {
-        case "chat-events-patch": {
-          applyChatStatePatch(message);
+        case "dialog-history-patch": {
+          applyDialogHistoryPatch(message);
           break;
         }
       }
