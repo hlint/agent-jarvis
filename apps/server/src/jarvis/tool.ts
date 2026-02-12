@@ -1,15 +1,12 @@
-import type { ToolCallChatEvent } from "@repo/shared/defines/chat-event";
-import { type FlexibleSchema, tool } from "ai";
-import { omit } from "es-toolkit";
+import type { AgentTool } from "@repo/shared/agent/defines/tool";
+import type z from "zod";
 import {
   listCronTasksTool,
   removeCronTaskTool,
   upsertCronTaskTool,
 } from "./built-in-tools/cron";
 import notifyTool from "./built-in-tools/notify";
-import requestConfirmationTool from "./built-in-tools/request-confirmation";
 import { reviewSkillTool } from "./built-in-tools/review-skill";
-import thinkTool from "./built-in-tools/think";
 import updateMemoryTool from "./built-in-tools/update-memory";
 import { upsertSkillTool } from "./built-in-tools/upsert-skill";
 import weatherForecastTool from "./built-in-tools/weather";
@@ -25,13 +22,11 @@ import { workspaceWriteFileTool } from "./built-in-tools/workspace-write-file";
 import type Jarvis from "./jarvis";
 
 export const builtInTools = [
-  thinkTool,
   weatherForecastTool,
   webSearchTool,
   webExtractTool,
   updateMemoryTool,
   notifyTool,
-  requestConfirmationTool,
   reviewSkillTool,
   upsertSkillTool,
   upsertCronTaskTool,
@@ -46,52 +41,29 @@ export const builtInTools = [
   workspaceGetInfoTool,
 ];
 
-export type JarvisTool<INPUT extends { brief: string } = { brief: string }> = {
+export type JarvisTool<INPUT extends {}> = {
   name: string;
   description: string;
-  inputSchema: FlexibleSchema<INPUT>;
+  inputSchema: z.ZodSchema<INPUT>;
   execute: (input: INPUT, jarvis: Jarvis) => Promise<any>;
 };
 
-export function defineJarvisTool<INPUT extends { brief: string }>(
+export function defineJarvisTool<INPUT extends {}>(
   t: JarvisTool<INPUT>,
 ): JarvisTool<INPUT> {
   return t;
 }
 
-export function createAiTools(jarvisTools: JarvisTool<any>[], jarvis: Jarvis) {
-  return Object.fromEntries(
-    jarvisTools.map((jarvisTool) => [
-      jarvisTool.name,
-      tool({
-        description: jarvisTool.description,
-        inputSchema: jarvisTool.inputSchema,
-        execute: async (input, { toolCallId }) => {
-          let result = null;
-          const toolCallChatEvent = jarvis.state
-            .getChatEvents()
-            .find((item): item is ToolCallChatEvent => item.id === toolCallId);
-          if (!toolCallChatEvent) {
-            throw new Error(`Tool call event not found: ${toolCallId}`);
-          }
-          toolCallChatEvent.brief = input.brief;
-          toolCallChatEvent.toolName = jarvisTool.name;
-          toolCallChatEvent.toolInput = omit(input, ["brief"]);
-          toolCallChatEvent.toolOutput = null;
-          toolCallChatEvent.pending = true;
-          jarvis.state.notifyStateChanged();
-          try {
-            result = await jarvisTool.execute(input, jarvis);
-          } catch (error) {
-            result = `Something went wrong: ${error}`;
-          }
-          toolCallChatEvent.toolOutput = result;
-          toolCallChatEvent.pending = false;
-          toolCallChatEvent.time = Date.now();
-          jarvis.state.notifyStateChanged();
-          return result;
-        },
-      }),
-    ]),
-  );
+export function createAiTools(
+  jarvisTools: JarvisTool<any>[],
+  jarvis: Jarvis,
+): AgentTool[] {
+  return jarvisTools.map((jarvisTool) => ({
+    name: jarvisTool.name,
+    description: jarvisTool.description,
+    inputSchema: jarvisTool.inputSchema,
+    execute: async (input) => {
+      return jarvisTool.execute(input, jarvis);
+    },
+  }));
 }

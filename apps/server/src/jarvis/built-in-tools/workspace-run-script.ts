@@ -11,7 +11,6 @@ export const workspaceRunScriptTool = defineJarvisTool({
   description:
     "Run a JavaScript file in the workspace with Bun. Path is relative to the workspace ws/ directory (e.g. 'a.js'). Optional args are passed as CLI arguments (script can read process.argv). Time and output size are limited. Returns stdout, stderr, and exit code.",
   inputSchema: z.object({
-    brief: z.string().describe("Short label, e.g. 'run a.js'"),
     path: z
       .string()
       .describe(

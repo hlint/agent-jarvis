@@ -10,6 +10,7 @@ export type HistoryEntry = {
   createdTime: string;
   updatedTime?: string;
   content?: string;
+  error?: string;
   action?: any;
   data?: any;
   brief?: string;

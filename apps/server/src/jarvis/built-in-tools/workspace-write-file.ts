@@ -9,11 +9,6 @@ export const workspaceWriteFileTool = defineJarvisTool({
   description:
     "Write content to one or more files in the workspace. Paths are relative to the workspace root. Creates parent directories if needed. The workspace .env file is protected and cannot be written. Returns an array of { path, success } or { path, error } per file.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this write, e.g. 'write scripts a.js and b.js'",
-      ),
     files: z
       .array(
         z.object({

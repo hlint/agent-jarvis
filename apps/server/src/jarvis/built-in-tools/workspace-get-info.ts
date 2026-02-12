@@ -7,9 +7,7 @@ export const workspaceGetInfoTool = defineJarvisTool({
   name: "workspace_get_info",
   description:
     "Get workspace information including installed npm packages and environment variable keys (values are masked). Returns formatted text with dependencies and env keys.",
-  inputSchema: z.object({
-    brief: z.string().describe("Short label, e.g. 'get workspace info'"),
-  }),
+  inputSchema: z.object({}),
   execute: async () => {
     const wsRoot = DIR_WORKSPACE;
     const packageJsonPath = `${wsRoot}/package.json`;

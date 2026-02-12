@@ -8,11 +8,6 @@ export const workspaceDeleteFileTool = defineJarvisTool({
   description:
     "Delete one or more files or directories in the workspace. Paths are relative to the workspace ws/ directory (e.g. 'a.js', 'temp/'). Deleting a directory removes it recursively. Returns an array of { path, success } or { path, error } per path.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this delete, e.g. 'delete old scripts a.js and b.js'",
-      ),
     paths: z
       .array(z.string())
       .min(1)

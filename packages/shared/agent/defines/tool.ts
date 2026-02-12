@@ -1,8 +1,8 @@
 import type z from "zod";
 
-export type AgentTool<T extends z.ZodSchema = z.ZodSchema> = {
+export type AgentTool<INPUT = unknown> = {
   name: string;
   description: string;
-  inputSchema: T;
-  execute: (input: z.infer<T>) => Promise<any>;
+  inputSchema: z.ZodSchema<INPUT>;
+  execute: (input: INPUT) => Promise<any>;
 };

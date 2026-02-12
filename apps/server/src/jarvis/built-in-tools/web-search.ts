@@ -8,11 +8,6 @@ const webSearchTool = defineJarvisTool({
   description:
     "Search the web to discover information. Use when you need to find sources, answers, or articles and do not already have the exact URL. Returns search results (snippets, links, summary). Do NOT use for getting the current content of a specific known page—use web-extract with that URL instead.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this search, e.g. the goal or query in a few words",
-      ),
     query: z.string().describe("The query to search the web for"),
     topic: z
       .enum(["general", "news", "finance"])

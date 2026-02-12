@@ -8,9 +8,6 @@ export const workspaceReadFileTool = defineJarvisTool({
   description:
     "Read one or more files from the workspace. Paths are relative to the workspace root (e.g. 'a.js' or 'src/foo.js'). Returns an array of { path, content } or { path, error } per file.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe("Short label for this read, e.g. 'read scripts a.js and b.js'"),
     paths: z
       .array(z.string())
       .min(1)

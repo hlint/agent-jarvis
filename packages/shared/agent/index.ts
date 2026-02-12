@@ -8,10 +8,11 @@ import processToolCalling from "./lib/process-tool";
 
 export default async function callAgent({
   maxSteps = 32,
-  ...context
+  ...props
 }: Omit<AgentContext, "lastThinkAction"> & {
   maxSteps?: number;
 }) {
+  const context: AgentContext = { ...props };
   let agentState: AgentState = "thinking";
   let steps = 0;
   while (steps < maxSteps) {
@@ -27,6 +28,7 @@ export default async function callAgent({
     switch (agentState) {
       case "thinking": {
         const thinkAction = await processThinking(context);
+        context.lastThinkAction = thinkAction;
         switch (thinkAction.type) {
           case "call-tools":
             agentState = "tool-calling";

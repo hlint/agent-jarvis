@@ -9,11 +9,6 @@ export const upsertCronTaskTool = defineJarvisTool({
   description:
     "Create or update a cron task by name. Use mode to specify create or update: create checks the task name does not exist; update checks the task exists. name must use only letters, numbers, - and _.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label, e.g. 'create daily-weather task' or 'update my-reminder'",
-      ),
     mode: z
       .enum(["create", "update"])
       .describe(

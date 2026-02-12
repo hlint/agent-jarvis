@@ -11,11 +11,6 @@ export const workspaceManageDeps = defineJarvisTool({
     "Add or remove npm packages in the workspace. Uses `bun add` and `bun rm` to modify workspace package.json. Provide at least one of `add` or `remove`.",
   inputSchema: z
     .object({
-      brief: z
-        .string()
-        .describe(
-          "Short label, e.g. 'add axios and lodash' or 'remove unused packages'",
-        ),
       add: z
         .array(z.string())
         .optional()

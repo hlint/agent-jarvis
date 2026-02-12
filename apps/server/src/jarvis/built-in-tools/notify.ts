@@ -6,11 +6,6 @@ const notifyTool = defineJarvisTool({
   description:
     "Notify user's cellphone with a message. This tool is used to notify the user about important events or tasks.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this notification, e.g. topic or why the user is notified",
-      ),
     message: z.string().describe("The message to notify the user with"),
     withWebNavigation: z
       .boolean()

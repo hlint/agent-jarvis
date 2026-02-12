@@ -10,9 +10,6 @@ export const reviewSkillTool = defineJarvisTool({
   description:
     "View the full documentation of a skill by its name. Returns the skill's name, description, and full body (detailed instructions). Use when you need to follow a skill's steps or check its usage.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe("Short label for this call, e.g. 'review cron skill'"),
     skillName: z
       .string()
       .regex(/^[a-zA-Z0-9_-]+$/, "仅允许字母、数字、连字符 - 和下划线 _")

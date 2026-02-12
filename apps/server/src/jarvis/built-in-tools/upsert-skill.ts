@@ -14,11 +14,6 @@ export const upsertSkillTool = defineJarvisTool({
   description:
     "Create or update a skill. newName/newDescription/newBody are optional in update mode only.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label, e.g. 'create travel-dest skill' or 'update cron'",
-      ),
     mode: z
       .enum(["create", "update"])
       .describe(

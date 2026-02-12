@@ -28,12 +28,18 @@ export default function JarvisThinking(historyEntry: HistoryEntry) {
           <SearchIcon />
         </Button>
       </div>
-      {content && isPending ? <ThinkingCard text={content} /> : null}
+      {content ? <ThinkingCard text={content} isAnimating={isPending} /> : null}
     </div>
   );
 }
 
-function ThinkingCard({ text }: { text: string }) {
+function ThinkingCard({
+  text,
+  isAnimating,
+}: {
+  text: string;
+  isAnimating: boolean;
+}) {
   const refBottom = useRef<HTMLDivElement>(null);
   // biome-ignore lint/correctness/useExhaustiveDependencies: we only want to scroll to the bottom when the text changes
   useEffect(() => {
@@ -48,7 +54,7 @@ function ThinkingCard({ text }: { text: string }) {
       <JarvisMarkdown
         className="overflow-auto space-y-0.5 text-sm"
         text={text}
-        isAnimating
+        isAnimating={isAnimating}
       />
       <div className="h-0.5" ref={refBottom} />
     </div>

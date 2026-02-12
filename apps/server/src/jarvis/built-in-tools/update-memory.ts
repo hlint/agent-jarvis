@@ -8,11 +8,6 @@ const updateMemoryTool = defineJarvisTool({
   description:
     "Replace the entire memory file content with the given content. This is a full replacement, not a partial update - the entire memory file will be overwritten.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this memory update, e.g. what changed or what you're storing",
-      ),
     content: z
       .string()
       .describe(
