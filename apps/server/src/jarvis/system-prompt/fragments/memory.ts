@@ -1,8 +1,6 @@
 import type Jarvis from "../../jarvis";
 
-export const MEMORY_HEADER = `LONG-TERM MEMORY
-
-长期记忆存储需要持久记住的关键信息，任何不在长期记忆中的信息都可能被遗忘。你可以使用工具 [update-memory] 来更新它。
+export const MEMORY_HEADER = `存储需持久记住的关键信息，未在此的信息可能被遗忘。使用工具 [update-memory] 更新。
 
 ⚠️ 重要警告：update-memory 工具会完全覆盖整个记忆文件，不是局部修改。调用时必须：
 1. 基于你的当前长期记忆内容

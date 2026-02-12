@@ -4,7 +4,7 @@ import { defineJarvisTool } from "../tool";
 const notifyTool = defineJarvisTool({
   name: "notify",
   description:
-    "Notify user's devices with a message. This tool is used to notify the user about important events or tasks.",
+    "Notify user's cellphone with a message. This tool is used to notify the user about important events or tasks.",
   inputSchema: z.object({
     brief: z
       .string()

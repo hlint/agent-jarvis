@@ -8,11 +8,9 @@ import fm from "front-matter";
 import fs from "fs-extra";
 import { DIR_SKILLS } from "../../defines";
 
-export const SKILL_HEADER = `SKILL
+export const SKILL_HEADER = `一种能力包：用说明文字教你在某领域或任务上该怎么做事，相当于「入职指南」。
 
-SKILL 是一种能力包：用一段说明文字教你在某个领域或任务上该怎么做事，相当于该任务的「入职指南」。通过 SKILL，你可以从通用助手变成在特定任务上有专门知识的专家。
-
-每个 SKILL 包含三个属性：
+每个 SKILL 包含：
 - **name**：技能名称，仅允许英文字母、数字及符号 - 和 _，用于唯一标识（如 weather、travel-dest、summarize）。
 - **description**：简短说明该技能做什么、在什么情况下使用。你主要依据 description 决定是否使用该技能，请把「做什么」和「何时用」写清楚。
 - **body**：具体使用说明与步骤（流程、命令、经验、示例等）。只有在你决定使用该技能后才会被加载进上下文，用于指导执行。

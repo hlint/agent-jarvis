@@ -1,27 +1,16 @@
 import type Jarvis from "../jarvis";
-import { DELIM } from "./constants";
+import { section } from "./constants";
 import { getMemorySection } from "./fragments/memory";
 import { getSkillSection } from "./fragments/skill";
 import { WORKFLOW_INTRO } from "./fragments/workflow";
 
-/**
- * 首轮与后续轮共用的提示词尾部：WORKFLOW、CRON、SKILL、MEMORY。
- */
+/** 首轮与后续轮共用的提示词尾部：工作流程、技能、长期记忆。 */
 export function buildPromptTail(jarvis: Jarvis, workflowSteps: string): string {
-  return `${DELIM}
+  return `${section("4. 工作流程", `${WORKFLOW_INTRO}\n\n${workflowSteps}`)}
 
-${WORKFLOW_INTRO}
+${section("5. 技能", getSkillSection())}
 
-${workflowSteps}
+${section("6. 长期记忆", getMemorySection(jarvis))}
 
-${DELIM}
-
-${getSkillSection()}
-
-${DELIM}
-
-${getMemorySection(jarvis)}
-
-${DELIM}
 END OF SYSTEM INSTRUCTIONS`;
 }

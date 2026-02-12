@@ -1,7 +1,7 @@
 import type Jarvis from "../jarvis";
 import { getTimeString } from "../utils";
 import { buildPromptTail } from "./buildPromptTail";
-import { DELIM } from "./constants";
+import { section } from "./constants";
 import { CONTINUITY_AWARENESS } from "./fragments/continuity";
 import { IDENTITY } from "./fragments/identity";
 import { LINKS } from "./fragments/links";
@@ -9,23 +9,15 @@ import { TASK_PLANNING_BASE } from "./fragments/task-planning";
 import { THINK_REPLY } from "./fragments/think-reply";
 import { WORKFLOW_STEPS_LATER_ROUND } from "./fragments/workflow";
 
-const THINK_REQUIREMENT_LATER =
-  "可自行决定是否先使用 [think] 记录情境与计划；在复杂或容易混淆时建议先思考。";
-
 export function buildLaterRoundPrompt(jarvis: Jarvis): string {
   return `SYSTEM INSTRUCTIONS
 [Current Time: ${getTimeString()}]
-${DELIM}
 
-${IDENTITY}
+${section("1. 身份与基础", IDENTITY)}
 
-${LINKS}
+${section("2. 输出规范", `${LINKS}\n\n${THINK_REPLY}\n\n${CONTINUITY_AWARENESS}`)}
 
-${THINK_REPLY}
-
-${CONTINUITY_AWARENESS}
-
-■ 任务分析与规划：每当被系统调用时（无论是用户提问、工具返回结果还是定时任务等），${THINK_REQUIREMENT_LATER} [think] 仅用于记录推理过程，不会作为给用户的最终回复。在此基础上按以下步骤推进：${TASK_PLANNING_BASE}
+${section("3. 任务规划", `每当被系统调用时（用户提问、工具返回、定时任务等），可自行决定是否先用 [think] 记录；复杂情境建议先思考。[think] 仅用于推理记录，不作为用户可见回复。\n\n按以下步骤推进：${TASK_PLANNING_BASE}`)}
 
 ${buildPromptTail(jarvis, WORKFLOW_STEPS_LATER_ROUND)}`;
 }
