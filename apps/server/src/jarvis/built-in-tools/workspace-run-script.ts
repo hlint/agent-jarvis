@@ -9,12 +9,12 @@ const MAX_OUTPUT_BYTES = 2 * 1024 * 1024; // 2MB
 export const workspaceRunScriptTool = defineJarvisTool({
   name: "workspace_run_script",
   description:
-    "Run a JavaScript file in the workspace with Bun. Path is relative to the workspace ws/ directory (e.g. 'a.js'). Optional args are passed as CLI arguments (script can read process.argv). Time and output size are limited. Returns stdout, stderr, and exit code.",
+    "Run a JavaScript file in the workspace with Bun. Path is relative to the workspace root (e.g. 'a.js' or 'scripts/foo.js'). Optional args are passed as CLI arguments (script can read process.argv). Time and output size are limited. Returns stdout, stderr, and exit code.",
   inputSchema: z.object({
     path: z
       .string()
       .describe(
-        "Path to the script relative to workspace root (must start with 'ws/'), e.g. 'ws/a.js'",
+        "Path to the script relative to workspace root, e.g. 'a.js' or 'scripts/foo.js'",
       ),
     args: z
       .array(z.string())

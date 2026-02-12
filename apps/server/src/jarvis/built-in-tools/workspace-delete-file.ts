@@ -6,7 +6,7 @@ import { getWorkspaceAbsolutePath } from "../workspace";
 export const workspaceDeleteFileTool = defineJarvisTool({
   name: "workspace_delete_file",
   description:
-    "Delete one or more files or directories in the workspace. Paths are relative to the workspace ws/ directory (e.g. 'a.js', 'temp/'). Deleting a directory removes it recursively. Returns an array of { path, success } or { path, error } per path.",
+    "Delete one or more files or directories in the workspace. Paths are relative to the workspace root (e.g. 'a.js', 'temp/', 'old-scripts/'). Deleting a directory removes it recursively. Returns an array of { path, success } or { path, error } per path.",
   inputSchema: z.object({
     paths: z
       .array(z.string())

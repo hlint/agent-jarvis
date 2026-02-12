@@ -2,6 +2,7 @@ import callAgent from "@repo/shared/agent/index";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
 import { env } from "bun";
+import buildAgentPrompt from "./agent-prompt";
 import type Jarvis from "./jarvis";
 import { builtInTools, createAiTools } from "./tool";
 /**
@@ -35,7 +36,7 @@ export default class Runner {
       llmBaseUrl: env.LLM_BASE_URL,
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
-      additionalAgentInformation: "",
+      additionalAgentInformation: buildAgentPrompt(this.jarvis),
       onDialogHistoryChange: () => {
         this.jarvis.state.notifyStateChanged();
       },

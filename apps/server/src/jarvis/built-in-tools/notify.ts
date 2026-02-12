@@ -9,8 +9,9 @@ const notifyTool = defineJarvisTool({
     message: z.string().describe("The message to notify the user with"),
     withWebNavigation: z
       .boolean()
+      .optional()
       .describe(
-        "If true: clicking the notification opens the project's deployed site (Jarvis web app). Use when this is a heads-up only and the user should open the app to see full details. If false: no link on click; use for simple alerts or when the message is self-contained and the user does not need to open the web app.",
+        "If true: clicking the notification opens the website that the user uses to chat with the AI. Use when this is a heads-up only and the user should open the website to see full details. If false: no link on click; use for simple alerts or when the message is self-contained and the user does not need to open the website.",
       ),
   }),
   execute: async ({ message, withWebNavigation }) => {

@@ -6,8 +6,13 @@ import { Button } from "../ui/button";
 import JarvisMarkdown from "./markdown";
 
 export default function JarvisThinking(historyEntry: HistoryEntry) {
-  const { status, content } = historyEntry;
+  const { status, content = "", action = null } = historyEntry;
   const isPending = status === "pending";
+  const thinkingText =
+    content +
+    (action
+      ? `\n\n\`\`\`json\n${JSON.stringify(action, null, 2)}\n\`\`\``
+      : "");
   return (
     <div className={cn("flex flex-col gap-2")}>
       <div className="flex flex-row gap-2 items-center pl-1 text-muted-foreground">
@@ -16,7 +21,9 @@ export default function JarvisThinking(historyEntry: HistoryEntry) {
         ) : (
           <CheckIcon className="size-4 shrink-0 " />
         )}
-        <span className="text-sm">{isPending ? "Planning..." : "Planned"}</span>
+        <span className="text-sm">
+          {isPending ? "Thinking..." : "Thoughts Generated"}
+        </span>
         <Button
           variant="ghost"
           size="icon-sm"
@@ -28,7 +35,9 @@ export default function JarvisThinking(historyEntry: HistoryEntry) {
           <SearchIcon />
         </Button>
       </div>
-      {content ? <ThinkingCard text={content} isAnimating={isPending} /> : null}
+      {thinkingText ? (
+        <ThinkingCard text={thinkingText} isAnimating={isPending} />
+      ) : null}
     </div>
   );
 }
@@ -50,9 +59,9 @@ function ThinkingCard({
     }
   }, [text]);
   return (
-    <div className="bg-muted opacity-70 p-4 rounded-lg overflow-auto max-h-40">
+    <div className="px-7 py-1 rounded-lg overflow-auto max-h-40 ">
       <JarvisMarkdown
-        className="overflow-auto space-y-0.5 text-sm"
+        className="overflow-auto space-y-1 text-sm"
         text={text}
         isAnimating={isAnimating}
       />
