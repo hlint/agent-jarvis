@@ -1,4 +1,5 @@
 import type { DialogHistory } from "./history";
+import type { ThinkAction } from "./think-action";
 import type { Tool } from "./tool";
 
 export type AgentContext = {
@@ -9,4 +10,5 @@ export type AgentContext = {
   dialogHistory: DialogHistory;
   additionalThinkingInformation: string;
   onDialogHistoryChange: () => void;
+  lastThinkAction?: ThinkAction;
 };

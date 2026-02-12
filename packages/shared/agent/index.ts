@@ -1,24 +1,13 @@
 import type { AgentContext } from "./defines/context";
 import type { AgentState } from "./defines/runtime";
 import processThinking from "./lib/process-thinking";
+import processToolCalling from "./lib/process-tool";
 
-export default async function callAgent({
-  tools = [],
-  llmModel,
-  llmApiKey,
-  llmBaseUrl,
-  additionalThinkingInformation = "",
-  dialogHistory = [],
-  onDialogHistoryChange = () => {},
-}: AgentContext) {
+export default async function callAgent(
+  params: Omit<AgentContext, "lastThinkAction">,
+) {
   const context: AgentContext = {
-    tools,
-    dialogHistory,
-    additionalThinkingInformation,
-    llmModel,
-    llmApiKey,
-    llmBaseUrl,
-    onDialogHistoryChange,
+    ...params,
   };
   let agentState: AgentState = "thinking";
   while (true) {
@@ -39,6 +28,8 @@ export default async function callAgent({
         break;
       }
       case "tool-calling":
+        await processToolCalling(context);
+        agentState = "thinking";
         break;
       case "outputting":
         break;

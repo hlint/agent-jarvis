@@ -1,7 +1,8 @@
 import type z from "zod";
 
-export type Tool = {
+export type Tool<T extends z.ZodSchema> = {
   name: string;
   description: string;
-  inputSchema: z.ZodSchema;
+  inputSchema: T;
+  execute: (input: z.infer<T>) => Promise<any>;
 };

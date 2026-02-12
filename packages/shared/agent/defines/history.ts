@@ -12,6 +12,8 @@ export type HistoryEntry = {
   content?: string;
   action?: any;
   data?: any;
+  input?: any;
+  output?: any;
 };
 
 export type DialogHistory = HistoryEntry[];

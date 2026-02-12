@@ -20,6 +20,8 @@ export const CallToolsActionSchema = z.object({
   ),
 });
 
+export type CallToolsAction = z.infer<typeof CallToolsActionSchema>;
+
 export const OutputActionSchema = z.object({
   type: z.literal("output-content"),
   outputInstruction: z
@@ -38,3 +40,5 @@ export const ThinkActionSchema = z.union([
   OutputActionSchema,
   SilentActionSchema,
 ]);
+
+export type ThinkAction = z.infer<typeof ThinkActionSchema>;
