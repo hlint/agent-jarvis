@@ -24,6 +24,7 @@ export default async function processToolCalling({
       toolInput: toolCall.input,
       toolOutput: null,
     });
+    onDialogHistoryChange();
 
     tasks.push(
       (async () => {
