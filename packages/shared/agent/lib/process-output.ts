@@ -26,33 +26,42 @@ export default async function processOutput({
   };
   dialogHistory.push(entry);
   onDialogHistoryChange();
-  await callLlm({
-    model: llmModel,
-    apiKey: llmApiKey,
-    baseURL: llmBaseUrl,
-    dialog: [
-      {
-        role: "system",
-        content: parsePrompt(outputContentPrompt, {
-          "tool-descriptions": getToolsInfo(tools),
-        }),
+  try {
+    await callLlm({
+      model: llmModel,
+      apiKey: llmApiKey,
+      baseURL: llmBaseUrl,
+      dialog: [
+        {
+          role: "system",
+          content: parsePrompt(outputContentPrompt, {
+            "tool-descriptions": getToolsInfo(tools),
+          }),
+        },
+        {
+          role: "user",
+          content: `Here are some information about the agent and this full dialog history:
+	
+	Current Time: ${timeFormat()}
+	${additionalAgentInformation}
+	
+	Dialog History:
+	${JSON.stringify(clonedDialogHistory)}
+	`,
+        },
+      ],
+      onStream: (content) => {
+        entry.content = content;
+        entry.updatedTime = timeFormat();
+        onDialogHistoryChange();
       },
-      {
-        role: "user",
-        content: `Here are some information about the agent and this full dialog history:
-
-Current Time: ${timeFormat()}
-${additionalAgentInformation}
-
-Dialog History:
-${JSON.stringify(clonedDialogHistory)}
-`,
-      },
-    ],
-    onStream: (content) => {
-      entry.content = content;
-      entry.updatedTime = timeFormat();
-      onDialogHistoryChange();
-    },
-  });
+    });
+  } catch (error) {
+    entry.status = "failed";
+    entry.content = `Something went wrong when outputting content.`;
+    entry.error = error instanceof Error ? error.message : String(error);
+    entry.updatedTime = timeFormat();
+    onDialogHistoryChange();
+    throw error;
+  }
 }

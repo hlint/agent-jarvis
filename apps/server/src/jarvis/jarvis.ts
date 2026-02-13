@@ -13,6 +13,7 @@ export default class Jarvis {
   public state = new JarvisStateManager(this);
   public memory = new JarvisMemory();
   public cron = new JarvisCron(this);
+  public retryCount = 0;
 
   constructor() {
     init(this);
@@ -25,6 +26,7 @@ export default class Jarvis {
       createdTime: timeFormat(),
       content: content,
     });
+    this.retryCount = 0;
     this.runner.runNext();
   }
 

@@ -40,7 +40,9 @@ export default async function processToolCalling({
             entry.status = "completed";
           } catch (error) {
             entry.status = "failed";
-            entry.toolOutput = `Something went wrong: ${error}`;
+            entry.error =
+              error instanceof Error ? error.message : String(error);
+            entry.toolOutput = `Something went wrong when this tool was called. `;
           }
           entry.updatedTime = timeFormat();
           onDialogHistoryChange();

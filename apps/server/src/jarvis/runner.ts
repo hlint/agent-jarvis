@@ -5,6 +5,9 @@ import { env } from "bun";
 import buildAgentPrompt from "./agent-prompt";
 import type Jarvis from "./jarvis";
 import { builtInTools, createAiTools } from "./tool";
+
+const MAX_RETRY_COUNT = 3;
+
 /**
  * Runner 负责执行 AI 对话的核心循环逻辑
  * 处理消息流、工具调用和状态管理
@@ -30,7 +33,7 @@ export default class Runner {
     const dialogHistory = this.jarvis.state.getState().dialogHistory;
 
     // 调用 AI 对话
-    await callAgent({
+    const { stoppedReason, stoppedBy } = await callAgent({
       llmModel: env.LLM_MODEL!,
       llmApiKey: env.LLM_API_KEY!,
       llmBaseUrl: env.LLM_BASE_URL,
@@ -40,16 +43,56 @@ export default class Runner {
       onDialogHistoryChange: () => {
         this.jarvis.state.notifyStateChanged();
       },
-    }).catch((error) => {
-      dialogHistory.push({
-        id: shortId(),
-        role: "system-event",
-        createdTime: timeFormat(),
-        content: "Something went wrong, please try again later.",
-        error: error instanceof Error ? error.message : String(error),
-      });
-      this.jarvis.state.notifyStateChanged();
     });
+
+    switch (stoppedBy) {
+      case "completed":
+        break;
+      case "user":
+        this.jarvis.state.newHistoryEntry({
+          id: shortId(),
+          role: "system-event",
+          createdTime: timeFormat(),
+          brief: "Aborted.",
+          content: "The agent's execution has been aborted by user.",
+        });
+        break;
+      case "max-steps-reached":
+        this.jarvis.state.newHistoryEntry({
+          id: shortId(),
+          role: "system-event",
+          createdTime: timeFormat(),
+          brief: "Maximum steps reached.",
+          content:
+            'The agent has reached the maximum number of steps and stopped by system. Please ask the user to continue the conversation. (e.g. "Sorry, I have reached the maximum number of steps. Should I continue?")',
+        });
+        break;
+      case "error":
+        if (this.jarvis.retryCount < MAX_RETRY_COUNT) {
+          this.jarvis.retryCount++;
+          this.jarvis.state.newHistoryEntry({
+            id: shortId(),
+            role: "system-event",
+            createdTime: timeFormat(),
+            brief: `Runtime Error, Retrying... (Attempt ${this.jarvis.retryCount}/${MAX_RETRY_COUNT})`,
+            content: "Something went wrong during the agent execution.",
+            error: stoppedReason,
+          });
+          this.needRunNext = true;
+        } else {
+          this.jarvis.state.newHistoryEntry({
+            id: shortId(),
+            role: "system-event",
+            createdTime: timeFormat(),
+            brief: "Runtime Error, Maximum retries reached.",
+            content:
+              "Something went wrong and cannot be recovered by AI Agent, wait for user to continue.",
+            error: stoppedReason,
+          });
+          this.needRunNext = false;
+        }
+        break;
+    }
 
     // 释放锁
     this.busy = false;

@@ -32,43 +32,52 @@ export default async function processThinking({
   };
   dialogHistory.push(entry);
   onDialogHistoryChange();
-  const response = await callLlm({
-    model: llmModel,
-    apiKey: llmApiKey,
-    baseURL: llmBaseUrl,
-    dialog: [
-      {
-        role: "system",
-        content: parsePrompt(thinkPrompt, {
-          "tool-descriptions": getToolsInfo(tools),
-        }),
+  try {
+    const response = await callLlm({
+      model: llmModel,
+      apiKey: llmApiKey,
+      baseURL: llmBaseUrl,
+      dialog: [
+        {
+          role: "system",
+          content: parsePrompt(thinkPrompt, {
+            "tool-descriptions": getToolsInfo(tools),
+          }),
+        },
+        {
+          role: "user",
+          content: `Here are some information about the agent and this full dialog history:
+	
+	Current Time: ${timeFormat()}
+	${additionalAgentInformation}
+	
+	Dialog History:
+	${JSON.stringify(clonedDialogHistory)}
+	`,
+        },
+      ],
+      onStream: (content) => {
+        entry.content = parseLlmResultBeforeDivider(content);
+        entry.updatedTime = timeFormat();
+        onDialogHistoryChange();
       },
-      {
-        role: "user",
-        content: `Here are some information about the agent and this full dialog history:
-
-Current Time: ${timeFormat()}
-${additionalAgentInformation}
-
-Dialog History:
-${JSON.stringify(clonedDialogHistory)}
-`,
-      },
-    ],
-    onStream: (content) => {
-      entry.content = parseLlmResultBeforeDivider(content);
-      entry.updatedTime = timeFormat();
-      onDialogHistoryChange();
-    },
-  });
-  const [reasoning, thinkAction] = parseLlmResultWithDivider(
-    response.text,
-    ThinkActionSchema,
-  );
-  entry.status = "completed";
-  entry.content = reasoning;
-  entry.action = thinkAction;
-  entry.updatedTime = timeFormat();
-  onDialogHistoryChange();
-  return thinkAction;
+    });
+    const [reasoning, thinkAction] = parseLlmResultWithDivider(
+      response.text,
+      ThinkActionSchema,
+    );
+    entry.status = "completed";
+    entry.content = reasoning;
+    entry.action = thinkAction;
+    entry.updatedTime = timeFormat();
+    onDialogHistoryChange();
+    return thinkAction;
+  } catch (error) {
+    entry.status = "failed";
+    entry.content = `Something went wrong: ${error}`;
+		entry.error = error instanceof Error ? error.message : String(error);
+    entry.updatedTime = timeFormat();
+    onDialogHistoryChange();
+    throw error;
+  }
 }
