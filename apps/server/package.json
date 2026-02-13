@@ -4,9 +4,9 @@
   "module": "src/index.js",
   "scripts": {
     "check-types": "tsc --noEmit",
-    "compile:server": "rm -rf dist && bun compile:server:code && bun compile:server:assets && bun compile:server:runtime-example",
+    "compile:server": "rm -rf dist && bun compile:server:code && bun compile:server:assets && bun compile:server:init-runtime",
     "compile:server:assets": "cp -r ../frontend/dist/ dist/html",
-    "compile:server:runtime-example": "cp -r ../../runtime-example/ runtime-example",
+    "compile:server:init-runtime": "cp -r ../../runtime-example/ runtime-example",
     "compile:server:code": "bun build src/index.ts --outfile dist/index.js --minify --target bun --production",
     "dev": "IS_DEV=1 bun run --env-file ../../.env --watch src/index.ts",
     "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json",

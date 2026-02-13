@@ -11,7 +11,7 @@ export type WsMessageDialogHistoryPatch = {
   diff: any;
 };
 
-export type JarvisState = {
+export type JarvisChatState = {
   snapshotId: string;
   dialogHistory: DialogHistory;
 };

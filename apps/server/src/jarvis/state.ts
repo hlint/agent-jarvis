@@ -2,7 +2,7 @@ import type {
   DialogHistory,
   HistoryEntry,
 } from "@repo/shared/agent/defines/history";
-import type { JarvisState } from "@repo/shared/defines/jarvis";
+import type { JarvisChatState } from "@repo/shared/defines/jarvis";
 import { createDiff } from "@repo/shared/lib/state-sync";
 import { cloneDeep, debounce } from "es-toolkit";
 import fs from "fs-extra";
@@ -22,7 +22,7 @@ export class JarvisStateManager {
 
   init() {
     try {
-      const chatState = fs.readJSONSync(PATH_CHAT_STATE) as JarvisState;
+      const chatState = fs.readJSONSync(PATH_CHAT_STATE) as JarvisChatState;
       this.setState(chatState);
       this.previousDialogHistory = cloneDeep(this.dialogHistory);
     } catch (_error) {
@@ -30,12 +30,12 @@ export class JarvisStateManager {
     }
   }
 
-  setState(state: JarvisState) {
+  setState(state: JarvisChatState) {
     this.snapshotId = state.snapshotId;
     this.dialogHistory = state.dialogHistory;
   }
 
-  getState(): JarvisState {
+  getState(): JarvisChatState {
     return {
       snapshotId: this.snapshotId,
       dialogHistory: this.dialogHistory,
