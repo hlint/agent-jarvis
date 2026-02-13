@@ -8,7 +8,7 @@ import { defineJarvisTool } from "../tool";
 export const reviewSkillTool = defineJarvisTool({
   name: "review-skill",
   description:
-    "View the full documentation of a skill by its name. Returns the skill's name, description, and full body (detailed instructions). Use when you need to follow a skill's steps or check its usage.",
+    "View the full documentation of a skill by its name. Returns the skill's name, description, whenToReview, information, and full body (detailed instructions). Use when you need to follow a skill's steps or check its usage.",
   inputSchema: z.object({
     skillName: z
       .string()
@@ -26,13 +26,18 @@ export const reviewSkillTool = defineJarvisTool({
       };
     }
     const raw = fs.readFileSync(path, "utf-8");
-    const { attributes, body } = fm<{ name?: string; description?: string }>(
-      raw,
-    );
+    const { attributes, body } = fm<{
+      name?: string;
+      description?: string;
+      whenToReview?: string;
+      tips?: string;
+    }>(raw);
     return {
       found: true,
       name: attributes.name ?? skillName,
       description: attributes.description ?? "",
+      whenToReview: attributes.whenToReview ?? "",
+      tips: attributes.tips ?? "",
       body: body.trim(),
     };
   },

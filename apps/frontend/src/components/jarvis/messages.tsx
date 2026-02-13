@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
-import JarvisMessage from "./message";
-import JarvisSystemEvent from "./system-event";
-import JarvisThinking from "./thinking";
-import JarvisToolCall from "./tool-call";
+import JarvisAssistantEntry from "./entry/assistant";
+import JarvisSystemEventEntry from "./entry/system-event";
+import JarvisThinkingEntry from "./entry/thinking";
+import JarvisToolCallEntry from "./entry/tool-call";
+import JarvisUserEntry from "./entry/user";
 import useJarvisStore from "./use-jarvis-store";
 import JarvisWelcome from "./welcome";
 
@@ -34,23 +35,32 @@ export default function JarvisMessages() {
       {dialogHistory.map((historyEntry) => {
         switch (historyEntry.role) {
           case "user":
-          case "agent-reply":
             return (
-              <JarvisMessage
+              <JarvisUserEntry
                 key={historyEntry.id}
                 text={historyEntry.content ?? ""}
-                type={historyEntry.role}
-                isAnimating={historyEntry.status === "pending"}
+              />
+            );
+          case "agent-reply":
+            return (
+              <JarvisAssistantEntry
+                key={historyEntry.id}
+                text={historyEntry.content ?? ""}
+                status={historyEntry.status ?? "pending"}
               />
             );
           case "agent-tool-call":
-            return <JarvisToolCall key={historyEntry.id} {...historyEntry} />;
+            return (
+              <JarvisToolCallEntry key={historyEntry.id} {...historyEntry} />
+            );
           case "system-event":
             return (
-              <JarvisSystemEvent key={historyEntry.id} {...historyEntry} />
+              <JarvisSystemEventEntry key={historyEntry.id} {...historyEntry} />
             );
           case "agent-thinking":
-            return <JarvisThinking key={historyEntry.id} {...historyEntry} />;
+            return (
+              <JarvisThinkingEntry key={historyEntry.id} {...historyEntry} />
+            );
           default:
             return null;
         }

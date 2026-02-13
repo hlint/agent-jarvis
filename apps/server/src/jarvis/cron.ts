@@ -1,6 +1,6 @@
 import { timeFormat } from "@repo/shared/lib/time";
 import { CronJob } from "cron";
-import { debounce, omit, pick } from "es-toolkit";
+import { debounce, pick } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import { PATH_CRON_TASKS } from "./defines";
@@ -52,7 +52,7 @@ export default class JarvisCron {
           id: nanoid(6),
           role: "system-event",
           createdTime: timeFormat(),
-          content: `Cron task ${task.name} triggered`,
+          brief: `Cron task ${task.name} triggered`,
           data: {
             taskName: task.name,
             oneTimeTrigger: task.oneTimeTrigger,
@@ -99,7 +99,7 @@ export default class JarvisCron {
     this.cronTasks.push(newTask);
     this.resetCronJobs();
     return {
-      ...omit(newTask, ["cronJob"]),
+      ...pick(newTask, ["name", "enabled"]),
       nextTriggerTime: getNextTriggerTime(newTask.cronPattern),
     };
   }
@@ -130,7 +130,7 @@ export default class JarvisCron {
     this.cronTasks[index] = updated;
     this.resetCronJobs();
     return {
-      ...omit(updated, ["cronJob"]),
+      ...pick(updated, ["name", "enabled"]),
       nextTriggerTime: getNextTriggerTime(updated.cronPattern),
     };
   }

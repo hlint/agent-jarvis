@@ -64,4 +64,7 @@ export default async function processOutput({
     onDialogHistoryChange();
     throw error;
   }
+  entry.status = "completed";
+  entry.updatedTime = timeFormat();
+  onDialogHistoryChange();
 }

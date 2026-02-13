@@ -74,8 +74,8 @@ export default async function processThinking({
     return thinkAction;
   } catch (error) {
     entry.status = "failed";
-    entry.content = `Something went wrong: ${error}`;
-		entry.error = error instanceof Error ? error.message : String(error);
+    entry.content = `Something went wrong during reasoning.`;
+    entry.error = error instanceof Error ? error.message : String(error);
     entry.updatedTime = timeFormat();
     onDialogHistoryChange();
     throw error;

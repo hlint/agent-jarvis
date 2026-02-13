@@ -27,7 +27,7 @@ export const OutputActionSchema = z.object({
   outputInstruction: z
     .string()
     .describe(
-      "Instructions for how the output node should present the content. The instruction should be concise, as the output node can access all context. Use an instructive tone, for example: 'Combine the search results and the note content to provide a comprehensive answer.'",
+      "Instructions for how the output node should present the content. Only provide guidance and requirements, not the complete output content.",
     ),
 });
 

@@ -4,23 +4,25 @@ import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
 import { mermaid } from "@streamdown/mermaid";
 import { Streamdown } from "streamdown";
+import { cn } from "@/lib/utils";
 
 export default function JarvisMarkdown({
-  text,
+  text = "",
   isAnimating,
   className,
 }: {
-  text: string;
+  text?: string;
   isAnimating?: boolean;
   className?: string;
 }) {
+  const content = text;
   return (
     <Streamdown
-      className={className}
+      className={cn("overflow-auto", className)}
       plugins={{ code, mermaid, math, cjk }}
       isAnimating={isAnimating}
     >
-      {text}
+      {content}
     </Streamdown>
   );
 }

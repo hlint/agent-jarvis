@@ -20,46 +20,39 @@ export const upsertCronTaskTool = defineJarvisTool({
       .describe(
         "Unique task name (e.g. daily-weather, my-reminder). When updating, the current name.",
       ),
-    newName: z
-      .string()
-      .regex(CRON_NAME_REGEX, CRON_NAME_MSG)
-      .optional()
-      .describe("New name when updating (optional)."),
-    newDescription: z
-      .string()
-      .optional()
-      .describe(
-        "Self-contained task description for when the cron triggers. Required when creating.",
-      ),
-    newCronPattern: z
-      .string()
-      .optional()
-      .describe("Cron pattern (e.g. '0 0 * * *'). Required when creating."),
-    newOneTimeTrigger: z
-      .boolean()
-      .optional()
-      .describe(
-        "If true, task is deleted after one trigger. Optional when updating.",
-      ),
-    newEnabled: z
-      .boolean()
-      .optional()
-      .describe(
-        "If false, the task is paused and the timer will not run. Optional when updating.",
-      ),
+    data: z
+      .object({
+        name: z
+          .string()
+          .regex(CRON_NAME_REGEX, CRON_NAME_MSG)
+          .optional()
+          .describe("New name when updating (optional)."),
+        description: z
+          .string()
+          .optional()
+          .describe(
+            "Self-contained task description for when the cron triggers. Required when creating.",
+          ),
+        cronPattern: z
+          .string()
+          .optional()
+          .describe("Cron pattern (e.g. '0 0 * * *'). Required when creating."),
+        oneTimeTrigger: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, task is deleted after one trigger. Optional when updating.",
+          ),
+        enabled: z
+          .boolean()
+          .optional()
+          .describe(
+            "If false, the task is paused and the timer will not run. Optional when updating.",
+          ),
+      })
+      .describe("Task data fields to create or update."),
   }),
-  execute: async (
-    {
-      mode,
-      name,
-      newName,
-      newDescription,
-      newCronPattern,
-      newOneTimeTrigger,
-      newEnabled,
-    },
-    jarvis,
-  ) => {
+  execute: async ({ mode, name, data }, jarvis) => {
     const exists = jarvis.cron
       .listCronTasks()
       .some((t: { name: string }) => t.name === name);
@@ -71,18 +64,19 @@ export const upsertCronTaskTool = defineJarvisTool({
           message: `无法创建：已存在名为「${name}」的定时任务。`,
         };
       }
-      if (newDescription === undefined || newCronPattern === undefined) {
+      if (data.description === undefined || data.cronPattern === undefined) {
         return {
           success: false,
-          message: "创建定时任务时 description 和 cronPattern 为必填。",
+          message:
+            "创建定时任务时 data.description 和 data.cronPattern 为必填。",
         };
       }
       return jarvis.cron.createCronTask({
         name,
-        description: newDescription,
-        cronPattern: newCronPattern,
-        oneTimeTrigger: newOneTimeTrigger ?? false,
-        enabled: newEnabled !== false,
+        description: data.description,
+        cronPattern: data.cronPattern,
+        oneTimeTrigger: data.oneTimeTrigger ?? false,
+        enabled: data.enabled !== false,
       });
     }
 
@@ -94,11 +88,11 @@ export const upsertCronTaskTool = defineJarvisTool({
       };
     }
     const result = jarvis.cron.updateCronTask(name, {
-      name: newName,
-      description: newDescription,
-      cronPattern: newCronPattern,
-      oneTimeTrigger: newOneTimeTrigger ?? false,
-      enabled: newEnabled,
+      name: data.name,
+      description: data.description,
+      cronPattern: data.cronPattern,
+      oneTimeTrigger: data.oneTimeTrigger ?? false,
+      enabled: data.enabled,
     });
     if (result === null) {
       return {

@@ -1,6 +1,8 @@
 ---
 name: cron
-description: 定时任务管理，支持创建、删除、列表、查询定时任务。
+description: 如何更好地管理和执行定时任务
+whenToReview: 创建或更新任务时推荐review，首次使用定时任务功能时必须review
+tips: cron 格式：分 时 日 月 周，如 0 9 * * 1-5 表示每周一至五 9:00，*/15 * * * * 表示每 15 分钟
 ---
 
 # 定时任务

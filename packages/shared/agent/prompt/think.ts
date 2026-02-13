@@ -48,6 +48,7 @@ You must choose exactly one of [call-tools], [output-content], or [silent].
 - Used to output some content and end the conversation
 - DO NOT choose this action when there are still some actions to be taken
 - The system will hand over control to the output node, the user will see the output content, the conversation will end, and wait for new needs
+- IMPORTANT: The outputInstruction field should only contain guidance and requirements (e.g., "Summarize the search results and provide recommendations", "Explain the key findings from the tool results"), NOT the complete output content. The output node has access to all the same context as you, so it only needs instructions on what to do and how to present it, not the actual content to output.
 
 [silent]
 - Used to end the conversation without outputting any text to the user

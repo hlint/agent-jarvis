@@ -3,7 +3,7 @@ import { CheckIcon, Loader2Icon, SearchIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import JarvisMarkdown from "./markdown";
+import JarvisMarkdown from "./components/markdown";
 
 export default function JarvisThinking(historyEntry: HistoryEntry) {
   const { status, content = "", action = null } = historyEntry;

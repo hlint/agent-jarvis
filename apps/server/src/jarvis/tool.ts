@@ -17,6 +17,7 @@ import { workspaceGetInfoTool } from "./built-in-tools/workspace-get-info";
 import { workspaceListDirTool } from "./built-in-tools/workspace-list-dir";
 import { workspaceManageDeps } from "./built-in-tools/workspace-manage-deps";
 import { workspaceReadFileTool } from "./built-in-tools/workspace-read-file";
+import { workspaceRenameFileTool } from "./built-in-tools/workspace-rename-file";
 import { workspaceRunScriptTool } from "./built-in-tools/workspace-run-script";
 import { workspaceWriteFileTool } from "./built-in-tools/workspace-write-file";
 import type Jarvis from "./jarvis";
@@ -35,6 +36,7 @@ export const builtInTools = [
   workspaceReadFileTool,
   workspaceWriteFileTool,
   workspaceDeleteFileTool,
+  workspaceRenameFileTool,
   workspaceListDirTool,
   workspaceRunScriptTool,
   workspaceManageDeps,
