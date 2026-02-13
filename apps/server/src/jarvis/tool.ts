@@ -20,6 +20,7 @@ import { workspaceReadFileTool } from "./built-in-tools/workspace-read-file";
 import { workspaceRenameFileTool } from "./built-in-tools/workspace-rename-file";
 import { workspaceRunScriptTool } from "./built-in-tools/workspace-run-script";
 import { workspaceWriteFileTool } from "./built-in-tools/workspace-write-file";
+import writeDiaryTool from "./built-in-tools/write-diary";
 import type Jarvis from "./jarvis";
 
 export const builtInTools = [
@@ -27,6 +28,7 @@ export const builtInTools = [
   webSearchTool,
   webExtractTool,
   updateMemoryTool,
+  writeDiaryTool,
   notifyTool,
   reviewSkillTool,
   upsertSkillTool,

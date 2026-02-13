@@ -1,3 +1,4 @@
+import { shortId } from "@repo/shared/lib/utils";
 import fs from "fs-extra";
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
@@ -9,49 +10,81 @@ const MAX_OUTPUT_BYTES = 2 * 1024 * 1024; // 2MB
 export const workspaceRunScriptTool = defineJarvisTool({
   name: "workspace_run_script",
   description:
-    "Run a JavaScript file in the workspace with Bun. Path is relative to the workspace root (e.g. 'a.js' or 'scripts/foo.js'). Optional args are passed as CLI arguments (script can read process.argv). Time and output size are limited. Returns stdout, stderr, and exit code.",
-  inputSchema: z.object({
-    path: z
-      .string()
-      .describe(
-        "Path to the script relative to workspace root, e.g. 'a.js' or 'scripts/foo.js'",
-      ),
-    args: z
-      .array(z.string())
-      .optional()
-      .describe(
-        "CLI arguments passed to the script (e.g. ['--input', 'data.json']); script reads process.argv",
-      ),
-  }),
-  execute: async ({ path: relativePath, args }) => {
-    const absolutePath = getWorkspaceAbsolutePath(relativePath);
-    if (!fs.existsSync(absolutePath)) {
-      return { success: false, error: "File does not exist" };
-    }
-    if (!fs.statSync(absolutePath).isFile()) {
-      return { success: false, error: "Path is not a file" };
-    }
-
-    // cwd = workspace directory; .env is loaded if present
+    "Run JavaScript in the workspace with Bun. Two modes (mutually exclusive): (1) path: run an existing file relative to workspace root (e.g. 'a.js'). (2) inline: pass JS code as text; a temp file will be created, run, then deleted. Optional args passed as CLI arguments. Returns stdout, stderr, exit code.",
+  inputSchema: z
+    .object({
+      path: z
+        .string()
+        .optional()
+        .describe(
+          "Path to script relative to workspace root (use path OR inline, not both)",
+        ),
+      inline: z
+        .string()
+        .optional()
+        .describe(
+          "Inline JS code to run (use inline OR path, not both). Temp file is created, executed, then removed.",
+        ),
+      args: z
+        .array(z.string())
+        .optional()
+        .describe(
+          "CLI arguments passed to the script (e.g. ['--input', 'data.json']); script reads process.argv",
+        ),
+    })
+    .refine(
+      (data) => {
+        const hasPath = !!data.path?.trim();
+        const hasInline = data.inline !== undefined && data.inline !== null;
+        return (hasPath && !hasInline) || (!hasPath && hasInline);
+      },
+      { message: "Provide exactly one of path or inline" },
+    ),
+  execute: async ({ path: relativePath, inline, args }) => {
     const cwd = getWsAbsolutePath();
-    const proc = Bun.spawnSync({
-      cmd: ["bun", "--env-file", "../.env", absolutePath, ...(args ?? [])],
-      cwd,
-      timeout: RUN_TIMEOUT_MS,
-      maxBuffer: MAX_OUTPUT_BYTES,
-      stdout: "pipe",
-      stderr: "pipe",
-    });
+    let absolutePath: string;
+    let tempPath: string | null = null;
 
-    const stdout = proc.stdout?.toString("utf-8") ?? "";
-    const stderr = proc.stderr?.toString("utf-8") ?? "";
+    if (inline !== undefined && inline !== null) {
+      tempPath = getWorkspaceAbsolutePath(`${shortId()}.js`);
+      await fs.writeFile(tempPath, inline, "utf-8");
+      absolutePath = tempPath;
+    } else if (relativePath) {
+      absolutePath = getWorkspaceAbsolutePath(relativePath);
+      if (!fs.existsSync(absolutePath)) {
+        return { success: false, error: "File does not exist" };
+      }
+      if (!fs.statSync(absolutePath).isFile()) {
+        return { success: false, error: "Path is not a file" };
+      }
+    } else {
+      return { success: false, error: "Provide path or inline" };
+    }
 
-    return {
-      stdout,
-      stderr,
-      exitCode: proc.exitCode ?? null,
-      success: proc.success ?? false,
-      ...(proc.exitedDueToTimeout && { exitedDueToTimeout: true }),
-    };
+    try {
+      const proc = Bun.spawnSync({
+        cmd: ["bun", "--env-file", "../.env", absolutePath, ...(args ?? [])],
+        cwd,
+        timeout: RUN_TIMEOUT_MS,
+        maxBuffer: MAX_OUTPUT_BYTES,
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+
+      const stdout = proc.stdout?.toString("utf-8") ?? "";
+      const stderr = proc.stderr?.toString("utf-8") ?? "";
+
+      return {
+        stdout,
+        stderr,
+        exitCode: proc.exitCode ?? null,
+        success: proc.success ?? false,
+        ...(proc.exitedDueToTimeout && { exitedDueToTimeout: true }),
+      };
+    } finally {
+      if (tempPath && fs.existsSync(tempPath)) {
+        await fs.remove(tempPath);
+      }
+    }
   },
 });

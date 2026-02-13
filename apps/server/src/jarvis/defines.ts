@@ -11,3 +11,4 @@ export const PATH_CRON_TASKS = join(DIR_RUNTIME, "cron-tasks.json");
 export const DIR_SKILLS = join(DIR_RUNTIME, "skills");
 export const DIR_TOOLS = join(DIR_RUNTIME, "tools");
 export const DIR_WORKSPACE = join(DIR_RUNTIME, "workspace");
+export const DIR_DIARIES = join(DIR_RUNTIME, "diaries");

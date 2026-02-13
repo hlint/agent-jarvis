@@ -1,3 +1,6 @@
+import { join } from "node:path";
+import { DIR_DIARIES } from "./defines";
+
 export function stringifyFrontmatterMd(
   attributes: Record<string, string>,
   body: string,
@@ -6,4 +9,12 @@ export function stringifyFrontmatterMd(
     ([k, v]) => `${k}: ${String(v).replace(/\n/g, " ").trim()}`,
   );
   return `---\n${lines.join("\n")}\n---\n\n${body}`;
+}
+
+/** 日记路径：DIR_DIARIES/YYYY/MM/MM-DD.md */
+export function getDiaryPath(date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return join(DIR_DIARIES, String(y), m, `${m}-${d}.md`);
 }

@@ -18,7 +18,7 @@ export default function JarvisMarkdown({
   const content = text;
   return (
     <Streamdown
-      className={cn("overflow-auto", className)}
+      className={cn("overflow-auto text-sm/relaxed", className)}
       plugins={{ code, mermaid, math, cjk }}
       isAnimating={isAnimating}
     >
