@@ -10,7 +10,7 @@ const MAX_OUTPUT_BYTES = 2 * 1024 * 1024; // 2MB
 export const workspaceRunScriptTool = defineJarvisTool({
   name: "workspace_run_script",
   description:
-    "Run JavaScript in the workspace with Bun. Two modes (mutually exclusive): (1) path: run an existing file relative to workspace root (e.g. 'a.js'). (2) inline: pass JS code as text; a temp file will be created, run, then deleted. Optional args passed as CLI arguments. Returns stdout, stderr, exit code.",
+    "Run JavaScript in the workspace with Bun. Two modes (mutually exclusive): (1) path: run an existing file relative to workspace root (e.g. 'a.js'). (2) inline: pass JS code as text; a temp file will be created, run, then deleted. Returns stdout, stderr, exit code.",
   inputSchema: z
     .object({
       path: z
@@ -25,12 +25,11 @@ export const workspaceRunScriptTool = defineJarvisTool({
         .describe(
           "Inline JS code to run (use inline OR path, not both). Temp file is created, executed, then removed.",
         ),
-      args: z
-        .array(z.string())
+      params: z
+        .record(z.string(), z.any())
         .optional()
-        .describe(
-          "CLI arguments passed to the script (e.g. ['--input', 'data.json']); script reads process.argv",
-        ),
+        .default({})
+        .describe("Parameters passed to the script (e.g. { 'name': 'value' })"),
     })
     .refine(
       (data) => {
@@ -40,7 +39,7 @@ export const workspaceRunScriptTool = defineJarvisTool({
       },
       { message: "Provide exactly one of path or inline" },
     ),
-  execute: async ({ path: relativePath, inline, args }) => {
+  execute: async ({ path: relativePath, inline, params = {} }) => {
     const cwd = getWsAbsolutePath();
     let absolutePath: string;
     let tempPath: string | null = null;
@@ -63,7 +62,14 @@ export const workspaceRunScriptTool = defineJarvisTool({
 
     try {
       const proc = Bun.spawnSync({
-        cmd: ["bun", "--env-file", "../.env", absolutePath, ...(args ?? [])],
+        cmd: [
+          "bun",
+          "--env-file",
+          "../.env",
+          absolutePath,
+          "--params",
+          JSON.stringify(params),
+        ],
         cwd,
         timeout: RUN_TIMEOUT_MS,
         maxBuffer: MAX_OUTPUT_BYTES,

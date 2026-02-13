@@ -1,7 +1,4 @@
-import type {
-  DialogHistory,
-  HistoryEntry,
-} from "@repo/shared/agent/defines/history";
+import type { DialogHistory } from "@repo/shared/agent/defines/history";
 import type { JarvisChatState } from "@repo/shared/defines/jarvis";
 import { createDiff } from "@repo/shared/lib/state-sync";
 import { cloneDeep, debounce } from "es-toolkit";
@@ -42,7 +39,7 @@ export class JarvisStateManager {
     };
   }
 
-  notifyStateChanged() {
+  pushDiff() {
     const previousSnapshotId = this.snapshotId;
     const newSnapshotId = nanoid(6);
     this.snapshotId = newSnapshotId;
@@ -55,11 +52,6 @@ export class JarvisStateManager {
       diff,
     });
     this.persist();
-  }
-
-  newHistoryEntry(historyEntry: HistoryEntry) {
-    this.dialogHistory.push(historyEntry);
-    this.notifyStateChanged();
   }
 
   // 持久化

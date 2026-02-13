@@ -8,7 +8,7 @@ export const CallToolsActionSchema = z.object({
       brief: z
         .string()
         .describe(
-          "A one-sentence summary of the tool invocation action. Do not include specific parameters here; parameters should be provided in the input field.",
+          "A short one-sentence summary of the tool invocation action. Do not include specific parameters here; parameters should be provided in the input field.",
         ),
       input: z
         .any()

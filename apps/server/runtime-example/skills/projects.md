@@ -97,6 +97,11 @@ tips: 无
    }])
    ```
 
+   **路径导入提示**：
+   - **代码中**：使用 `@ws/system/env` 和 `@ws/system/params` 访问内置工具函数（仅在 import 语句中）
+   - **代码中**：项目内部模块使用相对路径（如 `./lib/helper.js`）
+   - **文件操作**：所有文件操作工具（`workspace_read_file`、`workspace_write_file`、`workspace_run_script` 等）的路径参数必须使用相对路径，不能使用 `@ws/` 路径别名
+
 2. **运行并验证**：
 
    ```
@@ -126,7 +131,7 @@ tips: 无
    - 考虑数据格式（JSON、CSV 等）
 
 3. **功能增强**：
-   - 添加命令行参数支持（用 `utils/args.js`）
+   - 添加运行参数支持（用 `@ws/system/params`）
    - 支持配置文件
    - 添加运行日志
 
@@ -167,9 +172,9 @@ tips: 无
 
 workspace_run_script(path: "projects/github-trending/main.js")
 
-# 指定语言
+# 指定语言（参数注入）
 
-workspace_run_script(path: "projects/github-trending/main.js", args: ["--lang", "typescript"])
+workspace_run_script(path: "projects/github-trending/main.js", params: { lang: "typescript" })
 \`\`\`
 
 ## 环境变量
@@ -272,10 +277,11 @@ workspace_write_file({
     {
       path: "projects/github-trending/main.js",
       content: `
-import { getEnv } from "../../utils/env.js";
-import { getFlagValue } from "../../utils/args.js";
+import getRuntimeEnv from "@ws/system/env";
+import getRuntimeParams from "@ws/system/params";
 
-const lang = getFlagValue("--lang", "typescript");
+const params = getRuntimeParams();
+const lang = params.lang ?? "typescript";
 console.log(\`Fetching GitHub Trending for \${lang}...\`);
 
 // 抓取逻辑
@@ -321,7 +327,7 @@ workspace_write_file({
 
 ## 如何运行
 workspace_run_script(path: "projects/github-trending/main.js")
-workspace_run_script(path: "projects/github-trending/main.js", args: ["--lang", "javascript"])
+workspace_run_script(path: "projects/github-trending/main.js", params: { lang: "javascript" })
 
 ## 环境变量
 GITHUB_TOKEN（可选）- 提高 API 限额
@@ -369,6 +375,58 @@ projects/<project-name>/
   - tests/             # 测试脚本（可选）
     - test-fetch.js
 ```
+
+### 路径导入规范
+
+**重要说明**：`@ws/` 路径别名**仅适用于代码中的 import 导入语句**，不能用于文件操作工具（如 `workspace_read_file`、`workspace_write_file`、`workspace_run_script` 的 `path` 参数等）。文件操作必须使用相对路径。
+
+**使用 `@ws/` 路径别名**（仅在代码 import 中）：
+
+- ✅ **访问内置工具函数**：始终使用 `@ws/system/env` 和 `@ws/system/params` 访问环境变量和参数工具
+- ✅ **访问共享代码**：引用 `ws/` 目录下的共享模块时使用 `@ws/` 路径
+
+**使用相对路径**：
+
+- ✅ **代码中的项目内部模块**：项目内部文件互相引用时使用相对路径（如 `./lib/fetch.js`、`../config.js`）
+- ✅ **代码中的项目配置文件**：引用项目内的配置文件使用相对路径（如 `./config.json`）
+- ✅ **文件操作工具**：所有文件操作工具的路径参数必须使用相对路径
+
+**代码导入示例**：
+
+```javascript
+// ✅ 正确：在代码中使用 @ws/ 访问内置工具
+import getRuntimeEnv from "@ws/system/env";
+import getRuntimeParams from "@ws/system/params";
+
+// ✅ 正确：项目内部使用相对路径导入
+import { fetchData } from "./lib/fetch.js";
+import { parseData } from "./lib/parse.js";
+import config from "./config.json";
+
+// ❌ 错误：不要用相对路径访问 ws/ 目录（在 import 中）
+import getRuntimeEnv from "../../ws/system/env.js"; // 不推荐
+
+// ❌ 错误：不要用 @ws/ 访问项目内部文件
+import { fetchData } from "@ws/projects/my-project/lib/fetch"; // 错误
+```
+
+**文件操作示例**：
+
+```javascript
+// ✅ 正确：文件操作使用相对路径
+workspace_read_file(paths: ["projects/my-project/main.js"]);
+workspace_write_file(files: [{ path: "projects/my-project/lib/fetch.js", content: "..." }]);
+workspace_run_script(path: "projects/my-project/main.js");
+
+// ❌ 错误：文件操作不能使用路径别名
+workspace_read_file(paths: ["@ws/system/env.js"]); // 会报错！
+workspace_run_script(path: "@ws/system/env.js"); // 会报错！
+```
+
+**原则**：
+
+- `@ws/` 仅用于代码中的 import 语句，访问工作区基础设施（`ws/` 目录）
+- 相对路径用于代码中的项目内部组织，以及所有文件操作工具的路径参数
 
 ### 定时任务的 description 规范
 

@@ -1,5 +1,6 @@
 import type Jarvis from "../jarvis";
 import { DIARY_HEADER, getRecentDiaries } from "./diary";
+import { INACTIVE_HEADER } from "./inactive";
 import { getLongTermMemory, MEMORY_HEADER } from "./memory";
 import { getSkillSummary, SKILL_HEADER } from "./skill";
 
@@ -21,6 +22,9 @@ About Agent's Skills: ${JSON.stringify({
 About Agent's Diary: ${JSON.stringify({
     instruction: DIARY_HEADER,
     recentDiaries: getRecentDiaries(),
+  })}
+About System Inactive: ${JSON.stringify({
+    instruction: INACTIVE_HEADER,
   })}
 `;
 }

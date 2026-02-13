@@ -1,6 +1,7 @@
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ReactJson from "react-json-view";
+import { cn } from "@/lib/utils";
 import JarvisMarkdown from "./markdown";
 import StatusIcon from "./StatusIcon";
 
@@ -17,36 +18,42 @@ export default function InfoCard({
   content?: string;
   icon?: React.ReactNode;
 }) {
-  const [jsonExpanded, setJsonExpanded] = useState(true);
-  useEffect(() => {
-    if (status === "completed") {
-      setJsonExpanded(false);
-    }
-  }, [status]);
+  const [jsonExpanded, setJsonExpanded] = useState(false);
+  // useEffect(() => {
+  //   if (status === "completed") {
+  //     setJsonExpanded(false);
+  //   }
+  // }, [status]);
   const HeaderComponent = data || content ? "button" : "div";
   const headerProps =
     data || content
       ? {
           onClick: () => setJsonExpanded((v) => !v),
           "aria-label": jsonExpanded ? "Show less" : "Show more",
-          className:
-            "flex flex-row gap-2 items-center border-b p-1 bg-muted/40 cursor-pointer hover:bg-muted/60 transition-colors w-full text-left",
+          className: cn(
+            "group flex flex-row gap-2 items-center hover:bg-muted/60 px-1 transition-colors w-full text-left cursor-pointer",
+            jsonExpanded && "bg-muted/40 border-b",
+          ),
         }
       : {
-          className:
-            "flex flex-row gap-2 items-center border-b p-1 bg-muted/40",
+          className: "flex flex-row gap-2 items-center border-b px-1",
         };
 
   return (
-    <div className="rounded-md border text-sm text-muted-foreground overflow-hidden">
+    <div
+      className={cn(
+        "rounded-md text-sm text-muted-foreground overflow-hidden",
+        jsonExpanded && "border ",
+      )}
+    >
       <HeaderComponent {...headerProps}>
         <StatusIcon status={status}>{icon}</StatusIcon>
         <span className="min-w-0 flex-1 truncate">{brief || "No Brief"}</span>
         {data || content ? (
           jsonExpanded ? (
-            <ChevronUpIcon className="size-4 shrink-0 text-muted-foreground" />
+            <ChevronUpIcon className="size-4 shrink-0 text-muted-foreground transition-opacity group-hover:opacity-100 opacity-100" />
           ) : (
-            <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+            <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
           )
         ) : null}
       </HeaderComponent>

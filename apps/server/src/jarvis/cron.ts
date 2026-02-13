@@ -48,7 +48,7 @@ export default class JarvisCron {
         task.cronJob.stop();
       }
       task.cronJob = new CronJob(task.cronPattern, () => {
-        this.jarvis.state.newHistoryEntry({
+        this.jarvis.pushHistoryEntry({
           id: nanoid(6),
           role: "system-event",
           createdTime: timeFormat(),
@@ -60,7 +60,7 @@ export default class JarvisCron {
             taskCronPattern: task.cronPattern,
           },
         });
-        this.jarvis.runner.runNext();
+        this.jarvis.wakeUp();
         if (task.oneTimeTrigger) {
           this.removeCronTask(task.name);
         }

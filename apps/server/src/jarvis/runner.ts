@@ -41,7 +41,7 @@ export default class Runner {
       dialogHistory,
       additionalAgentInformation: buildAgentPrompt(this.jarvis),
       onDialogHistoryChange: () => {
-        this.jarvis.state.notifyStateChanged();
+        this.jarvis.notifyStateChanged();
       },
     });
 
@@ -49,7 +49,7 @@ export default class Runner {
       case "completed":
         break;
       case "user":
-        this.jarvis.state.newHistoryEntry({
+        this.jarvis.pushHistoryEntry({
           id: shortId(),
           role: "system-event",
           createdTime: timeFormat(),
@@ -58,7 +58,7 @@ export default class Runner {
         });
         break;
       case "max-steps-reached":
-        this.jarvis.state.newHistoryEntry({
+        this.jarvis.pushHistoryEntry({
           id: shortId(),
           role: "system-event",
           createdTime: timeFormat(),
@@ -70,7 +70,7 @@ export default class Runner {
       case "error":
         if (this.jarvis.retryCount < MAX_RETRY_COUNT) {
           this.jarvis.retryCount++;
-          this.jarvis.state.newHistoryEntry({
+          this.jarvis.pushHistoryEntry({
             id: shortId(),
             role: "system-event",
             createdTime: timeFormat(),
@@ -80,7 +80,7 @@ export default class Runner {
           });
           this.needRunNext = true;
         } else {
-          this.jarvis.state.newHistoryEntry({
+          this.jarvis.pushHistoryEntry({
             id: shortId(),
             role: "system-event",
             createdTime: timeFormat(),

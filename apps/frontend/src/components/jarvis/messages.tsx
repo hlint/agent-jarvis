@@ -33,6 +33,11 @@ export default function JarvisMessages() {
   return (
     <div className="flex flex-col gap-3 flex-1 px-2">
       {dialogHistory.map((historyEntry) => {
+        if (
+          historyEntry.role !== "agent-reply" &&
+          historyEntry?.status === "completed"
+        )
+          return null;
         switch (historyEntry.role) {
           case "user":
             return (
