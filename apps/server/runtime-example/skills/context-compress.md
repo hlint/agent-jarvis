@@ -44,17 +44,6 @@ active: true
 示例（时间用 `##` 标题，内容下一行，条与条之间空一行）：
 
 ```
-## Friday, February 13, 2026 20:15 PM
-用户希望加一个深色模式开关。
-
-## Friday, February 13, 2026 20:18 PM
-在设置页实现了 toggle，用户确认可用。
-
-## Friday, February 13, 2026 20:22 PM
-用户说下次在手机上再试；暂无未完成项。
-```
-
-```
 ## Friday, February 13, 2026 20:25 PM
 User asked for weekly report every Friday.
 
