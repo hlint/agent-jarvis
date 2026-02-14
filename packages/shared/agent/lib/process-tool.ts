@@ -10,6 +10,19 @@ export default async function processToolCalling({
   lastThinkAction,
 }: AgentContext) {
   const callToolsAction = lastThinkAction! as CallToolsAction;
+
+  if (callToolsAction.userBriefing?.trim()) {
+    dialogHistory.push({
+      id: shortId(),
+      role: "agent-reply",
+      status: "completed",
+      createdTime: timeFormat(),
+      updatedTime: timeFormat(),
+      content: callToolsAction.userBriefing.trim(),
+    });
+    onDialogHistoryChange();
+  }
+
   const tasks: Promise<void>[] = [];
   for (const toolCall of callToolsAction.toolCalls) {
     const id = shortId();

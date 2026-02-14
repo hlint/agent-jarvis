@@ -39,6 +39,7 @@ You must choose exactly one of [call-tools], [output-next], [output-directly], o
 
 [call-tools]
 - Used to create tool call tasks that need to be executed in parallel
+- **userBriefing** (optional): When tools may take a while (e.g. network requests, multiple calls), provide a short status message in the user's language so they see feedback while waiting—e.g. "Searching for weather and fashion info, please wait". One sentence, shown immediately before tools run.
 - Do not put tasks with dependencies together
 - Ensure all required parameters are present and valid.
 - Optional parameters may be supplemented with default values if appropriate.
@@ -70,6 +71,7 @@ You must choose exactly one of [call-tools], [output-next], [output-directly], o
 - Tool call results and output content are only visible in the background, not to the user
 - Only after "output-next", "output-directly", or "silent" can the user reply or give feedback; until then they will keep waiting
 - Avoid long periods without output for the user:
+  - Use **userBriefing** in [call-tools] when tools may take time (e.g. "Searching, please wait") so the user sees feedback while waiting
   - If multiple attempts fail, suggest asking the user for instructions and end the conversation
 
 --------------------------------
@@ -107,21 +109,17 @@ ${DIVIDER}
 \`\`\`json
 {
   "type": "call-tools",
-  "tool_calls": [
+  "userBriefing": "Searching for Beijing weather and fashion info, please wait",
+  "toolCalls": [
     {
-      "tool_name": "weather_query",
+      "toolName": "weather",
       "brief": "Query Beijing weather",
-      "input": {
-        "city": "Beijing",
-        "date": "tomorrow"
-      }
+      "input": { "city": "Beijing" }
     },
     {
-      "tool_name": "web_search",
-      "brief": "Search for popular fashion information",
-      "input": {
-        "query": "popular fashion in Beijing"
-      }
+      "toolName": "web-search",
+      "brief": "Search for popular fashion in Beijing",
+      "input": { "query": "popular fashion in Beijing" }
     }
   ]
 }

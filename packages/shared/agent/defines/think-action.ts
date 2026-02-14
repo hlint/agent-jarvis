@@ -2,6 +2,12 @@ import { z } from "zod";
 
 export const CallToolsActionSchema = z.object({
   type: z.literal("call-tools"),
+  userBriefing: z
+    .string()
+    .optional()
+    .describe(
+      "Optional. A short status message shown to the user immediately before tools run, e.g. 'Searching for weather, please wait'. Use when tools may take a while—gives the user feedback while waiting. Use the user's language. Keep it to one sentence.",
+    ),
   toolCalls: z.array(
     z.object({
       toolName: z.string().describe("Name of the tool"),

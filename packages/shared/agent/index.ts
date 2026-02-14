@@ -1,3 +1,4 @@
+import { delay } from "es-toolkit";
 import type { AgentContext } from "./defines/context";
 import type { AgentState } from "./defines/runtime";
 import processOutput from "./lib/process-output";
@@ -67,6 +68,7 @@ export default async function callAgent({
           };
       }
     } catch (error) {
+      await delay(500);
       return {
         stoppedReason: `Something went wrong: ${error}`,
         stoppedBy: "error",

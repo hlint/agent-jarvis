@@ -1,3 +1,4 @@
+import { error } from "node:console";
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
 
@@ -22,11 +23,11 @@ const weatherForecastTool = defineJarvisTool({
       return data;
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
-        return {
-          error: `Weather request timed out (${TIMEOUT_MS / 1000}s). wttr.in may be slow or unavailable; try again later.`,
-        };
+        throw new Error(
+          `Weather request timed out (${TIMEOUT_MS / 1000}s). wttr.in may be slow or unavailable; try again later.`,
+        );
       }
-      throw err;
+      throw error;
     } finally {
       clearTimeout(timeoutId);
     }

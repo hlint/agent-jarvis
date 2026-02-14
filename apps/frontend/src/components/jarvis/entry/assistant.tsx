@@ -9,7 +9,11 @@ export default function JarvisAssistantEntry({
   status: "pending" | "completed" | "failed";
 }) {
   if (!text && status === "pending") {
-    return <StatusIcon status="pending" />;
+    return (
+      <div className="flex">
+        <StatusIcon status="pending" />
+      </div>
+    );
   }
   return (
     <div className="flex flex-row gap-2 items-start">

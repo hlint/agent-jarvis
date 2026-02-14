@@ -1,4 +1,4 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { streamText } from "ai";
 import type { LlmDialog } from "./types";
 
@@ -42,8 +42,9 @@ function getModel({
   baseURL?: string;
   model: string;
 }) {
-  return createOpenAI({
+  return createOpenAICompatible({
     apiKey,
-    baseURL: baseURL || undefined,
+    baseURL: baseURL || "",
+    name: "model-provider",
   })(model);
 }

@@ -32,7 +32,10 @@ export default function ClearHistoryButton() {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
-              onClick={() => api.jarvis["dialog-history"].delete()}
+              onClick={() => {
+                api.jarvis["dialog-history"].delete();
+                setOpen(false);
+              }}
             >
               Delete
             </AlertDialogAction>

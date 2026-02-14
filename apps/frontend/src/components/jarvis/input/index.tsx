@@ -13,9 +13,9 @@ export default function JarvisInput() {
   };
 
   return (
-    <div className="sticky bottom-0 z-10 from-transparent to-background bg-linear-to-b">
+    <div className="sticky bottom-0 z-10 from-transparent to-background bg-linear-to-b md:pb-6">
       <div className="h-24 from-transparent to-background bg-linear-to-b" />
-      <div className="p-2 border rounded-lg shadow-lg bg-background">
+      <div className="p-2 border md:rounded-lg md:shadow-lg bg-background">
         <Textarea
           placeholder="Ask me anything"
           className="w-full h-32 md:text-sm bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -30,7 +30,6 @@ export default function JarvisInput() {
         />
         <InputToolbar onSend={handleSend} />
       </div>
-      <div className="h-4" />
     </div>
   );
 }
