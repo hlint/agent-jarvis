@@ -7,7 +7,6 @@ import JarvisThinkingEntry from "./entry/thinking";
 import JarvisToolCallEntry from "./entry/tool-call";
 import JarvisUserEntry from "./entry/user";
 import useJarvisStore from "./use-jarvis-store";
-import JarvisWelcome from "./welcome";
 
 const messageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -41,10 +40,6 @@ export default function JarvisMessages() {
       setHandleScrollToBottom(() => {});
     };
   }, [setHandleScrollToBottom]);
-
-  if (dialogHistory.length === 0) {
-    return <JarvisWelcome />;
-  }
   return (
     <div className="flex flex-col gap-3 flex-1 px-2">
       <AnimatePresence initial={false}>

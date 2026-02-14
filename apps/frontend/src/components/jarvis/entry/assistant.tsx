@@ -16,7 +16,7 @@ export default function JarvisAssistantEntry({
     );
   }
   return (
-    <div className="flex flex-row gap-2 items-start">
+    <div className="py-1 rounded-lg ">
       <JarvisMarkdown
         className="overflow-auto mr-2"
         text={text}
