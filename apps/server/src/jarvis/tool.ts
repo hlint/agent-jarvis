@@ -1,5 +1,6 @@
 import type { AgentTool } from "@repo/shared/agent/defines/tool";
 import type z from "zod";
+import { contextCompressTool } from "./built-in-tools/context-compress";
 import {
   listCronTasksTool,
   removeCronTaskTool,
@@ -43,6 +44,7 @@ export const builtInTools = [
   workspaceRunScriptTool,
   workspaceManageDeps,
   workspaceGetInfoTool,
+  contextCompressTool,
 ];
 
 export type JarvisTool<INPUT extends {}> = {

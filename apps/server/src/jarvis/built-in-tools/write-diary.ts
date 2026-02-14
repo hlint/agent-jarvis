@@ -14,7 +14,7 @@ const writeDiaryTool = defineJarvisTool({
   execute: async ({ content }) => {
     const path = getDiaryPath();
     await fs.ensureFile(path);
-    await fs.appendFile(path, `[${timeFormat()}]\n${content}\n\n`);
+    await fs.appendFile(path, `## ${timeFormat()}\n${content}\n\n`);
     return { success: true };
   },
 });
