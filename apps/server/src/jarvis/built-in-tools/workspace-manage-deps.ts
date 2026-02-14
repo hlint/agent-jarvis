@@ -6,7 +6,7 @@ const DEP_TIMEOUT_MS = 60_000; // 60 seconds for package operations
 const MAX_OUTPUT_BYTES = 2 * 1024 * 1024; // 2MB
 
 export const workspaceManageDeps = defineJarvisTool({
-  name: "workspace_manage_deps",
+  name: "workspace-manage-deps",
   description:
     "Add or remove npm packages in the workspace. Uses `bun add` and `bun rm` to modify workspace package.json. Provide at least one of `add` or `remove`.",
   inputSchema: z

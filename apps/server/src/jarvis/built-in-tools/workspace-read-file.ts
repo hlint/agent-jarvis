@@ -4,7 +4,7 @@ import { defineJarvisTool } from "../tool";
 import { getWorkspaceAbsolutePath } from "../workspace";
 
 export const workspaceReadFileTool = defineJarvisTool({
-  name: "workspace_read_file",
+  name: "workspace-read-file",
   description:
     "Read one or more files from the workspace. Paths are relative to the workspace root (e.g. 'a.js' or 'src/foo.js'). Returns an array of { path, content } or { path, error } per file.",
   inputSchema: z.object({

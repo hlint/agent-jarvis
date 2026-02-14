@@ -5,7 +5,7 @@ import { defineJarvisTool } from "../tool";
 import { getWorkspaceAbsolutePath, getWsAbsolutePath } from "../workspace";
 
 export const workspaceRenameFileTool = defineJarvisTool({
-  name: "workspace_rename_file",
+  name: "workspace-rename-file",
   description:
     "Rename or move one or more files or directories in the workspace. Paths are relative to the workspace root. Returns an array of { path, newPath, success } or { path, error } per path.",
   inputSchema: z.object({

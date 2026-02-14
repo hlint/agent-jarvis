@@ -45,7 +45,7 @@ function moveToRecycleBin(workspaceAbsolutePath: string): void {
 }
 
 export const workspaceDeleteFileTool = defineJarvisTool({
-  name: "workspace_delete_file",
+  name: "workspace-delete-file",
   description:
     "Delete one or more files or directories in the workspace. Paths are relative to the workspace root (e.g. 'a.js', 'temp/', 'old-scripts/'). Deleting a directory removes it recursively. Files are moved to recycle bin. Returns an array of { path, success } or { path, error } per path.",
   inputSchema: z.object({

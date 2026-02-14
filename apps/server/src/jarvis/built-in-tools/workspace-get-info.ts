@@ -4,7 +4,7 @@ import { DIR_WORKSPACE } from "../defines";
 import { defineJarvisTool } from "../tool";
 
 export const workspaceGetInfoTool = defineJarvisTool({
-  name: "workspace_get_info",
+  name: "workspace-get-info",
   description:
     "Get workspace information including installed npm packages and environment variable keys (values are masked). Returns formatted text with dependencies and env keys.",
   inputSchema: z.object({}),

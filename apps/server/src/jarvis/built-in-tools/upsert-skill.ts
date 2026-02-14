@@ -31,17 +31,13 @@ export const upsertSkillTool = defineJarvisTool({
         description: z
           .string()
           .optional()
-          .describe("说明该技能是关于什么的。创建时必填。"),
-        whenToReview: z
-          .string()
+          .describe("对 body 的索引与总结，尽量一句话，非常简洁。创建时必填。"),
+        active: z
+          .boolean()
           .optional()
           .describe(
-            "何时需要 review，格式示例：在xxx时推荐review，在xxx时必须review。创建时必填。",
+            "true 则每次自动加载完整 skill（含 body），false 则仅加载摘要。",
           ),
-        tips: z
-          .string()
-          .optional()
-          .describe("一些零碎的重要知识点，可以为空（Empty）。创建时必填。"),
         body: z.string().optional(),
       })
       .describe("Skill data fields to create or update."),
@@ -51,15 +47,10 @@ export const upsertSkillTool = defineJarvisTool({
     const exists = fs.pathExistsSync(path);
 
     if (mode === "create") {
-      if (
-        data.description === undefined ||
-        data.whenToReview === undefined ||
-        data.tips === undefined
-      ) {
+      if (data.description === undefined) {
         return {
           success: false,
-          message:
-            "创建技能时 data.description、data.whenToReview、data.tips 均为必填。",
+          message: "创建技能时 data.description 为必填。",
         };
       }
       fs.ensureDirSync(DIR_SKILLS);
@@ -74,8 +65,7 @@ export const upsertSkillTool = defineJarvisTool({
       const attrs: Record<string, string> = {
         name: targetName,
         description: data.description,
-        whenToReview: data.whenToReview,
-        tips: data.tips,
+        active: (data.active ?? false) ? "true" : "false",
       };
       const content = stringifyFrontmatterMd(attrs, data.body ?? "");
       fs.writeFileSync(targetPath, content, "utf-8");
@@ -99,8 +89,8 @@ export const upsertSkillTool = defineJarvisTool({
     const attrs = { ...attributes };
     if (data.name !== undefined) attrs.name = data.name;
     if (data.description !== undefined) attrs.description = data.description;
-    if (data.whenToReview !== undefined) attrs.whenToReview = data.whenToReview;
-    if (data.tips !== undefined) attrs.tips = data.tips;
+    if (data.active !== undefined)
+      attrs.active = data.active ? "true" : "false";
     const bodyToWrite = data.body !== undefined ? data.body : body.trim();
 
     const content = stringifyFrontmatterMd(attrs, bodyToWrite);

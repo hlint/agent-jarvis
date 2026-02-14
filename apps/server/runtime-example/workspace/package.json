@@ -10,6 +10,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
     "dayjs": "^1.11.19",
     "es-toolkit": "^1.44.0",
     "fs-extra": "^11.3.3",

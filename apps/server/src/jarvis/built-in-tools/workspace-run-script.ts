@@ -8,7 +8,7 @@ const RUN_TIMEOUT_MS = 20_000; // 20 seconds
 const MAX_OUTPUT_BYTES = 2 * 1024 * 1024; // 2MB
 
 export const workspaceRunScriptTool = defineJarvisTool({
-  name: "workspace_run_script",
+  name: "workspace-run-script",
   description:
     "Run JavaScript in the workspace with Bun. Two modes (mutually exclusive): (1) path: run an existing file relative to workspace root (e.g. 'a.js'). (2) inline: pass JS code as text; a temp file will be created, run, then deleted. Returns stdout, stderr, exit code.",
   inputSchema: z

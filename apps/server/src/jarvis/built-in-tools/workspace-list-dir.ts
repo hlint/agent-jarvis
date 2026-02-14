@@ -41,7 +41,7 @@ function listDir(
 }
 
 export const workspaceListDirTool = defineJarvisTool({
-  name: "workspace_list_dir",
+  name: "workspace-list-dir",
   description:
     "List entries in a directory in the workspace. Path is relative to the workspace root (use '.' or '' for root). level 1 = current layer only, max 3. If the directory contains README.md, its content is returned as readmeContent.",
   inputSchema: z.object({

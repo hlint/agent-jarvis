@@ -1,8 +1,9 @@
 import type Jarvis from "../jarvis";
-import { DIARY_HEADER, getRecentDiaries } from "./diary";
-import { INACTIVE_HEADER } from "./inactive";
-import { getLongTermMemory, MEMORY_HEADER } from "./memory";
-import { getSkillSummary, SKILL_HEADER } from "./skill";
+import {
+  getLongTermMemory,
+  getRecentDiaries,
+  getSkillSummary,
+} from "./data-loaders";
 
 export default function buildAgentPrompt(_jarvis: Jarvis): string {
   return `
@@ -11,20 +12,20 @@ About Conversation Channel: ${JSON.stringify({
     currentChannel: "Website with a chat interface",
     websiteUrl: process.env.WEBSITE_URL ?? "unknown",
   })}
-About Agent's Long Term Memory: ${JSON.stringify({
-    instruction: MEMORY_HEADER,
-    currentLongTermMemory: getLongTermMemory(),
-  })}
 About Agent's Skills: ${JSON.stringify({
-    instruction: SKILL_HEADER,
+    instruction:
+      "Skill is the knowledge, experience, standard, and ability of the AI in a certain field.",
     currentSkillSummary: getSkillSummary(),
   })}
 About Agent's Diary: ${JSON.stringify({
-    instruction: DIARY_HEADER,
+    instruction:
+      "Diary is a short-term memory assistant system for the AI, recording the AI's recent progress.",
     recentDiaries: getRecentDiaries(),
   })}
-About System Inactive: ${JSON.stringify({
-    instruction: INACTIVE_HEADER,
+About Agent's Long Term Memory: ${JSON.stringify({
+    instruction:
+      "Long term memory is the information that the AI needs to remember permanently.",
+    currentLongTermMemory: getLongTermMemory(),
   })}
 `;
 }

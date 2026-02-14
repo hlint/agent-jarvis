@@ -5,7 +5,7 @@ import { defineJarvisTool } from "../tool";
 import { getWorkspaceAbsolutePath } from "../workspace";
 
 export const workspaceWriteFileTool = defineJarvisTool({
-  name: "workspace_write_file",
+  name: "workspace-write-file",
   description:
     "Write content to one or more files in the workspace. Paths are relative to the workspace root. Creates parent directories if needed. The workspace .env file is protected and cannot be written. Returns an array of { path, success } or { path, error } per file.",
   inputSchema: z.object({

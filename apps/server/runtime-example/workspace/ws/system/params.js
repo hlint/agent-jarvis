@@ -1,7 +1,10 @@
 /**
- * 命令行参数工具函数
- * 该文件受保护，永远不要修改或删除它
+ * 读取命令行参数
+ * @returns {Record<string, any>} 命令行参数对象
  */
+export default function getRuntimeParams() {
+  return JSON.parse(getFlagValue("--params") ?? "{}");
+}
 
 /**
  * 获取命令行参数（排除 bun 和脚本路径）
@@ -20,12 +23,4 @@ function getFlagValue(flag) {
   const args = getArgs();
   const index = args.indexOf(flag);
   return index >= 0 && index + 1 < args.length ? args[index + 1] : undefined;
-}
-
-/**
- * 读取命令行参数
- * @returns {Record<string, any>} 命令行参数对象
- */
-export default function getRuntimeParams() {
-  return JSON.parse(getFlagValue("--params") ?? "{}");
 }
