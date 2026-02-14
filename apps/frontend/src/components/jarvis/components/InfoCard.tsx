@@ -1,22 +1,25 @@
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
 import ReactJson from "react-json-view";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import JarvisMarkdown from "./markdown";
 import StatusIcon from "./StatusIcon";
 
 export default function InfoCard({
-  brief,
+  brief = "No Brief",
   status,
   data,
   content,
   icon,
+  tag,
 }: {
-  brief: string;
+  brief?: string;
   status?: "pending" | "completed" | "failed";
   data?: Record<string, any>;
   content?: string;
   icon?: React.ReactNode;
+  tag?: string;
 }) {
   const [jsonExpanded, setJsonExpanded] = useState(false);
   // useEffect(() => {
@@ -48,12 +51,17 @@ export default function InfoCard({
     >
       <HeaderComponent {...headerProps}>
         <StatusIcon status={status}>{icon}</StatusIcon>
-        <span className="min-w-0 flex-1 truncate">{brief || "No Brief"}</span>
+        <span className="min-w-0 truncate">{brief || "No Brief"}</span>
+        {tag && (
+          <Badge variant="outline" className="shrink-0">
+            {tag}
+          </Badge>
+        )}
         {data || content ? (
           jsonExpanded ? (
-            <ChevronUpIcon className="size-4 shrink-0 text-muted-foreground transition-opacity group-hover:opacity-100 opacity-100" />
+            <ChevronUpIcon className="size-4 ml-auto shrink-0 text-muted-foreground transition-opacity group-hover:opacity-100 opacity-100" />
           ) : (
-            <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+            <ChevronDownIcon className="size-4 ml-auto shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
           )
         ) : null}
       </HeaderComponent>

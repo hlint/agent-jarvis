@@ -8,8 +8,9 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
   return (
     <InfoCard
       icon={<WrenchIcon className="size-4" />}
-      brief={`${brief} (${toolName})`}
+      brief={brief}
       status={status}
+      tag={toolName}
       data={pick(historyEntry, ["toolInput", "toolOutput", "data", "error"])}
     />
   );

@@ -7,7 +7,8 @@ export default function JarvisThinkingEntry(historyEntry: HistoryEntry) {
   const actionType = action?.type;
   return (
     <InfoCard
-      brief={actionType ? `Next Action: ${actionType}` : `Reasoning`}
+      brief={"Reasoning"}
+      tag={actionType}
       status={status}
       content={content}
       data={pick(historyEntry, ["action", "error"])}

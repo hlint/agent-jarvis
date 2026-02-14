@@ -10,7 +10,8 @@ export default function JarvisSystemEventEntry(historyEntry: HistoryEntry) {
       icon={<InfoIcon className="size-4" />}
       brief={`${brief} `}
       status={status}
-      data={pick(historyEntry, ["toolInput", "toolOutput", "data", "error"])}
+      tag={historyEntry.error ? "error" : "system-event"}
+      data={pick(historyEntry, ["data", "error"])}
     />
   );
 }
