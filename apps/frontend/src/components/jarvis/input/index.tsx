@@ -1,16 +1,17 @@
-import { MicIcon, SendIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { api } from "@/lib/api";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "../../ui/textarea";
+import InputToolbar from "./toolbar";
 
 export default function JarvisInput() {
   const [content, setContent] = useState("");
+
   const handleSend = () => {
     if (content.trim() === "") return;
     api.jarvis["user-message"].post({ content });
     setContent("");
   };
+
   return (
     <div className="sticky bottom-0 z-10 from-transparent to-background bg-linear-to-b">
       <div className="h-24 from-transparent to-background bg-linear-to-b" />
@@ -27,36 +28,9 @@ export default function JarvisInput() {
             }
           }}
         />
-        <div className="flex flex-row gap-2 items-center">
-          <Button variant="ghost" size="icon-lg">
-            <MicIcon />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            onClick={() => {
-              api.jarvis["dialog-history"].delete();
-            }}
-          >
-            <TrashIcon />
-          </Button>
-          <StateIndicator />
-          <Button
-            variant="ghost"
-            className="ml-auto"
-            size="lg"
-            onClick={handleSend}
-          >
-            <SendIcon />
-            Send
-          </Button>
-        </div>
+        <InputToolbar onSend={handleSend} />
       </div>
       <div className="h-4" />
     </div>
   );
-}
-
-function StateIndicator() {
-  return null;
 }

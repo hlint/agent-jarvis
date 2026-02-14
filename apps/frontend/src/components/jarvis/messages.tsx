@@ -1,3 +1,5 @@
+import { AnimatePresence, motion } from "motion/react";
+import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import JarvisAssistantEntry from "./entry/assistant";
 import JarvisSystemEventEntry from "./entry/system-event";
@@ -7,8 +9,19 @@ import JarvisUserEntry from "./entry/user";
 import useJarvisStore from "./use-jarvis-store";
 import JarvisWelcome from "./welcome";
 
+const messageVariants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: {
+    opacity: 0,
+    y: -8,
+    transition: { delay: 1, duration: 0.2, ease: "easeOut" as const },
+  },
+};
+
 export default function JarvisMessages() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
+  const debugMode = useJarvisStore((state) => state.debugMode);
   const setHandleScrollToBottom = useJarvisStore(
     (state) => state.setHandleScrollToBottom,
   );
@@ -32,45 +45,54 @@ export default function JarvisMessages() {
   }
   return (
     <div className="flex flex-col gap-3 flex-1 px-2">
-      {dialogHistory.map((historyEntry) => {
-        if (
-          historyEntry.role !== "agent-reply" &&
-          historyEntry?.status === "completed"
-        ) {
-          //  return null;
-        }
-        switch (historyEntry.role) {
-          case "user":
-            return (
-              <JarvisUserEntry
-                key={historyEntry.id}
-                text={historyEntry.content ?? ""}
-              />
-            );
-          case "agent-reply":
-            return (
-              <JarvisAssistantEntry
-                key={historyEntry.id}
-                text={historyEntry.content ?? ""}
-                status={historyEntry.status ?? "pending"}
-              />
-            );
-          case "agent-tool-call":
-            return (
-              <JarvisToolCallEntry key={historyEntry.id} {...historyEntry} />
-            );
-          case "system-event":
-            return (
-              <JarvisSystemEventEntry key={historyEntry.id} {...historyEntry} />
-            );
-          case "agent-thinking":
-            return (
-              <JarvisThinkingEntry key={historyEntry.id} {...historyEntry} />
-            );
-          default:
+      <AnimatePresence initial={false}>
+        {dialogHistory.map((historyEntry) => {
+          if (
+            !debugMode &&
+            historyEntry.role !== "agent-reply" &&
+            historyEntry?.status === "completed"
+          ) {
             return null;
-        }
-      })}
+          }
+          let entry: ReactNode;
+          switch (historyEntry.role) {
+            case "user":
+              entry = <JarvisUserEntry text={historyEntry.content ?? ""} />;
+              break;
+            case "agent-reply":
+              entry = (
+                <JarvisAssistantEntry
+                  text={historyEntry.content ?? ""}
+                  status={historyEntry.status ?? "pending"}
+                />
+              );
+              break;
+            case "agent-tool-call":
+              entry = <JarvisToolCallEntry {...historyEntry} />;
+              break;
+            case "system-event":
+              entry = <JarvisSystemEventEntry {...historyEntry} />;
+              break;
+            case "agent-thinking":
+              entry = <JarvisThinkingEntry {...historyEntry} />;
+              break;
+            default:
+              return null;
+          }
+          return (
+            <motion.div
+              key={historyEntry.id}
+              variants={messageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              {entry}
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
       <div className="h-0.5" ref={listBottomRef} />
     </div>
   );

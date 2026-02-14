@@ -7,12 +7,14 @@ import { create } from "zustand";
 import { api } from "@/lib/api";
 
 type State = {
+  debugMode: boolean;
   handleScrollToBottom: () => void;
   snapshotId: string;
   dialogHistory: DialogHistory;
 };
 
 type Actions = {
+  setDebugMode: (debugMode: boolean) => void;
   pullFullDialogState: () => void;
   applyDialogHistoryPatch: (
     wsMessageDialogHistoryPatch: WsMessageDialogHistoryPatch,
@@ -21,9 +23,11 @@ type Actions = {
 };
 
 const useJarvisStore = create<State & Actions>((set, get) => ({
+  debugMode: false,
   handleScrollToBottom: () => {},
   snapshotId: "",
   dialogHistory: [],
+  setDebugMode: (debugMode) => set({ debugMode }),
   pullFullDialogState: debounce(() => {
     api.jarvis["dialog-state"].get().then((response) => {
       if (response.data) {
