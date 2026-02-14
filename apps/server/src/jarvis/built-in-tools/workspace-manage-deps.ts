@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
-import { getWsAbsolutePath } from "../workspace";
-
-const DEP_TIMEOUT_MS = 60_000; // 60 seconds for package operations
-const MAX_OUTPUT_BYTES = 2 * 1024 * 1024; // 2MB
+import { getWsAbsolutePath, runBun } from "../workspace";
 
 export const workspaceManageDeps = defineJarvisTool({
   name: "workspace-manage-deps",
@@ -41,19 +38,13 @@ export const workspaceManageDeps = defineJarvisTool({
 
     // Add packages
     if (add && add.length > 0) {
-      const proc = Bun.spawnSync({
-        cmd: ["bun", "add", ...add],
+      const { stdout, stderr, exitCode } = await runBun(
+        ["bun", "add", ...add],
         cwd,
-        timeout: DEP_TIMEOUT_MS,
-        maxBuffer: MAX_OUTPUT_BYTES,
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-
-      results.stdout += proc.stdout?.toString("utf-8") ?? "";
-      results.stderr += proc.stderr?.toString("utf-8") ?? "";
-
-      if (proc.success) {
+      );
+      results.stdout += stdout;
+      results.stderr += stderr;
+      if (exitCode === 0) {
         results.added = add;
       } else {
         results.success = false;
@@ -62,19 +53,13 @@ export const workspaceManageDeps = defineJarvisTool({
 
     // Remove packages
     if (remove && remove.length > 0) {
-      const proc = Bun.spawnSync({
-        cmd: ["bun", "rm", ...remove],
+      const { stdout, stderr, exitCode } = await runBun(
+        ["bun", "rm", ...remove],
         cwd,
-        timeout: DEP_TIMEOUT_MS,
-        maxBuffer: MAX_OUTPUT_BYTES,
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-
-      results.stdout += proc.stdout?.toString("utf-8") ?? "";
-      results.stderr += proc.stderr?.toString("utf-8") ?? "";
-
-      if (proc.success) {
+      );
+      results.stdout += stdout;
+      results.stderr += stderr;
+      if (exitCode === 0) {
         results.removed = remove;
       } else {
         results.success = false;

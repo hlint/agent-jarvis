@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import JarvisAssistantEntry from "./entry/assistant";
 import JarvisSystemEventEntry from "./entry/system-event";
 import JarvisThinkingEntry from "./entry/thinking";
@@ -21,6 +21,8 @@ const messageVariants = {
 
 export default function JarvisMessages() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
+  const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [shouldHideIds, setShouldHideIds] = useState<string[]>([]);
   const debugMode = useJarvisStore((state) => state.debugMode);
   const setHandleScrollToBottom = useJarvisStore(
     (state) => state.setHandleScrollToBottom,
@@ -52,7 +54,17 @@ export default function JarvisMessages() {
             historyEntry.role !== "agent-reply" &&
             historyEntry?.status === "completed"
           ) {
-            return null;
+            const isInCompletedIds = completedIds.includes(historyEntry.id);
+            const shouldHide = shouldHideIds.includes(historyEntry.id);
+            if (!isInCompletedIds) {
+              setCompletedIds((prev) => [...prev, historyEntry.id]);
+              setTimeout(() => {
+                setShouldHideIds((prev) => [...prev, historyEntry.id]);
+              }, 100);
+            }
+            if (shouldHide) {
+              return null;
+            }
           }
           let entry: ReactNode;
           switch (historyEntry.role) {

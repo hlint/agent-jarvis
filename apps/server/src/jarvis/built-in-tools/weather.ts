@@ -4,7 +4,7 @@ import { defineJarvisTool } from "../tool";
 const weatherForecastTool = defineJarvisTool({
   name: "weather",
   description:
-    "Get the current and next three days weather for a specified city",
+    "Get the current and next three days weather for a specified city. If wttr.in is temporarily unavailable, try using the web tool to get the result.",
   inputSchema: z.object({
     city: z.string().describe("The city to get the weather for"),
   }),

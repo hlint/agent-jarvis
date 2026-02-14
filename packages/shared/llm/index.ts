@@ -1,6 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import OpenAI from "openai";
 import type { LlmDialog } from "./types";
 
 export default async function callLlm({
@@ -16,43 +15,7 @@ export default async function callLlm({
   baseURL?: string;
   model: string;
 }) {
-  const client = new OpenAI({
-    apiKey,
-    baseURL,
-    defaultHeaders: {
-      "User-Agent": "Mozilla/5.0",
-    },
-  });
-  const response = await client.chat.completions.create({
-    model,
-    messages: dialog,
-    stream: true,
-  });
-  let content = "";
-  for await (const chunk of response) {
-    content += chunk.choices[0]?.delta.content ?? "";
-    await onStream(content);
-  }
-  return {
-    totalUsage: -1,
-    text: content,
-  };
-}
-
-export async function callLlm2({
-  dialog,
-  onStream = () => {},
-  apiKey,
-  baseURL,
-  model,
-}: {
-  dialog: LlmDialog;
-  onStream?: (content: string) => void | Promise<void>;
-  apiKey: string;
-  baseURL?: string;
-  model: string;
-}) {
-  const client = getModel2({ apiKey, baseURL, model });
+  const client = getModel({ apiKey, baseURL, model });
   const { fullStream, totalUsage, text } = streamText({
     model: client,
     messages: dialog,
@@ -70,7 +33,7 @@ export async function callLlm2({
   };
 }
 
-function getModel2({
+function getModel({
   apiKey,
   baseURL,
   model,
@@ -81,6 +44,6 @@ function getModel2({
 }) {
   return createOpenAI({
     apiKey,
-    baseURL,
+    baseURL: baseURL || undefined,
   })(model);
 }

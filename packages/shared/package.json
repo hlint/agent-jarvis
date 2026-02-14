@@ -1,12 +1,8 @@
 {
   "name": "@repo/shared",
   "version": "0.1.0",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
+  "private": true,
+  "type": "module",
   "exports": {
     "./example": "./example.ts",
     "./defines/jarvis": "./defines/jarvis.ts",
@@ -17,17 +13,21 @@
     "./agent/defines/tool": "./agent/defines/tool.ts",
     "./agent/index": "./agent/index.ts"
   },
-  "private": true,
   "scripts": {
     "check-types": "tsc --noEmit",
     "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json"
   },
-  "type": "module",
   "dependencies": {
     "@ai-sdk/openai": "^3.0.27",
     "ai": "^6.0.81",
     "fast-json-patch": "^3.1.1",
     "lz-string": "^1.5.0",
     "openai": "^6.21.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }

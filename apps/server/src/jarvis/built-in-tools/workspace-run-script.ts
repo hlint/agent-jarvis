@@ -2,10 +2,13 @@ import { shortId } from "@repo/shared/lib/utils";
 import fs from "fs-extra";
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
-import { getWorkspaceAbsolutePath, getWsAbsolutePath } from "../workspace";
+import {
+  getWorkspaceAbsolutePath,
+  getWsAbsolutePath,
+  runBun,
+} from "../workspace";
 
-const RUN_TIMEOUT_MS = 20_000; // 20 seconds
-const MAX_OUTPUT_BYTES = 2 * 1024 * 1024; // 2MB
+const RUN_SCRIPT_TIMEOUT_MS = 20_000; // 20 seconds for script execution
 
 export const workspaceRunScriptTool = defineJarvisTool({
   name: "workspace-run-script",
@@ -61,8 +64,8 @@ export const workspaceRunScriptTool = defineJarvisTool({
     }
 
     try {
-      const proc = Bun.spawnSync({
-        cmd: [
+      const result = await runBun(
+        [
           "bun",
           "--env-file",
           "../.env",
@@ -71,21 +74,14 @@ export const workspaceRunScriptTool = defineJarvisTool({
           JSON.stringify(params),
         ],
         cwd,
-        timeout: RUN_TIMEOUT_MS,
-        maxBuffer: MAX_OUTPUT_BYTES,
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-
-      const stdout = proc.stdout?.toString("utf-8") ?? "";
-      const stderr = proc.stderr?.toString("utf-8") ?? "";
-
+        { timeoutMs: RUN_SCRIPT_TIMEOUT_MS },
+      );
       return {
-        stdout,
-        stderr,
-        exitCode: proc.exitCode ?? null,
-        success: proc.success ?? false,
-        ...(proc.exitedDueToTimeout && { exitedDueToTimeout: true }),
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exitCode: result.exitCode,
+        success: result.exitCode === 0,
+        ...(result.exitedDueToTimeout && { exitedDueToTimeout: true }),
       };
     } finally {
       if (tempPath && fs.existsSync(tempPath)) {

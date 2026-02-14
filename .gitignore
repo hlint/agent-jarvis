@@ -38,3 +38,7 @@ yarn-error.log*
 *.pem
 runtime
 test.ts
+local-*
+
+# Output
+output/dist.zip
