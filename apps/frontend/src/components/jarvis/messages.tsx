@@ -36,8 +36,9 @@ export default function JarvisMessages() {
         if (
           historyEntry.role !== "agent-reply" &&
           historyEntry?.status === "completed"
-        )
-          return null;
+        ) {
+          //  return null;
+        }
         switch (historyEntry.role) {
           case "user":
             return (

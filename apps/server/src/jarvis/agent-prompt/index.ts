@@ -1,9 +1,6 @@
 import type Jarvis from "../jarvis";
-import {
-  getLongTermMemory,
-  getRecentDiaries,
-  getSkillSummary,
-} from "./data-loaders";
+import { getLongTermMemory, getRecentDiaries, getSkills } from "./data-loaders";
+import { SKILL_INSTRUCTION } from "./skill";
 
 export default function buildAgentPrompt(_jarvis: Jarvis): string {
   return `
@@ -13,9 +10,8 @@ About Conversation Channel: ${JSON.stringify({
     websiteUrl: process.env.WEBSITE_URL ?? "unknown",
   })}
 About Agent's Skills: ${JSON.stringify({
-    instruction:
-      "Skill is the knowledge, experience, standard, and ability of the AI in a certain field.",
-    currentSkillSummary: getSkillSummary(),
+    instruction: SKILL_INSTRUCTION,
+    currentSkills: getSkills(),
   })}
 About Agent's Diary: ${JSON.stringify({
     instruction:

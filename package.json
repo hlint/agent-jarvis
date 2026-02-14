@@ -10,6 +10,7 @@
     "ci": "bun install --frozen-lockfile",
     "compile": "turbo run compile:frontend compile:server",
     "dev": "turbo run dev",
+    "dev:reset": "rm -rf ./runtime && bun dev",
     "format": "NODE_NO_WARNINGS=1 sort-package-json && turbo run format",
     "start": "turbo run start"
   },

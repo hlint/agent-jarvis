@@ -3,7 +3,7 @@ import { env } from "bun";
 
 export const IS_DEV = !!env.IS_DEV;
 export const DIR_RUNTIME = IS_DEV ? "../../runtime" : "./runtime";
-export const DIR_RUNTIME_EXAMPLE = `${DIR_RUNTIME}-example`;
+export const DIR_RUNTIME_EXAMPLE = `./runtime-example`;
 export const PATH_INITIALIZED = join(DIR_RUNTIME, "initialized.json");
 export const PATH_CHAT_STATE = join(DIR_RUNTIME, "chat-state.json");
 export const PATH_MEMORY = join(DIR_RUNTIME, "memory.md");

@@ -6,7 +6,7 @@ import {
   upsertCronTaskTool,
 } from "./built-in-tools/cron";
 import notifyTool from "./built-in-tools/notify";
-import { reviewSkillTool } from "./built-in-tools/review-skill";
+import { recallSkillTool } from "./built-in-tools/recall-skill";
 import updateMemoryTool from "./built-in-tools/update-memory";
 import { upsertSkillTool } from "./built-in-tools/upsert-skill";
 import weatherForecastTool from "./built-in-tools/weather";
@@ -30,7 +30,7 @@ export const builtInTools = [
   updateMemoryTool,
   writeDiaryTool,
   notifyTool,
-  reviewSkillTool,
+  recallSkillTool,
   upsertSkillTool,
   upsertCronTaskTool,
   removeCronTaskTool,

@@ -40,7 +40,10 @@ export default async function callAgent({
             case "call-tools":
               agentState = "tool-calling";
               break;
-            case "output-content":
+            case "output-next":
+              agentState = "outputting";
+              break;
+            case "output-directly":
               agentState = "outputting";
               break;
             case "silent":

@@ -14,8 +14,26 @@ export default async function processOutput({
   tools,
   dialogHistory,
   additionalAgentInformation,
+  lastThinkAction,
   onDialogHistoryChange,
 }: AgentContext) {
+  /** 直接输出内容 */
+  if (lastThinkAction?.type === "output-directly") {
+    const outputContent = lastThinkAction.outputContent;
+    const entry: HistoryEntry = {
+      id: shortId(),
+      role: "agent-reply",
+      status: "completed",
+      createdTime: timeFormat(),
+      updatedTime: timeFormat(),
+      content: outputContent,
+    };
+    dialogHistory.push(entry);
+    onDialogHistoryChange();
+    return;
+  }
+
+  // 调用输出节点
   const clonedDialogHistory = cloneDeep(dialogHistory);
   const entry: HistoryEntry = {
     id: shortId(),

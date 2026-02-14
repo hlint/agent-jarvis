@@ -1,6 +1,6 @@
 ---
-name: workspace-coding-basic
-description: 工作区编程开发基础知识，包括npm包依赖管理、环境变量、运行参数、开发技巧与规范等。
+name: workspace-coding
+description: 如何更好地利用工作区进行编程开发，包括npm包依赖管理、环境变量、运行参数、开发技巧与规范等。
 active: false
 ---
 
@@ -19,6 +19,10 @@ active: false
 - `cheerio`：HTML解析库。
 
 ## 如何读取环境变量和运行参数
+
+当你使用 `workspace-run-script` 工具来执行 Bun 脚本时，传递参数和获取环境变量有特定机制，必须使用`@ws/system/env`和`@ws/system/params`模块来读取。
+
+Example:
 
 ```js
 // 示例脚本：演示如何读取环境变量和运行参数

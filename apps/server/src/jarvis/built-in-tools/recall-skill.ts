@@ -5,16 +5,16 @@ import { z } from "zod";
 import { DIR_SKILLS } from "../defines";
 import { defineJarvisTool } from "../tool";
 
-export const reviewSkillTool = defineJarvisTool({
-  name: "review-skill",
+export const recallSkillTool = defineJarvisTool({
+  name: "recall-skill",
   description:
-    "View the full documentation of a skill by its name. Returns the skill's name, description, active, and full body (detailed instructions). Use when you need to follow a skill's steps or check its usage.",
+    "Recall the full documentation of a skill by its name. Returns the skill's name, description, active, and full body (detailed instructions). Use when you need to follow a skill's steps or check its usage.",
   inputSchema: z.object({
     skillName: z
       .string()
       .regex(/^[a-zA-Z0-9_-]+$/, "仅允许字母、数字、连字符 - 和下划线 _")
       .describe(
-        "The name of the skill to review, as shown in the SKILL list (e.g. 'cron').",
+        "The name of the skill to recall, as shown in the SKILL list (e.g. 'cron').",
       ),
   }),
   execute: async ({ skillName }) => {

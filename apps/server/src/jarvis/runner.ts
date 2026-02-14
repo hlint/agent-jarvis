@@ -31,7 +31,6 @@ export default class Runner {
     this.busy = true;
     this.needRunNext = false;
     const dialogHistory = this.jarvis.state.getState().dialogHistory;
-
     // 调用 AI 对话
     const { stoppedReason, stoppedBy } = await callAgent({
       llmModel: env.LLM_MODEL!,

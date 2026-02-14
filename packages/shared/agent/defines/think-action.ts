@@ -8,7 +8,7 @@ export const CallToolsActionSchema = z.object({
       brief: z
         .string()
         .describe(
-          "A short one-sentence summary of the tool invocation action. Do not include specific parameters here; parameters should be provided in the input field.",
+          "A short one-sentence summary of the tool invocation action. Do not include specific parameters here; parameters should be provided in the input field. Provide the summary in the user's language.",
         ),
       input: z
         .any()
@@ -22,8 +22,8 @@ export const CallToolsActionSchema = z.object({
 
 export type CallToolsAction = z.infer<typeof CallToolsActionSchema>;
 
-export const OutputActionSchema = z.object({
-  type: z.literal("output-content"),
+export const OutputNextActionSchema = z.object({
+  type: z.literal("output-next"),
   outputInstruction: z
     .string()
     .describe(
@@ -31,7 +31,14 @@ export const OutputActionSchema = z.object({
     ),
 });
 
-export type OutputAction = z.infer<typeof OutputActionSchema>;
+export const OutputDirectlyActionSchema = z.object({
+  type: z.literal("output-directly"),
+  outputContent: z
+    .string()
+    .describe("The complete output content to be displayed to the user."),
+});
+
+export type OutputAction = z.infer<typeof OutputNextActionSchema>;
 
 export const SilentActionSchema = z.object({
   type: z.literal("silent"),
@@ -39,7 +46,8 @@ export const SilentActionSchema = z.object({
 
 export const ThinkActionSchema = z.union([
   CallToolsActionSchema,
-  OutputActionSchema,
+  OutputNextActionSchema,
+  OutputDirectlyActionSchema,
   SilentActionSchema,
 ]);
 

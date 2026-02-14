@@ -5,8 +5,13 @@ import { DIR_SKILLS, PATH_MEMORY } from "../defines";
 import { getDiaryPath } from "../utils";
 
 /** 当前注入的 SKILL 摘要。active 为 "true" 时包含完整内容（含 body），否则仅 name + description。 */
-export function getSkillSummary(): string {
-  let list: string[];
+export function getSkills() {
+  let list: {
+    name: string;
+    description: string;
+    active: boolean;
+    body: string;
+  }[];
   try {
     const files = fs.readdirSync(DIR_SKILLS).filter((f) => f.endsWith(".md"));
     list = files.map((file) => {
@@ -15,25 +20,22 @@ export function getSkillSummary(): string {
       const metadata = attributes as {
         name?: string;
         description?: string;
-        active?: string;
+        active?: boolean;
       };
       const name = metadata.name ?? "";
       const description = metadata.description ?? "";
-      const active = metadata.active ?? "false";
-      const parts = [name, description && `描述：${description}`].filter(
-        Boolean,
-      );
-      const line = parts.join("；");
-      if (active === "true" && body?.trim()) {
-        return `${line}\n--- body ---\n${body.trim()}`;
-      }
-      return line;
+      const active = metadata.active ?? false;
+      return {
+        name,
+        description,
+        active,
+        body: active ? body : "Not loaded yet, recall it if you need it",
+      };
     });
   } catch {
     list = [];
   }
-  const skillsSummary = list.length > 0 ? list.join("\n\n") : "暂无";
-  return skillsSummary;
+  return list;
 }
 
 export function getLongTermMemory() {
