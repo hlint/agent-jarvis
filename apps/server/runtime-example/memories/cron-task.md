@@ -4,7 +4,7 @@
 
 ## 为何按目录组织
 
-每个任务拥有独立目录，便于**将与任务相关的文件放在同一目录下**（脚本、配置、数据等）。触发时 AI 可根据 body 说明，在任务目录内执行脚本或读取资源。例如：任务需用 Node.js 跑一个脚本，则把脚本放在 `cron-tasks/<name>/script.js`，body 中写明「在 `cron-tasks/<name>/` 下执行 `node script.js`」（可用 [exec] 时指定 cwd 为该目录）。这样任务与资源集中、路径简单、便于维护。
+每个任务拥有独立目录，便于**将与任务相关的文件放在同一目录下**（脚本、配置、数据等）。触发时你可根据 body 说明，在任务目录内执行脚本或读取资源。例如：任务需用 Node.js 跑一个脚本，则把脚本放在 `cron-tasks/<name>/script.js`，body 中写明「在 `cron-tasks/<name>/` 下执行 `node script.js`」（可用 [exec] 时指定 cwd 为该目录）。这样任务与资源集中、路径简单、便于维护。
 
 ## CRON.md 文件格式
 
@@ -63,12 +63,12 @@ oneTimeOnly: false
 
 ## 被定时触发时的行为
 
-当系统因定时任务触发而调用 AI 时，会收到一条 system-event（`data` 中含该任务信息），其中：
+当系统因定时任务触发而调用你时，会收到一条 system-event（`data` 中含该任务信息），其中：
 
 - `content`：该任务的 **body** 全文，即完整执行说明
 - `data`：含 `name`、`cronPattern`、`oneTimeOnly`、`enabled`、`description` 等
 
-AI 的职责是**根据 content（body）执行任务**，执行完后是否用自然语言向用户汇报或调用其他工具由 AI 自行决定。
+你的职责是**根据 content（body）执行任务**，执行完后是否用自然语言向用户汇报或调用其他工具由你自行决定。
 
 ## 建议流程
 

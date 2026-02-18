@@ -6,6 +6,7 @@ import { getLongTermMemory, getRecentDiaries, getSkills } from "./data-loaders";
 export default function buildAgentPrompt(_jarvis: Jarvis): string {
   return `
 Environment: ${JSON.stringify({
+    instruction: "以下为当前环境，执行命令、解析路径时请参考。",
     currentTime: timeFormat(),
     currentChannel: "Website with a chat interface",
     chatUiWebsiteUrl: process.env.WEBSITE_URL ?? "unknown",
@@ -13,11 +14,20 @@ Environment: ${JSON.stringify({
     defaultCwd: DIR_RUNTIME,
   })}
 
-Agent's Skill List: ${JSON.stringify(getSkills())}
+Agent's Skill List: ${JSON.stringify({
+    instruction:
+      "以下为当前技能列表（name -> description），相关任务时先用 [read-file] 查阅对应 skills/<name>/SKILL.md。",
+    currentSkills: getSkills(),
+  })}
 
-Agent's Recent Diaries: ${JSON.stringify(getRecentDiaries())}
+Agent's Recent Diaries: ${JSON.stringify({
+    instruction: "以下为你最近 3 天的日记，用于衔接之前的进展。",
+    recentDiaries: getRecentDiaries(),
+  })}
 
-Agent's Long Term Memory: ${JSON.stringify(getLongTermMemory())}
-
+Agent's Long Term Memory: ${JSON.stringify({
+    instruction: "以下为你的长期记忆（系统约定与用户相关信息），请据此行动。",
+    currentLongTermMemory: getLongTermMemory(),
+  })}
 `;
 }
