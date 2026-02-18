@@ -5,7 +5,13 @@ import Jarvis from "./jarvis";
 export default function jarvisMiddleware() {
   const jarvis = new Jarvis();
   return new Elysia()
-    .get("/jarvis/dialog-state", () => {
+    .get("/jarvis/dialog-state", ({ headers }) => {
+      const referer = headers.referer;
+      if (referer) {
+        try {
+          jarvis.setWebsiteUrl(new URL(referer).origin);
+        } catch (_error) {}
+      }
       return jarvis.state.getState();
     })
     .delete("/jarvis/dialog-history", () => {

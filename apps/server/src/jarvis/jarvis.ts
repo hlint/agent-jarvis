@@ -18,6 +18,7 @@ export default class Jarvis {
   public state = new JarvisStateManager(this);
   public cron = new JarvisCron(this);
   public retryCount = 0;
+  public websiteUrl: string = "";
   private pushInactiveEvent = debounce(() => {
     const dialogHistory = this.state.getState().dialogHistory;
     const lastEntry = dialogHistory[dialogHistory.length - 1];
@@ -102,5 +103,9 @@ export default class Jarvis {
       dialogHistory: [],
     });
     this.notifyStateChanged();
+  }
+
+  setWebsiteUrl(websiteUrl: string) {
+    this.websiteUrl = websiteUrl;
   }
 }
