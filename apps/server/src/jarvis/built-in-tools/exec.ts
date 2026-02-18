@@ -1,12 +1,33 @@
-import { relative, resolve } from "node:path";
-import { DIR_WORKSPACE } from "./defines";
+import z from "zod";
+import { defineJarvisTool } from "../tool";
+
+export const execTool = defineJarvisTool({
+  name: "exec",
+  description: "Execute a command and return the output",
+  inputSchema: z.object({
+    command: z.string().describe("The command to execute"),
+    cwd: z
+      .string()
+      .optional()
+      .default("runtime")
+      .describe("The current working directory. default to <app-root>/runtime"),
+  }),
+  execute: async (input, _jarvis) => {
+    const { command, cwd } = input;
+    const result = await runBun(command.split(" ").filter(Boolean), cwd, {
+      timeoutMs: 60_000,
+      maxOutputBytes: 2 * 1024 * 1024,
+    });
+    return result;
+  },
+});
 
 /** Default timeout (ms) for runBun. */
-export const RUN_BUN_DEFAULT_TIMEOUT_MS = 60_000;
+const RUN_BUN_DEFAULT_TIMEOUT_MS = 60_000;
 /** Default max bytes for runBun stdout/stderr before truncation. */
-export const RUN_BUN_DEFAULT_MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
+const RUN_BUN_DEFAULT_MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
 
-export type RunBunResult = {
+type RunBunResult = {
   stdout: string;
   stderr: string;
   exitCode: number;
@@ -17,7 +38,7 @@ export type RunBunResult = {
 /**
  * Run a command with Bun.spawn in the given cwd. Reads stdout/stderr via .text(), enforces timeout, truncates output.
  */
-export async function runBun(
+async function runBun(
   cmd: string[],
   cwd: string,
   options?: {
@@ -56,7 +77,7 @@ export async function runBun(
   ).text();
   const truncate = (s: string) =>
     s.length > maxOutputBytes
-      ? s.slice(0, maxOutputBytes) + "\n...[truncated]"
+      ? `${s.slice(0, maxOutputBytes)}\n...[truncated]`
       : s;
   return {
     stdout: truncate(stdout),
@@ -64,33 +85,4 @@ export async function runBun(
     exitCode,
     ...(exitedDueToTimeout && { exitedDueToTimeout: true }),
   };
-}
-
-/** The subdirectory within workspace where AI has file operation access. */
-export const WS_SUBDIR = "ws";
-
-/** Message returned when AI tries to access files outside the allowed directory. */
-export const WS_PATH_RESTRICTION_MESSAGE =
-  "路径无效或尝试访问受保护区域。工作区的配置文件（如 package.json、.env）受保护，无法通过工具访问。";
-
-/**
- * Resolve a path relative to the workspace ws/ directory.
- * AI passes paths like "a.js" or "scripts/foo.js"; they are automatically resolved under workspace/ws/.
- * Throws if the result tries to escape the ws/ directory.
- */
-export function getWorkspaceAbsolutePath(relativePath: string): string {
-  const wsBase = getWsAbsolutePath();
-  const resolved = resolve(wsBase, relativePath);
-  const rel = relative(wsBase, resolved);
-  if (rel.startsWith("..")) {
-    throw new Error(WS_PATH_RESTRICTION_MESSAGE);
-  }
-  return resolved;
-}
-
-/**
- * Get the absolute path to the workspace working directory.
- */
-export function getWsAbsolutePath(): string {
-  return resolve(DIR_WORKSPACE, WS_SUBDIR);
 }

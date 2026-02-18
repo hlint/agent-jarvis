@@ -13,7 +13,7 @@ const summarySchema = z
   .string()
   .min(1)
   .describe(
-    "Timeline-style summary: each entry = one line ## Weekday, Month DD, YYYY HH:MM AM/PM then next line with what happened; blank line between entries. Use createdTime from summarized entries. This is the only trace of removed messages.",
+    "Timeline-style summary: each entry = one line ### Weekday, Month DD, YYYY HH:MM AM/PM then next line with what happened; blank line between entries. Use createdTime from summarized entries. This is the only trace of removed messages.",
   );
 
 export const contextCompressTool = defineJarvisTool({

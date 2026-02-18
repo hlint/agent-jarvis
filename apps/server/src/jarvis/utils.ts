@@ -2,7 +2,7 @@ import { join } from "node:path";
 import { DIR_DIARIES } from "./defines";
 
 export function stringifyFrontmatterMd(
-  attributes: Record<string, string>,
+  attributes: Record<string, any>,
   body: string,
 ): string {
   const lines = Object.entries(attributes).map(
@@ -11,10 +11,10 @@ export function stringifyFrontmatterMd(
   return `---\n${lines.join("\n")}\n---\n\n${body}`;
 }
 
-/** 日记路径：DIR_DIARIES/YYYY/MM/MM-DD.md */
+/** 日记路径：DIR_DIARIES/YYYY/MM/DD.md */
 export function getDiaryPath(date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return join(DIR_DIARIES, String(y), m, `${m}-${d}.md`);
+  return join(DIR_DIARIES, String(y), m, `${d}.md`);
 }

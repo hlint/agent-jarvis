@@ -1,45 +1,46 @@
 import { join } from "node:path";
 import fm from "front-matter";
 import fs from "fs-extra";
-import { DIR_SKILLS, PATH_MEMORY } from "../defines";
+import { DIR_MEMORIES, DIR_SKILLS } from "../defines";
 import { getDiaryPath } from "../utils";
 
-/** 当前注入的 SKILL 摘要。active 为 "true" 时包含完整内容（含 body），否则仅 name + description。 */
-export function getSkills() {
-  let list: {
-    name: string;
-    description: string;
-    active: boolean;
-    body: string;
-  }[];
+const SKILL_FILE = "SKILL.md";
+
+export function getSkills(): { name: string; description: string }[] {
+  const list: { name: string; description: string }[] = [];
   try {
-    const files = fs.readdirSync(DIR_SKILLS).filter((f) => f.endsWith(".md"));
-    list = files.map((file) => {
-      const raw = fs.readFileSync(join(DIR_SKILLS, file), "utf-8");
-      const { attributes, body } = fm(raw);
-      const metadata = attributes as {
-        name?: string;
-        description?: string;
-        active?: boolean;
-      };
-      const name = metadata.name ?? "";
-      const description = metadata.description ?? "";
-      const active = metadata.active ?? false;
-      return {
-        name,
-        description,
-        active,
-        body: active ? body : "Not loaded yet, recall it if you need it",
-      };
-    });
+    if (!fs.existsSync(DIR_SKILLS)) return list;
+    const entries = fs.readdirSync(DIR_SKILLS, { withFileTypes: true });
+    for (const ent of entries) {
+      if (!ent.isDirectory()) continue;
+      const skillPath = join(DIR_SKILLS, ent.name, SKILL_FILE);
+      if (!fs.existsSync(skillPath)) continue;
+      const raw = fs.readFileSync(skillPath, "utf-8");
+      const { attributes } = fm(raw);
+      const metadata = attributes as { name?: string; description?: string };
+      list.push({
+        name: metadata.name ?? ent.name,
+        description: metadata.description ?? "",
+      });
+    }
   } catch {
-    list = [];
+    // ignore
   }
   return list;
 }
 
-export function getLongTermMemory() {
-  return fs.readFileSync(PATH_MEMORY, "utf8");
+export function getLongTermMemory(): string {
+  const parts: string[] = [];
+  if (fs.existsSync(DIR_MEMORIES)) {
+    const files = fs
+      .readdirSync(DIR_MEMORIES)
+      .filter((f) => f.endsWith(".md"))
+      .sort();
+    for (const f of files) {
+      parts.push(fs.readFileSync(join(DIR_MEMORIES, f), "utf-8"));
+    }
+  }
+  return parts.join("\n\n");
 }
 
 export function getRecentDiaries(): string {

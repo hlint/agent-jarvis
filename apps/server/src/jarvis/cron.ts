@@ -1,18 +1,26 @@
+import { watch } from "node:fs";
+import { join } from "node:path";
 import { timeFormat } from "@repo/shared/lib/time";
 import { CronJob } from "cron";
-import { debounce, pick } from "es-toolkit";
+import { omit } from "es-toolkit";
+import fm from "front-matter";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
-import { PATH_CRON_TASKS } from "./defines";
+import z from "zod";
+import { DIR_CRON_TASKS } from "./defines";
 import type Jarvis from "./jarvis";
+import { stringifyFrontmatterMd } from "./utils";
 
-/** name 为唯一标识，仅允许英文字母、数字及符号 - 和 _ */
-type CronTask = {
-  name: string;
-  description: string;
-  cronPattern: string;
-  oneTimeTrigger: boolean;
-  enabled: boolean;
+const cronTaskMetadataSchema = z.object({
+  name: z.string().regex(/^[a-zA-Z0-9_-]+$/),
+  description: z.string(),
+  cronPattern: z.string(),
+  oneTimeOnly: z.boolean(),
+  enabled: z.boolean(),
+});
+
+type CronTask = z.infer<typeof cronTaskMetadataSchema> & {
+  body: string;
   cronJob?: CronJob;
 };
 
@@ -25,21 +33,35 @@ export default class JarvisCron {
   }
 
   init() {
-    try {
-      const raw = fs.readJSONSync(PATH_CRON_TASKS) as Record<string, unknown>[];
-      this.cronTasks = raw.map((t) => ({
-        ...pick(t as CronTask, [
-          "name",
-          "description",
-          "cronPattern",
-          "oneTimeTrigger",
-        ]),
-        enabled: (t as CronTask).enabled !== false,
-      }));
-    } catch (_error) {
-      fs.writeJSONSync(PATH_CRON_TASKS, this.cronTasks, { spaces: 2 });
-    }
+    this.loadCronTasks();
     this.resetCronJobs();
+    this.watchChanges();
+  }
+
+  private watchChanges() {
+    watch(DIR_CRON_TASKS, { recursive: true }, (_event, filename) => {
+      if (filename?.endsWith("CRON.md")) {
+        this.loadCronTasks();
+        this.resetCronJobs();
+      }
+    });
+  }
+
+  private loadCronTasks() {
+    const dirs = fs.readdirSync(DIR_CRON_TASKS);
+    const cronTasks = dirs.map((dir) => {
+      const raw = fs.readFileSync(
+        join(DIR_CRON_TASKS, dir, "CRON.md"),
+        "utf-8",
+      );
+      const { attributes } = fm(raw);
+      const metadata = cronTaskMetadataSchema.parse(attributes);
+      return {
+        ...metadata,
+        body: raw,
+      };
+    });
+    this.cronTasks = cronTasks;
   }
 
   private resetCronJobs() {
@@ -53,115 +75,37 @@ export default class JarvisCron {
           role: "system-event",
           createdTime: timeFormat(),
           brief: `Cron task ${task.name} triggered`,
+          content: task.body,
           data: {
-            taskName: task.name,
-            oneTimeTrigger: task.oneTimeTrigger,
-            taskDescription: task.description,
-            taskCronPattern: task.cronPattern,
+            ...omit(task, ["body", "cronJob"]),
           },
         });
         this.jarvis.wakeUp();
-        if (task.oneTimeTrigger) {
-          this.removeCronTask(task.name);
+        if (task.oneTimeOnly) {
+          this.handleOneTimeOnly(task.name);
         }
       });
       if (task.enabled) {
         task.cronJob.start();
       }
     });
-    this.persist();
   }
 
   listCronTasks() {
-    return this.cronTasks.map((task, index) => ({
-      index: index + 1,
-      ...pick(task, [
-        "name",
-        "description",
-        "cronPattern",
-        "oneTimeTrigger",
-        "enabled",
-      ]),
+    return this.cronTasks.map((task) => ({
+      ...omit(task, ["body", "cronJob"]),
       nextTriggerTime: getNextTriggerTime(task.cronPattern),
     }));
   }
 
-  createCronTask(
-    cronTask: Pick<
-      CronTask,
-      "name" | "description" | "cronPattern" | "oneTimeTrigger" | "enabled"
-    >,
-  ) {
-    const newTask: CronTask = {
-      ...cronTask,
-      enabled: cronTask.enabled !== false,
-    };
-    this.cronTasks.push(newTask);
-    this.resetCronJobs();
-    return {
-      ...pick(newTask, ["name", "enabled"]),
-      nextTriggerTime: getNextTriggerTime(newTask.cronPattern),
-    };
+  private handleOneTimeOnly(name: string) {
+    const taskPath = join(DIR_CRON_TASKS, name, "CRON.md");
+    const content = fs.readFileSync(taskPath, "utf-8");
+    const { attributes, body } = fm(content);
+    const metadata = cronTaskMetadataSchema.parse(attributes);
+    metadata.enabled = false;
+    fs.writeFileSync(taskPath, stringifyFrontmatterMd(metadata, body));
   }
-
-  updateCronTask(
-    name: string,
-    partial: Partial<
-      Pick<
-        CronTask,
-        "name" | "description" | "cronPattern" | "oneTimeTrigger" | "enabled"
-      >
-    >,
-  ) {
-    const index = this.cronTasks.findIndex((task) => task.name === name);
-    if (index === -1) return null;
-    const task = this.cronTasks[index];
-    const newName = partial.name ?? task.name;
-    if (newName !== name && this.cronTasks.some((t) => t.name === newName)) {
-      return null; // 新 name 已被占用
-    }
-    const updated: CronTask = {
-      name: newName,
-      description: partial.description ?? task.description,
-      cronPattern: partial.cronPattern ?? task.cronPattern,
-      oneTimeTrigger: partial.oneTimeTrigger ?? task.oneTimeTrigger,
-      enabled: partial.enabled !== undefined ? partial.enabled : task.enabled,
-    };
-    this.cronTasks[index] = updated;
-    this.resetCronJobs();
-    return {
-      ...pick(updated, ["name", "enabled"]),
-      nextTriggerTime: getNextTriggerTime(updated.cronPattern),
-    };
-  }
-
-  removeCronTask(name: string) {
-    const index = this.cronTasks.findIndex((task) => task.name === name);
-    if (index !== -1) {
-      if (this.cronTasks[index].cronJob) {
-        this.cronTasks[index].cronJob!.stop();
-      }
-      this.cronTasks.splice(index, 1);
-      this.persist();
-    }
-  }
-
-  // 持久化（仅写入 name/description/cronPattern/oneTimeTrigger，不写入 cronJob 或旧版 id）
-  private persist = debounce(() => {
-    fs.writeJSONSync(
-      PATH_CRON_TASKS,
-      this.cronTasks.map((task) =>
-        pick(task, [
-          "name",
-          "description",
-          "cronPattern",
-          "oneTimeTrigger",
-          "enabled",
-        ]),
-      ),
-      { spaces: 2 },
-    );
-  }, 1000);
 }
 
 function getNextTriggerTime(cronPattern: string) {
