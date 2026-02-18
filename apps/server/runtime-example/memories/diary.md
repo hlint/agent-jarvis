@@ -5,23 +5,20 @@
 ## 存储位置与格式
 
 - **路径**：`diaries/YYYY/MM/DD.md`（相对于 runtime），月、日两位补零，例如 `diaries/2026/02/17.md`。
-- **单条格式**：每条占一段，先写时间标题行，再写正文。时间行格式为 `### Weekday, Month DD, YYYY HH:MM AM/PM`（与系统 `timeFormat` 一致，如 `### Friday, February 17, 2026 21:35 PM`），下一行起为正文。条与条之间空一行。
+- **单条格式**：每条占一行，格式为 `**Weekday, Month DD, YYYY HH:MM AM/PM:** 内容`（与系统 当前时间格式一致，如 `**Friday, February 17, 2026 21:35 PM:** 内容`）。条与条之间空一行。
 
-示例（参见 `diaries/2026/01/01.md`）：
+示例：
 
-```markdown
-### Friday, January 01, 2026 00:00 AM
+```
+**Friday, January 01, 2026 01:00 AM:** Foo
 
-Happy New Year!
+**Friday, January 01, 2026 02:00 AM:** Bar
 
-### Friday, February 17, 2026 21:35 PM
-
-帮用户修复了登录超时问题，原因是 token 刷新逻辑未在后台 tab 中执行。
 ```
 
 ## 如何写日记
 
-使用 [append-to-file]：路径为当日文件 `diaries/YYYY/MM/DD.md`，内容为「时间标题行 + 空行 + 正文」。若当日文件不存在，会随追加自动创建。时间可用当前对话或系统提供的当前时间，格式与上一致。
+使用 [append-to-file]：路径为当日文件 `diaries/YYYY/MM/DD.md`，内容为「`**时间:** 内容`」格式的单行。若当日文件不存在，会随追加自动创建。时间可用当前对话或系统提供的当前时间，格式与上一致。
 
 ## 何时写、写什么
 

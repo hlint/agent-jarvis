@@ -20,20 +20,21 @@ const messageVariants = {
 
 export default function JarvisMessages() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
+  const preRef = useRef<HTMLDivElement>(null);
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [shouldHideIds, setShouldHideIds] = useState<string[]>([]);
   const debugMode = useJarvisStore((state) => state.debugMode);
   const setHandleScrollToBottom = useJarvisStore(
     (state) => state.setHandleScrollToBottom,
   );
-  const listBottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const scrollToBottom = () => {
       setTimeout(() => {
-        if (listBottomRef.current) {
-          listBottomRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 500);
+        preRef.current?.scrollTo({
+          top: preRef.current?.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
     };
     setHandleScrollToBottom(scrollToBottom);
     return () => {
@@ -41,7 +42,7 @@ export default function JarvisMessages() {
     };
   }, [setHandleScrollToBottom]);
   return (
-    <div className="flex flex-col gap-3 flex-1 px-2">
+    <div className="flex flex-col gap-3 flex-1 px-2" ref={preRef}>
       <AnimatePresence initial={false}>
         {dialogHistory.map((historyEntry) => {
           if (
@@ -100,7 +101,6 @@ export default function JarvisMessages() {
           );
         })}
       </AnimatePresence>
-      <div className="h-0.5" ref={listBottomRef} />
     </div>
   );
 }

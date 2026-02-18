@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactJson from "react-json-view";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -22,11 +22,20 @@ export default function InfoCard({
   tag?: string;
 }) {
   const [jsonExpanded, setJsonExpanded] = useState(false);
-  // useEffect(() => {
-  //   if (status === "completed") {
-  //     setJsonExpanded(false);
-  //   }
-  // }, [status]);
+  const preRef = useRef<HTMLPreElement>(null);
+
+  // Scroll to bottom when content changes and jsonExpanded is false
+  useEffect(() => {
+    if (!jsonExpanded && content && preRef.current) {
+      setTimeout(() => {
+        preRef.current?.scrollTo({
+          top: preRef.current?.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
+    }
+  }, [content, jsonExpanded]);
+
   const HeaderComponent = data || content ? "button" : "div";
   const headerProps =
     data || content
@@ -66,29 +75,52 @@ export default function InfoCard({
         ) : null}
       </HeaderComponent>
       {data || content ? (
-        <div
-          className="grid transition-[grid-template-rows] duration-200 ease-out"
-          style={{ gridTemplateRows: jsonExpanded ? "1fr" : "0fr" }}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <div
-              className={content ? "grid grid-cols-[3fr_2fr] gap-2 p-2" : "p-2"}
-            >
-              {content ? (
-                <div className="min-w-0 overflow-auto">
-                  <JarvisMarkdown text={content} className="text-xs/relaxed" />
-                </div>
-              ) : null}
-              {data ? (
-                <div
-                  className={content ? "min-w-0 shrink-0 overflow-auto" : ""}
-                >
-                  <ReactJson src={data} collapsed={2} />
-                </div>
-              ) : null}
+        <>
+          {!jsonExpanded && content ? (
+            <div className="">
+              <pre
+                ref={preRef}
+                className="text-xs leading-relaxed whitespace-pre-wrap font-mono m-0"
+                style={{
+                  height: "3em", // Approximately 2 lines
+                  lineHeight: "1.5em",
+                  overflowY: "hidden",
+                  overflowX: "hidden",
+                }}
+              >
+                {content}
+              </pre>
+            </div>
+          ) : null}
+          <div
+            className="grid transition-[grid-template-rows] duration-200 ease-out"
+            style={{ gridTemplateRows: jsonExpanded ? "1fr" : "0fr" }}
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div
+                className={
+                  content ? "grid grid-cols-[3fr_2fr] gap-2 p-2" : "p-2"
+                }
+              >
+                {content ? (
+                  <div className="min-w-0 overflow-auto">
+                    <JarvisMarkdown
+                      text={content}
+                      className="text-xs/relaxed"
+                    />
+                  </div>
+                ) : null}
+                {data ? (
+                  <div
+                    className={content ? "min-w-0 shrink-0 overflow-auto" : ""}
+                  >
+                    <ReactJson src={data} collapsed={2} />
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
-        </div>
+        </>
       ) : null}
     </div>
   );
