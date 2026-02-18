@@ -9,6 +9,9 @@ import { DIR_RUNTIME, DIR_RUNTIME_EXAMPLE, PATH_INITIALIZED } from "./defines";
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 
+// If the system is inactive for 20 minutes, it will push a system-inactive event.
+const SYSTEM_INACTIVE_INTERVAL = 20 * 60 * 1000;
+
 export default class Jarvis {
   public runner = new Runner(this);
   public clientManager = new JarvisClientManager();
@@ -42,7 +45,7 @@ export default class Jarvis {
       },
     });
     this.wakeUp();
-  }, 5 * 60_000);
+  }, SYSTEM_INACTIVE_INTERVAL);
 
   constructor() {
     this.init();

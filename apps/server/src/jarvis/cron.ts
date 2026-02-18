@@ -1,8 +1,8 @@
-import { watch } from "node:fs";
 import { join } from "node:path";
 import { timeFormat } from "@repo/shared/lib/time";
+import chokidar from "chokidar";
 import { CronJob } from "cron";
-import { omit } from "es-toolkit";
+import { debounce, omit } from "es-toolkit";
 import fm from "front-matter";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
@@ -39,12 +39,13 @@ export default class JarvisCron {
   }
 
   private watchChanges() {
-    watch(DIR_CRON_TASKS, { recursive: true }, (_event, filename) => {
-      if (filename?.endsWith("CRON.md")) {
-        this.loadCronTasks();
-        this.resetCronJobs();
-      }
-    });
+    const reloadCron = debounce(() => {
+      this.loadCronTasks();
+      this.resetCronJobs();
+    }, 300);
+    chokidar
+      .watch(DIR_CRON_TASKS, { ignoreInitial: true })
+      .on("all", reloadCron);
   }
 
   private loadCronTasks() {

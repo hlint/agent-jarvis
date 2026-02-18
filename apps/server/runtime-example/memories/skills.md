@@ -1,10 +1,10 @@
 # Skills
 
-此处记录技能（Skill）的约定与用法：技能是模块化知识包，存放于 runtime 的 `skills/<name>/SKILL.md`，用于扩展 AI 在特定领域的能力。
+此处记录技能（Skill）的约定与用法。
 
 ## 概念
 
-技能是面向特定任务或领域的知识、步骤与规范，相当于该领域的「 onboarding 指南」。系统在每次对话时只会加载技能的 name 与 description；技能的具体 body 需 AI 通过 [read-file] 主动 Recall 后才进入上下文。
+技能是模块化知识包，存放于 runtime 的 `skills/<name>/SKILL.md`，用于扩展 AI 在特定领域的能力。系统在每次对话时只会加载技能的 name 与 description；技能的具体 body 需 AI 通过 [read-file] 主动查阅。
 
 ## 加载机制
 

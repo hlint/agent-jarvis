@@ -14,6 +14,18 @@ function resolvePath(inputPath: string): string {
     : path.join(path.resolve(DIR_RUNTIME), inputPath);
 }
 
+const ensureDirTool = defineJarvisTool({
+  name: "ensure-dir",
+  description: "Ensure directory exists. Creates dirs if needed.",
+  inputSchema: z.object({
+    brief: z.string().describe("Brief label"),
+    path: z.string().describe(PATH_DESC),
+  }),
+  execute: async (input, _jarvis) => {
+    await fs.ensureDir(resolvePath(input.path));
+  },
+});
+
 const readFileTool = defineJarvisTool({
   name: "read-file",
   description: "Read file (utf-8)",
@@ -123,6 +135,7 @@ const listDirTool = defineJarvisTool({
 });
 
 export const fileTools = [
+  ensureDirTool,
   readFileTool,
   writeFileTool,
   editFileTool,

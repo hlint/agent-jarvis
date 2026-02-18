@@ -1,6 +1,10 @@
 # Cron Task
 
-此处记录定时任务的约定与用法：任务以文件形式存放在 runtime 的 `cron-tasks/<name>/CRON.md`，系统会按 cron 表达式触发并推送 system-event。
+此处记录定时任务的约定与用法：任务以**目录**为单位存放在 runtime 的 `cron-tasks/<name>/`，目录下必有 `CRON.md`，系统按 cron 表达式触发并推送 system-event。
+
+## 为何按目录组织
+
+每个任务拥有独立目录，便于**将与任务相关的文件放在同一目录下**（脚本、配置、数据等）。触发时 AI 可根据 body 说明，在任务目录内执行脚本或读取资源。例如：任务需用 Node.js 跑一个脚本，则把脚本放在 `cron-tasks/<name>/script.js`，body 中写明「在 `cron-tasks/<name>/` 下执行 `node script.js`」（可用 [exec] 时指定 cwd 为该目录）。这样任务与资源集中、路径简单、便于维护。
 
 ## CRON.md 文件格式
 
@@ -53,8 +57,9 @@ oneTimeOnly: false
 ## 创建/更新任务时的要点
 
 1. **body 与 description 要自包含**：触发时可能已无当前对话上下文，body 里要写清「做什么、用什么参数、预期结果」（如城市名、接口参数等），使仅凭 body 即可执行。
-2. **oneTimeOnly**：仅需执行一次的提醒用 `oneTimeOnly: true`；周期任务用 `false`。
-3. **路径**：创建或编辑时使用基于 runtime 的相对路径，例如 `cron-tasks/daily-weather/CRON.md`（使用 [write-file] 可自动创建目录）。
+2. **任务相关文件放同目录**：脚本、配置等建议放在 `cron-tasks/<name>/` 下；body 中说明执行方式时，写清工作目录与命令（如 `cwd: cron-tasks/<name>`，再执行 `node script.js`）。
+3. **oneTimeOnly**：仅需执行一次的提醒用 `oneTimeOnly: true`；周期任务用 `false`。
+4. **路径**：创建或编辑时使用基于 runtime 的相对路径，例如 `cron-tasks/daily-weather/CRON.md`（使用 [write-file] 可自动创建目录）。
 
 ## 被定时触发时的行为
 
