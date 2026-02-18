@@ -3,16 +3,13 @@ import { defineJarvisTool } from "../tool";
 
 const notifyTool = defineJarvisTool({
   name: "notify",
-  description:
-    "Notify user's cellphone with a message. This tool is used to notify the user about important events or tasks.",
+  description: "Push notification to user.",
   inputSchema: z.object({
-    message: z.string().describe("The message to notify the user with"),
+    message: z.string().describe("Message"),
     withWebNavigation: z
       .boolean()
       .optional()
-      .describe(
-        "If true: clicking the notification opens the website that the user uses to chat with the AI. Use when this is a heads-up only and the user should open the website to see full details. If false: no link on click; use for simple alerts or when the message is self-contained and the user does not need to open the website.",
-      ),
+      .describe("If true, click opens chat website"),
   }),
   execute: async ({ message, withWebNavigation }) => {
     const topic = process.env.NTFY_TOPIC;

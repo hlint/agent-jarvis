@@ -7,13 +7,11 @@ export const execTool = defineJarvisTool({
   name: "exec",
   description: "Execute a command and return the output",
   inputSchema: z.object({
-    command: z.string().describe("The command to execute"),
+    command: z.string().describe("Command"),
     cwd: z
       .string()
       .optional()
-      .describe(
-        "Working directory. If not absolute, resolved relative to runtime. Default: runtime root.",
-      ),
+      .describe("Working dir (relative to runtime if not absolute)"),
   }),
   execute: async (input, _jarvis) => {
     const cwd = input.cwd
@@ -21,7 +19,7 @@ export const execTool = defineJarvisTool({
         ? input.cwd
         : path.join(path.resolve(DIR_RUNTIME), input.cwd)
       : path.resolve(DIR_RUNTIME);
-    const result = await runBun(input.command.split(" ").filter(Boolean), cwd, {
+    const result = await runBun(input.command, cwd, {
       timeoutMs: 60_000,
       maxOutputBytes: 2 * 1024 * 1024,
     });
@@ -43,10 +41,10 @@ type RunBunResult = {
 };
 
 /**
- * Run a command with Bun.spawn in the given cwd. Reads stdout/stderr via .text(), enforces timeout, truncates output.
+ * Run a command via shell (sh -c / cmd /c) so quoting and pipes work like in a terminal.
  */
 async function runBun(
-  cmd: string[],
+  cmd: string,
   cwd: string,
   options?: {
     timeoutMs?: number;
@@ -56,8 +54,10 @@ async function runBun(
   const timeoutMs = options?.timeoutMs ?? RUN_BUN_DEFAULT_TIMEOUT_MS;
   const maxOutputBytes =
     options?.maxOutputBytes ?? RUN_BUN_DEFAULT_MAX_OUTPUT_BYTES;
+  const shellCmd =
+    process.platform === "win32" ? ["cmd.exe", "/c", cmd] : ["sh", "-c", cmd];
   const proc = Bun.spawn({
-    cmd,
+    cmd: shellCmd,
     cwd,
     stdout: "pipe",
     stderr: "pipe",

@@ -6,7 +6,7 @@ import { defineJarvisTool } from "../tool";
 const webExtractTool = defineJarvisTool({
   name: "web-extract",
   description:
-    "Fetch and extract the current content from one or more given URLs. Use when you already know the URL(s) and need the live content of that page—e.g. A blog post, a specific article, a dashboard, or any known link. Prefer this over web-search when the task is 'get what’s on this page right now'.",
+    "Fetch and extract content from given URL(s). Use when you have the URL(s).",
   inputSchema: z.object({
     urls: z.array(z.string()).min(1).max(8),
   }),

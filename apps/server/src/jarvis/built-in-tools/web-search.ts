@@ -6,12 +6,10 @@ import { defineJarvisTool } from "../tool";
 const webSearchTool = defineJarvisTool({
   name: "web-search",
   description:
-    "Search the web to discover information. Use when you need to find sources, answers, or articles and do not already have the exact URL. Returns search results (snippets, links, summary). Do NOT use for getting the current content of a specific known page—use web-extract with that URL instead.",
+    "Search the web. Use when you need to find info without a specific URL. For known URL content, use web-extract.",
   inputSchema: z.object({
-    query: z.string().describe("The query to search the web for"),
-    topic: z
-      .enum(["general", "news", "finance"])
-      .describe("The topic of the search."),
+    query: z.string().describe("Query"),
+    topic: z.enum(["general", "news", "finance"]).describe("Topic"),
     // timeRange: z
     //   .enum(["all", "one day", "one week", "one month", "one year"])
     //   .describe("The time range of the search."),

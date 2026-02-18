@@ -1,10 +1,11 @@
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
 import { timeFormat } from "@repo/shared/lib/time";
 import { debounce } from "es-toolkit";
+import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import JarvisClientManager from "./client";
 import JarvisCron from "./cron";
-import init from "./init";
+import { DIR_RUNTIME, DIR_RUNTIME_EXAMPLE, PATH_INITIALIZED } from "./defines";
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 
@@ -44,7 +45,27 @@ export default class Jarvis {
   }, 5 * 60_000);
 
   constructor() {
-    init(this);
+    this.init();
+  }
+
+  private init() {
+    // 创建运行时目录
+    fs.ensureDirSync(DIR_RUNTIME);
+
+    // 初始化
+    if (!fs.existsSync(PATH_INITIALIZED)) {
+      // 从示例目录复制文件到运行时目录
+      fs.copySync(DIR_RUNTIME_EXAMPLE, DIR_RUNTIME);
+
+      // 写入初始化标记文件
+      fs.writeJSONSync(PATH_INITIALIZED, {
+        initialized: true,
+        time: timeFormat(),
+      });
+    }
+
+    this.state.init();
+    this.cron.init();
   }
 
   incomingUserMessage(content: string) {

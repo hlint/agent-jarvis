@@ -6,8 +6,7 @@ import { defineJarvisTool } from "../tool";
 
 const MAX_FILE_CONTENT_LENGTH = 2 * 1024 * 1024; // 2MB
 
-const PATH_DESC =
-  "File path. If not absolute, it is resolved relative to the runtime directory.";
+const PATH_DESC = "Path (relative to runtime if not absolute)";
 
 function resolvePath(inputPath: string): string {
   return path.isAbsolute(inputPath)
@@ -17,13 +16,9 @@ function resolvePath(inputPath: string): string {
 
 const readFileTool = defineJarvisTool({
   name: "read-file",
-  description: "Read a file and return the content(utf-8)",
+  description: "Read file (utf-8)",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this read file action, e.g. 'read <filename>' or purpose",
-      ),
+    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
   }),
   execute: async (input, _jarvis) => {
@@ -38,16 +33,11 @@ const readFileTool = defineJarvisTool({
 
 const writeFileTool = defineJarvisTool({
   name: "write-file",
-  description:
-    "Write a file with the given content. create the file(and its parent directories) if it doesn't exist. Overwrite the file if it exists.",
+  description: "Write file. Creates dirs if needed. Overwrites if exists.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this write file action, e.g. 'write <filename>' or purpose",
-      ),
+    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
-    content: z.string().describe("The content to write to the file"),
+    content: z.string().describe("Content"),
   }),
   execute: async (input, _jarvis) => {
     await fs.outputFile(resolvePath(input.path), input.content);
@@ -56,24 +46,17 @@ const writeFileTool = defineJarvisTool({
 
 const editFileTool = defineJarvisTool({
   name: "edit-file",
-  description:
-    "Edit a file by replacing oldText with newText. The oldText must exist exactly in the file.",
+  description: "Replace oldText with newText. oldText must exist exactly.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this edit file action, e.g. 'edit <filename>' or purpose",
-      ),
+    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
-    oldText: z.string().describe("The exact text to find and replace"),
-    newText: z.string().describe("The text to replace with"),
+    oldText: z.string().describe("Exact text to find"),
+    newText: z.string().describe("Replacement"),
     globalReplace: z
       .boolean()
       .optional()
       .default(false)
-      .describe(
-        "If true, replace all occurrences of oldText. If false, replace only the first.",
-      ),
+      .describe("Replace all (default: first only)"),
   }),
   execute: async (input, _jarvis) => {
     const resolvedPath = resolvePath(input.path);
@@ -93,32 +76,23 @@ const editFileTool = defineJarvisTool({
 
 const appendToFileTool = defineJarvisTool({
   name: "append-to-file",
-  description:
-    "Append a file with the given content. create the file(and its parent directories) if it doesn't exist.",
+  description: "Append to file. Creates dirs and file if not exists.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this append to file action, e.g. 'append <filename>' or purpose",
-      ),
+    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
-    content: z.string().describe("The content to append to the file"),
+    content: z.string().describe("Content to append"),
   }),
   execute: async (input, _jarvis) => {
+    await fs.ensureFile(resolvePath(input.path));
     await fs.appendFile(resolvePath(input.path), input.content);
   },
 });
 
 const listDirTool = defineJarvisTool({
   name: "list-dir",
-  description:
-    "List the contents of a directory. For each item: if it is a directory, returns the count of directories and files it contains; if it is a file, returns its size in bytes.",
+  description: "List directory. Dir: dir/file count. File: size.",
   inputSchema: z.object({
-    brief: z
-      .string()
-      .describe(
-        "Short label for this list dir action, e.g. 'list <dirname>' or purpose",
-      ),
+    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
   }),
   execute: async (input, _jarvis) => {
