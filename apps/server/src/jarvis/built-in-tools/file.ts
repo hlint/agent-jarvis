@@ -1,9 +1,19 @@
 import path from "node:path";
 import fs from "fs-extra";
 import { z } from "zod";
+import { DIR_RUNTIME } from "../defines";
 import { defineJarvisTool } from "../tool";
 
 const MAX_FILE_CONTENT_LENGTH = 2 * 1024 * 1024; // 2MB
+
+const PATH_DESC =
+  "File path. If not absolute, it is resolved relative to the runtime directory.";
+
+function resolvePath(inputPath: string): string {
+  return path.isAbsolute(inputPath)
+    ? inputPath
+    : path.join(path.resolve(DIR_RUNTIME), inputPath);
+}
 
 const readFileTool = defineJarvisTool({
   name: "read-file",
@@ -14,11 +24,11 @@ const readFileTool = defineJarvisTool({
       .describe(
         "Short label for this read file action, e.g. 'read <filename>' or purpose",
       ),
-    path: z.string().describe("The path of the file to read"),
+    path: z.string().describe(PATH_DESC),
   }),
   execute: async (input, _jarvis) => {
-    const { path } = input;
-    const content = await fs.readFile(path, "utf-8");
+    const resolvedPath = resolvePath(input.path);
+    const content = await fs.readFile(resolvedPath, "utf-8");
     if (content.length > MAX_FILE_CONTENT_LENGTH) {
       throw new Error(`File content is too large to read`);
     }
@@ -36,12 +46,11 @@ const writeFileTool = defineJarvisTool({
       .describe(
         "Short label for this write file action, e.g. 'write <filename>' or purpose",
       ),
-    path: z.string().describe("The path of the file to write"),
+    path: z.string().describe(PATH_DESC),
     content: z.string().describe("The content to write to the file"),
   }),
   execute: async (input, _jarvis) => {
-    const { path, content } = input;
-    await fs.outputFile(path, content);
+    await fs.outputFile(resolvePath(input.path), input.content);
   },
 });
 
@@ -55,20 +64,30 @@ const editFileTool = defineJarvisTool({
       .describe(
         "Short label for this edit file action, e.g. 'edit <filename>' or purpose",
       ),
-    path: z.string().describe("The path of the file to edit"),
+    path: z.string().describe(PATH_DESC),
     oldText: z.string().describe("The exact text to find and replace"),
     newText: z.string().describe("The text to replace with"),
+    globalReplace: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe(
+        "If true, replace all occurrences of oldText. If false, replace only the first.",
+      ),
   }),
   execute: async (input, _jarvis) => {
-    const { path, oldText, newText } = input;
-    if (!fs.existsSync(path)) {
-      throw new Error(`File ${path} does not exist`);
+    const resolvedPath = resolvePath(input.path);
+    if (!fs.existsSync(resolvedPath)) {
+      throw new Error(`File ${resolvedPath} does not exist`);
     }
-    const content = await fs.readFile(path, "utf-8");
-    if (content.indexOf(oldText) === -1) {
-      throw new Error(`File ${path} does not contain the old text`);
+    const content = await fs.readFile(resolvedPath, "utf-8");
+    if (content.indexOf(input.oldText) === -1) {
+      throw new Error(`File ${resolvedPath} does not contain the old text`);
     }
-    await fs.outputFile(path, content.replace(oldText, newText));
+    const newContent = input.globalReplace
+      ? content.replaceAll(input.oldText, input.newText)
+      : content.replace(input.oldText, input.newText);
+    await fs.outputFile(resolvedPath, newContent);
   },
 });
 
@@ -82,12 +101,11 @@ const appendToFileTool = defineJarvisTool({
       .describe(
         "Short label for this append to file action, e.g. 'append <filename>' or purpose",
       ),
-    path: z.string().describe("The path of the file to append"),
+    path: z.string().describe(PATH_DESC),
     content: z.string().describe("The content to append to the file"),
   }),
   execute: async (input, _jarvis) => {
-    const { path, content } = input;
-    await fs.appendFile(path, content);
+    await fs.appendFile(resolvePath(input.path), input.content);
   },
 });
 
@@ -101,10 +119,10 @@ const listDirTool = defineJarvisTool({
       .describe(
         "Short label for this list dir action, e.g. 'list <dirname>' or purpose",
       ),
-    path: z.string().describe("The path of the directory to list"),
+    path: z.string().describe(PATH_DESC),
   }),
   execute: async (input, _jarvis) => {
-    const { path: dirPath } = input;
+    const dirPath = resolvePath(input.path);
     const names = await fs.readdir(dirPath);
     const results = await Promise.all(
       names.map(async (name) => {

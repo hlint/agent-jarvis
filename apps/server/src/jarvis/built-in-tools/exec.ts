@@ -1,4 +1,6 @@
+import path from "node:path";
 import z from "zod";
+import { DIR_RUNTIME } from "../defines";
 import { defineJarvisTool } from "../tool";
 
 export const execTool = defineJarvisTool({
@@ -9,12 +11,17 @@ export const execTool = defineJarvisTool({
     cwd: z
       .string()
       .optional()
-      .default("runtime")
-      .describe("The current working directory. default to <app-root>/runtime"),
+      .describe(
+        "Working directory. If not absolute, resolved relative to runtime. Default: runtime root.",
+      ),
   }),
   execute: async (input, _jarvis) => {
-    const { command, cwd } = input;
-    const result = await runBun(command.split(" ").filter(Boolean), cwd, {
+    const cwd = input.cwd
+      ? path.isAbsolute(input.cwd)
+        ? input.cwd
+        : path.join(path.resolve(DIR_RUNTIME), input.cwd)
+      : path.resolve(DIR_RUNTIME);
+    const result = await runBun(input.command.split(" ").filter(Boolean), cwd, {
       timeoutMs: 60_000,
       maxOutputBytes: 2 * 1024 * 1024,
     });

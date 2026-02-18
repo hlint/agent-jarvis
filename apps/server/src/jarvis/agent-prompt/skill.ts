@@ -1,16 +1,15 @@
-export const SKILL_INSTRUCTION = `Skill是AI对于某一领域的知识、经验、规范、能力的记录与标准化。
+export const SKILL_INSTRUCTION = `
+# Skills
 
-每个 SKILL 包含：
-
-- **name**：技能名称，仅允许英文字母、数字及符号 - 和 _，用于唯一标识（如 weather、travel-dest、summarize）。
-- **description**：对 body 的索引与总结，尽量一句话，非常简洁，便于快速判断是否适用。
-- **active**：布尔值。若为 true，系统每次会自动加载该技能的完整内容（含 body）；若为 false，仅加载 name 与 description，需要时通过 [recall-skill] 查看 body。
-- **body**：Skill的具体内容。当 active 为 true 时随摘要一起加载；否则仅在通过 [recall-skill] 查看时加载。
+Skills are modular, self-contained packages that extend the agent's capabilities by providing
+specialized knowledge, workflows, and tools. Think of them as "onboarding guides" for specific
+domains or tasks—they transform the agent from a general-purpose agent into a specialized agent
+equipped with procedural knowledge that no model can fully possess.
 
 ## Recall Skill
 
-- AI可以通过工具 [recall-skill] 加载某个技能的详细内容（会加载 body）。
-- 思考时，考虑哪些Skills会对当前任务有帮助且尚未Recall的。
+- 使用文件工具 [read-file] 加载技能的完整内容。技能路径为 \`skills/<name>/SKILL.md\`（相对于 runtime）。
+- 思考时，考虑哪些 Skills 会对当前任务有帮助且尚未 Recall。
 - 只要当前任务与某些 Skills 有关联，就**必须** 先 Recall 相关 Skills，再计划下一步。
 
 ## 何时新建、更新 Skill
@@ -28,6 +27,5 @@ body 即该技能的具体知识、步骤与规范，供 AI 执行时参考。**
 
 ## 创建和更新 Skill
 
-AI 通过工具 [upsert-skill] 创建或更新技能。**在创建或更新 Skill 前，必须先 Recall 技能 upsert-skill**，按其中的说明执行（何时新建/更新、调用要点、拆分大技能等）。
-
+使用文件工具：新建用 [write-file] 写入 \`skills/<name>/SKILL.md\`；更新用 [read-file] 读取后 [edit-file] 或 [write-file] 修改。创建或更新前，可先 Recall 已有 skills 参考格式与约定。
 `;

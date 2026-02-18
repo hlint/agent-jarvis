@@ -48,19 +48,32 @@ export default class JarvisCron {
   }
 
   private loadCronTasks() {
-    const dirs = fs.readdirSync(DIR_CRON_TASKS);
-    const cronTasks = dirs.map((dir) => {
-      const raw = fs.readFileSync(
-        join(DIR_CRON_TASKS, dir, "CRON.md"),
-        "utf-8",
-      );
-      const { attributes } = fm(raw);
-      const metadata = cronTaskMetadataSchema.parse(attributes);
-      return {
-        ...metadata,
-        body: raw,
-      };
-    });
+    const dirs = fs.existsSync(DIR_CRON_TASKS)
+      ? fs.readdirSync(DIR_CRON_TASKS)
+      : [];
+    const cronTasks: CronTask[] = [];
+    for (const dir of dirs) {
+      const taskPath = join(DIR_CRON_TASKS, dir, "CRON.md");
+      if (!fs.existsSync(taskPath)) continue;
+      try {
+        const raw = fs.readFileSync(taskPath, "utf-8");
+        const { attributes } = fm(raw);
+        const metadata = cronTaskMetadataSchema.parse(attributes);
+        cronTasks.push({
+          ...metadata,
+          body: raw,
+        });
+      } catch {
+        cronTasks.push({
+          name: dir,
+          description: "加载失败：格式错误",
+          cronPattern: "0 0 1 1 *",
+          oneTimeOnly: false,
+          enabled: false,
+          body: "",
+        });
+      }
+    }
     this.cronTasks = cronTasks;
   }
 
@@ -99,12 +112,16 @@ export default class JarvisCron {
   }
 
   private handleOneTimeOnly(name: string) {
-    const taskPath = join(DIR_CRON_TASKS, name, "CRON.md");
-    const content = fs.readFileSync(taskPath, "utf-8");
-    const { attributes, body } = fm(content);
-    const metadata = cronTaskMetadataSchema.parse(attributes);
-    metadata.enabled = false;
-    fs.writeFileSync(taskPath, stringifyFrontmatterMd(metadata, body));
+    try {
+      const taskPath = join(DIR_CRON_TASKS, name, "CRON.md");
+      const content = fs.readFileSync(taskPath, "utf-8");
+      const { attributes, body } = fm(content);
+      const metadata = cronTaskMetadataSchema.parse(attributes);
+      metadata.enabled = false;
+      fs.writeFileSync(taskPath, stringifyFrontmatterMd(metadata, body));
+    } catch {
+      // skip
+    }
   }
 }
 

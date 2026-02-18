@@ -6,41 +6,44 @@ import { getDiaryPath } from "../utils";
 
 const SKILL_FILE = "SKILL.md";
 
-export function getSkills(): { name: string; description: string }[] {
-  const list: { name: string; description: string }[] = [];
-  try {
-    if (!fs.existsSync(DIR_SKILLS)) return list;
-    const entries = fs.readdirSync(DIR_SKILLS, { withFileTypes: true });
-    for (const ent of entries) {
-      if (!ent.isDirectory()) continue;
-      const skillPath = join(DIR_SKILLS, ent.name, SKILL_FILE);
-      if (!fs.existsSync(skillPath)) continue;
+export function getSkills(): Record<string, string> {
+  const result: Record<string, string> = {};
+  if (!fs.existsSync(DIR_SKILLS)) return result;
+  const entries = fs.readdirSync(DIR_SKILLS, { withFileTypes: true });
+  for (const ent of entries) {
+    if (!ent.isDirectory()) continue;
+    const skillPath = join(DIR_SKILLS, ent.name, SKILL_FILE);
+    if (!fs.existsSync(skillPath)) continue;
+    try {
       const raw = fs.readFileSync(skillPath, "utf-8");
       const { attributes } = fm(raw);
       const metadata = attributes as { name?: string; description?: string };
-      list.push({
-        name: metadata.name ?? ent.name,
-        description: metadata.description ?? "",
-      });
+      const name = metadata.name ?? ent.name;
+      result[name] = metadata.description ?? "";
+    } catch {
+      // skip this skill
     }
-  } catch {
-    // ignore
   }
-  return list;
+  return result;
 }
 
-export function getLongTermMemory(): string {
-  const parts: string[] = [];
-  if (fs.existsSync(DIR_MEMORIES)) {
-    const files = fs
-      .readdirSync(DIR_MEMORIES)
-      .filter((f) => f.endsWith(".md"))
-      .sort();
-    for (const f of files) {
-      parts.push(fs.readFileSync(join(DIR_MEMORIES, f), "utf-8"));
+export function getLongTermMemory(): Record<string, string> {
+  const result: Record<string, string> = {};
+  if (!fs.existsSync(DIR_MEMORIES)) return result;
+  const files = fs
+    .readdirSync(DIR_MEMORIES)
+    .filter((f) => f.endsWith(".md"))
+    .sort();
+  for (const f of files) {
+    try {
+      const content = fs.readFileSync(join(DIR_MEMORIES, f), "utf-8");
+      const name = f.replace(/\.md$/, "");
+      result[name] = content;
+    } catch {
+      // skip this file
     }
   }
-  return parts.join("\n\n");
+  return result;
 }
 
 export function getRecentDiaries(): string {

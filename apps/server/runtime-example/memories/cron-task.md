@@ -1,6 +1,38 @@
 # Cron Task
 
-当用户需要设置提醒、周期执行某类任务（如每日天气、每周汇总），或当系统因定时触发而调用你时，请按本技能执行。
+此处记录定时任务的约定与用法：任务以文件形式存放在 runtime 的 `cron-tasks/<name>/CRON.md`，系统会按 cron 表达式触发并推送 system-event。
+
+## CRON.md 文件格式
+
+每个定时任务对应目录 `cron-tasks/<name>/CRON.md`（路径相对于 runtime）。文件顶部为 YAML front matter，其后为 Markdown body（触发时作为执行说明交给 AI）。
+
+Front matter 字段：
+
+| 字段        | 说明                                                                               |
+| ----------- | ---------------------------------------------------------------------------------- |
+| name        | 任务唯一标识，仅允许英文字母、数字及 `-`、`_`（如 `daily-weather`、`my-reminder`） |
+| description | 简短描述，用于列表展示                                                             |
+| cronPattern | Cron 表达式（见下）                                                                |
+| oneTimeOnly | `true` 表示仅执行一次，触发后会自动禁用该任务；`false` 表示周期任务                |
+| enabled     | `true` 启用，`false` 禁用（不触发）                                                |
+
+示例（参见 `cron-tasks/example/CRON.md`）：
+
+```markdown
+---
+name: daily-weather
+description: 每日 8 点发送北京天气
+cronPattern: 0 8 * * *
+enabled: true
+oneTimeOnly: false
+---
+
+# 每日天气
+
+1. **获取天气**：用 [web-search] 搜「北京 天气」，或调用天气 API（若已配置）。
+2. **格式**：提炼为「北京 | 温度 | 天气 | 湿度」，简洁一行。
+3. **通知**：调用 [notify]，将上述格式内容推送给用户。
+```
 
 ## Cron 表达式（5 字段）
 
@@ -16,32 +48,25 @@
 
 常用写法：`*` 任意；`1-3,5` 范围与离散；`*/2` 每 2 单位。
 
-**示例：**
-
-- `0 0 * * *` — 每天 0:00
-- `0 9 * * 1-5` — 每周一至五 9:00
-- `*/15 * * * *` — 每 15 分钟
-- `0 */2 * * *` — 每 2 小时整点
-- `0 8 1 * *` — 每月 1 日 8:00
-- `0 21 * * 5` — 每周五 21:00
+示例：`0 0 * * *` 每天 0:00；`0 9 * * 1-5` 每周一至五 9:00；`*/15 * * * *` 每 15 分钟；`0 8 1 * *` 每月 1 日 8:00。
 
 ## 创建/更新任务时的要点
 
-1. **description 必须自包含**：触发时可能已无当前对话上下文，description 里要写清「做什么、用什么参数、预期结果」，例如明确城市名、接口参数等，使仅凭 description 即可执行。
-2. **oneTimeTrigger**：仅需执行一次的提醒用 `oneTimeTrigger: true`，触发后任务会自动删除；周期任务用 `false`。
-3. **name**：任务唯一标识，仅允许英文字母、数字及符号 - 和 \_（如 daily-weather、my-reminder）。创建时必填；更新时可用 newName 重命名。
+1. **body 与 description 要自包含**：触发时可能已无当前对话上下文，body 里要写清「做什么、用什么参数、预期结果」（如城市名、接口参数等），使仅凭 body 即可执行。
+2. **oneTimeOnly**：仅需执行一次的提醒用 `oneTimeOnly: true`；周期任务用 `false`。
+3. **路径**：创建或编辑时使用基于 runtime 的相对路径，例如 `cron-tasks/daily-weather/CRON.md`（使用 [write-file] 可自动创建目录）。
 
 ## 被定时触发时的行为
 
-当系统因定时任务触发而调用你时，你会收到一条「工具结果」形态的消息，相当于一次「系统提醒」，其中包含：
+当系统因定时任务触发而调用 AI 时，会收到一条 system-event（`data` 中含该任务信息），其中：
 
-- `taskName`、`taskCronPattern`、`oneTimeTrigger`
-- **taskDescription**：该任务的完整执行说明
+- `content`：该任务的 **body** 全文，即完整执行说明
+- `data`：含 `name`、`cronPattern`、`oneTimeOnly`、`enabled`、`description` 等
 
-你的职责是：**根据 taskDescription 执行任务**，执行完后是否用自然语言向用户汇报结果或调用其他工具由你自行决定。
+AI 的职责是**根据 content（body）执行任务**，执行完后是否用自然语言向用户汇报或调用其他工具由 AI 自行决定。
 
 ## 建议流程
 
-- **用户要新建定时**：确认周期或具体时间 → 写出自包含的 `description`，定好 name（符合命名规则）→ 调用 [upsert-cron-task] → 用返回的 `nextTriggerTime` 确认无误并告知用户。
-- **用户要取消/删除**：先 [list-cron-tasks] 找到对应任务的 `name`，再 [remove-cron-task]。
-- **用户要查看现有定时**：调用 [list-cron-tasks]，整理后按「任务名、周期、下次触发时间」等格式回复。
+- **用户要新建定时**：确认周期或具体时间 → 写好自包含的 body 与 front matter（name 符合命名规则）→ 用 [write-file] 写入 `cron-tasks/<name>/CRON.md` → 用 [list-cron-tasks] 查看 `nextTriggerTime` 确认并告知用户。
+- **用户要取消/禁用**：用 [list-cron-tasks] 找到对应 `name`，再用 [edit-file] 将该任务的 `CRON.md` 中 `enabled` 改为 `false`；或删除 `cron-tasks/<name>/` 下文件（需先 [list-dir] 确认路径）。
+- **用户要查看现有定时**：调用 [list-cron-tasks]，按「任务名、周期、下次触发时间」等格式整理回复。
