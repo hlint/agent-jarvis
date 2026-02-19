@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
 
+// 鉴于已经集成了Telegram Bot，这个工具暂时废弃
 const notifyTool = defineJarvisTool({
   name: "notify",
   description: "Push notification to user.",

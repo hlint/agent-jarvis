@@ -21,14 +21,14 @@ export default function jarvisMiddleware() {
     .post(
       "/jarvis/user-message",
       ({ body }: { body: { content: string } }) => {
-        jarvis.incomingUserMessage(body.content);
+        jarvis.incomingUserMessage(body.content, "web");
         return { success: true };
       },
       { body: z.object({ content: z.string() }) },
     )
     .ws("/jarvis/ws", {
       open: (ws) => {
-        jarvis.clientManager.saveClient({
+        jarvis.clientManager.saveWsClient({
           id: ws.id,
           type: "websocket",
           pushMessage: (message) => {
@@ -37,7 +37,7 @@ export default function jarvisMiddleware() {
         });
       },
       close: (ws) => {
-        jarvis.clientManager.removeClient(ws.id);
+        jarvis.clientManager.removeWsClient(ws.id);
       },
     });
 }

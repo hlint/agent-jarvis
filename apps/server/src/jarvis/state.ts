@@ -1,7 +1,7 @@
 import type { DialogHistory } from "@repo/shared/agent/defines/history";
 import type { JarvisChatState } from "@repo/shared/defines/jarvis";
 import { createDiff } from "@repo/shared/lib/state-sync";
-import { cloneDeep, debounce } from "es-toolkit";
+import { cloneDeep, debounce, throttle } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import { PATH_CHAT_STATE } from "./defines";
@@ -39,7 +39,14 @@ export class JarvisStateManager {
     };
   }
 
-  pushDiff() {
+  pushDiff = throttle(() => {
+    this.syncTelegramState();
+    this.syncWsState();
+    this.persist();
+  }, 1000);
+
+  // 同步WebSocket状态
+  private syncWsState() {
     const previousSnapshotId = this.snapshotId;
     const newSnapshotId = nanoid(6);
     this.snapshotId = newSnapshotId;
@@ -51,7 +58,33 @@ export class JarvisStateManager {
       toId: newSnapshotId,
       diff,
     });
-    this.persist();
+  }
+
+  // 同步Telegram状态
+  private syncTelegramState() {
+    const newCompletedDialogHistory = this.getNewCompletedDialogHistory();
+    newCompletedDialogHistory.forEach((t) => {
+      this.jarvis.clientManager.pushTelegramMessage(t);
+    });
+  }
+
+  // 从前后两个状态中，找出新增的已完成的聊天类消息（user和agent的message）
+  private getNewCompletedDialogHistory() {
+    const newCompletedDialogHistory: DialogHistory = [];
+    for (const item of this.dialogHistory) {
+      const previousItem = this.previousDialogHistory.find(
+        (pItem) => pItem.id === item.id,
+      );
+      const isNewUserMessage = item.role === "user" && !previousItem;
+      const isNewAgentMessage =
+        item.role === "agent-reply" &&
+        item.status !== "pending" &&
+        (!previousItem || previousItem.status === "pending");
+      if (isNewUserMessage || isNewAgentMessage) {
+        newCompletedDialogHistory.push(item);
+      }
+    }
+    return newCompletedDialogHistory;
   }
 
   // 持久化

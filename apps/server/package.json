@@ -24,6 +24,7 @@
     "elysia": "latest",
     "front-matter": "^4.0.2",
     "fs-extra": "^11.3.3",
+    "grammy": "^1.40.0",
     "zod": "^4.2.0"
   },
   "devDependencies": {

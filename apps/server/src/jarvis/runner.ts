@@ -29,6 +29,7 @@ export default class Runner {
     // 防止重复执行
     if (this.busy) return;
     this.busy = true;
+    this.jarvis.clientManager.notifyAgentBusy(true);
     this.needRunNext = false;
     const dialogHistory = this.jarvis.state.getState().dialogHistory;
     // 调用 AI 对话
@@ -95,7 +96,7 @@ export default class Runner {
 
     // 释放锁
     this.busy = false;
-
+    this.jarvis.clientManager.notifyAgentBusy(false);
     // 如果需要，继续执行下一轮
     if (this.needRunNext) {
       this.run();

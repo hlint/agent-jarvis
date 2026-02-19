@@ -1,10 +1,10 @@
 import type { AgentTool } from "@repo/shared/agent/defines/tool";
 import type z from "zod";
 import { contextCompressTool } from "./built-in-tools/context-compress";
+import { listCronTasksTool } from "./built-in-tools/cron";
 import { execTool } from "./built-in-tools/exec";
 import { fileTools } from "./built-in-tools/file";
-import { listCronTasksTool } from "./built-in-tools/cron";
-import notifyTool from "./built-in-tools/notify";
+// import notifyTool from "./built-in-tools/notify";
 import webExtractTool from "./built-in-tools/web-extract";
 import webSearchTool from "./built-in-tools/web-search";
 import type Jarvis from "./jarvis";
@@ -12,7 +12,7 @@ import type Jarvis from "./jarvis";
 export const builtInTools = [
   webSearchTool,
   webExtractTool,
-  notifyTool,
+  // notifyTool,
   execTool,
   listCronTasksTool,
   contextCompressTool,

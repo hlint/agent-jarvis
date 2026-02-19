@@ -14,7 +14,7 @@ const SYSTEM_INACTIVE_INTERVAL = 20 * 60 * 1000;
 
 export default class Jarvis {
   public runner = new Runner(this);
-  public clientManager = new JarvisClientManager();
+  public clientManager = new JarvisClientManager(this);
   public state = new JarvisStateManager(this);
   public cron = new JarvisCron(this);
   public retryCount = 0;
@@ -70,14 +70,16 @@ export default class Jarvis {
 
     this.state.init();
     this.cron.init();
+    this.clientManager.init();
   }
 
-  incomingUserMessage(content: string) {
+  incomingUserMessage(content: string, from: "web" | "telegram") {
     this.pushHistoryEntry({
       id: nanoid(6),
       role: "user",
       createdTime: timeFormat(),
       content: content,
+      channel: from,
     });
     this.retryCount = 0;
     this.wakeUp();

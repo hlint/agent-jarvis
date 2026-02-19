@@ -11,6 +11,7 @@ export type HistoryEntry = {
   updatedTime?: string;
   content?: string;
   error?: string;
+  channel?: string;
   action?: any;
   data?: any;
   brief?: string;

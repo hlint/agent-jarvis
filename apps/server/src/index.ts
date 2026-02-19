@@ -4,6 +4,10 @@ import z from "zod";
 import jarvisMiddleware from "./jarvis/middleware";
 import { spa } from "./spa";
 
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled Rejection:", reason);
+});
+
 const isProduction = process.env.NODE_ENV === "production";
 
 const app = new Elysia()

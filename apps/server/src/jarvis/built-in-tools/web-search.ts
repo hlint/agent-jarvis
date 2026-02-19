@@ -3,10 +3,13 @@ import { env } from "bun";
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
 
+const toolDisabled = !env.TAVILY_API_KEY;
+
 const webSearchTool = defineJarvisTool({
   name: "web-search",
   description:
-    "Search the web. Use when you need to find info without a specific URL. For known URL content, use web-extract.",
+    "Search the web. Use when you need to find info without a specific URL. For known URL content, use web-extract." +
+    (toolDisabled ? "(Tool disabled due to missing env.TAVILY_API_KEY.)" : ""),
   inputSchema: z.object({
     query: z.string().describe("Query"),
     topic: z.enum(["general", "news", "finance"]).describe("Topic"),
