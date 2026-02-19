@@ -8,7 +8,6 @@ export default function buildAgentPrompt(jarvis: Jarvis): string {
 Environment: ${JSON.stringify({
     instruction: "以下为当前环境，执行命令、解析路径时请参考。",
     currentTime: timeFormat(),
-    currentChannel: "Website with a chat interface",
     chatUiWebsiteUrl: jarvis.websiteUrl || "unknown",
     operationSystem: process.platform,
     defaultCwd: DIR_RUNTIME,

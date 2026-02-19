@@ -1,2 +1,2 @@
-- [ ] 主服务支持用特殊url来输出本地文件，如 /file?path=runtime/temp/cat.jpg
+- [x] 主服务支持用特殊url来输出本地文件，如 /file?path=runtime/temp/cat.jpg
 - [ ] 构造docker镜像，支持nvc、agent-browser、tmux、nodejs、bun、python等

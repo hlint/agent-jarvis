@@ -5,7 +5,12 @@ import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import JarvisClientManager from "./client";
 import JarvisCron from "./cron";
-import { DIR_RUNTIME, DIR_RUNTIME_EXAMPLE, PATH_INITIALIZED } from "./defines";
+import {
+  DIR_RUNTIME,
+  DIR_RUNTIME_EXAMPLE,
+  PATH_INITIALIZED,
+  PATH_WEBSITE_URL,
+} from "./defines";
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 
@@ -68,6 +73,12 @@ export default class Jarvis {
       });
     }
 
+    // 读取网站URL
+    if (fs.existsSync(PATH_WEBSITE_URL)) {
+      const websiteUrl = fs.readFileSync(PATH_WEBSITE_URL, "utf-8");
+      this.setWebsiteUrl(websiteUrl);
+    }
+
     this.state.init();
     this.cron.init();
     this.clientManager.init();
@@ -108,6 +119,10 @@ export default class Jarvis {
   }
 
   setWebsiteUrl(websiteUrl: string) {
-    this.websiteUrl = websiteUrl;
+    try {
+      const origin = new URL(websiteUrl).origin;
+      this.websiteUrl = origin;
+      fs.outputFileSync(PATH_WEBSITE_URL, origin);
+    } catch (_error) {}
   }
 }
