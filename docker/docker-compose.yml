@@ -1,0 +1,20 @@
+services:
+  agent-jarvis:
+    # Build from source
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    # Use pre-built image
+    # image: hlint/agent-jarvis:latest
+    # shm_size: "2g"
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "4201:4201" # VNC
+      - "4202:4202" # Chat UI
+    volumes:
+      - ./runtime:/jarvis/runtime
+    environment:
+      - TZ=US/Pacific
+    env_file:
+      - ../.env

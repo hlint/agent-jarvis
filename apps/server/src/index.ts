@@ -4,6 +4,9 @@ import z from "zod";
 import jarvisMiddleware from "./jarvis/middleware";
 import { spa } from "./spa";
 
+const JARVIS_SERVER_PORT = process.env.JARVIS_SERVER_PORT
+  ? Number(process.env.JARVIS_SERVER_PORT)
+  : 3000;
 process.on("unhandledRejection", (reason) => {
   console.error("Unhandled Rejection:", reason);
 });
@@ -18,10 +21,10 @@ const app = new Elysia()
   })
   .use(jarvisMiddleware())
   .use(spa({ dir: "./html" }))
-  .listen(isProduction ? 3000 : 4000);
+  .listen(isProduction ? JARVIS_SERVER_PORT : 4000);
 
 console.log(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`,
+  `Jarvis Server is running at http://${app.server?.hostname}:${app.server?.port}`,
 );
 
 export type App = typeof app;

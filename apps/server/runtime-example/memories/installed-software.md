@@ -44,7 +44,6 @@ which tmux && tmux -V
 ### 其他工具
 
 - **agent-browser**：浏览器自动化工具
-- **degit**：快速克隆仓库的工具
 
 ## 注意事项
 
