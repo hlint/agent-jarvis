@@ -1,3 +1,4 @@
 - [x] 主服务支持用特殊url来输出本地文件，如 /file?path=runtime/temp/cat.jpg
+- [ ] 支持多模态输入，如图片、音频、视频等
 - [x] 构造docker镜像，支持nvc、agent-browser、tmux、nodejs、bun、python等
-- [ ] 更好的日记、上下文压缩逻辑
+- [x] 更好的日记、上下文压缩逻辑
