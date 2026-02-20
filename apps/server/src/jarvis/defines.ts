@@ -14,3 +14,4 @@ export const DIR_MEMORIES = join(DIR_RUNTIME, "memories");
 export const DIR_CRON_TASKS = join(DIR_RUNTIME, "cron-tasks");
 export const DIR_SKILLS = join(DIR_RUNTIME, "skills");
 export const DIR_DIARIES = join(DIR_RUNTIME, "diaries");
+export const DIR_TMP = join(DIR_RUNTIME, "tmp");

@@ -1,5 +1,7 @@
+import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
 import { timeFormat } from "@repo/shared/lib/time";
+import { shortId } from "@repo/shared/lib/utils";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
@@ -8,11 +10,13 @@ import JarvisCron from "./cron";
 import {
   DIR_RUNTIME,
   DIR_RUNTIME_EXAMPLE,
+  DIR_TMP,
   PATH_INITIALIZED,
   PATH_WEBSITE_URL,
 } from "./defines";
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
+import { AttachmentEntry } from "@repo/shared/defines/jarvis";
 
 // If the system is inactive for 20 minutes, it will push a system-inactive event.
 const SYSTEM_INACTIVE_INTERVAL = 20 * 60 * 1000;
@@ -94,6 +98,27 @@ export default class Jarvis {
     });
     this.retryCount = 0;
     this.wakeUp();
+  }
+
+  async incomingAttachment(file: File, from: "web" | "telegram") {
+    await fs.ensureDir(DIR_TMP);
+    const ext = file.name ? (/\.\w+$/.exec(file.name)?.[0] ?? "") : "";
+    const filename = `${shortId()}${ext}`;
+    const destPath = join(DIR_TMP, filename);
+    await Bun.write(destPath, file);
+    this.pushHistoryEntry({
+      id: shortId(),
+      role: "attachment",
+      from: "user",
+      channel: from,
+      createdTime: timeFormat(),
+      data: {
+        originalName: file.name,
+        type: file.type,
+        size: file.size,
+        path: destPath,
+      },
+    } satisfies AttachmentEntry);
   }
 
   wakeUp() {

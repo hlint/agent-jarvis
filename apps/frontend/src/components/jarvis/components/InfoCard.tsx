@@ -43,8 +43,8 @@ export default function InfoCard({
           onClick: () => setJsonExpanded((v) => !v),
           "aria-label": jsonExpanded ? "Show less" : "Show more",
           className: cn(
-            "group flex flex-row gap-2 items-center hover:bg-muted/60 px-1 transition-colors w-full text-left cursor-pointer",
-            jsonExpanded && "bg-muted/40 border-b",
+            "group flex flex-row gap-2 items-center hover:bg-background/60 p-1 transition-colors w-full text-left cursor-pointer",
+            jsonExpanded && "bg-background border-b",
           ),
         }
       : {
@@ -55,7 +55,7 @@ export default function InfoCard({
     <div
       className={cn(
         "rounded-md text-sm text-muted-foreground overflow-hidden",
-        jsonExpanded && "border ",
+        jsonExpanded && "border bg-background",
       )}
     >
       <HeaderComponent {...headerProps}>
@@ -80,9 +80,9 @@ export default function InfoCard({
             <div className="">
               <pre
                 ref={preRef}
-                className="text-xs leading-relaxed whitespace-pre-wrap font-mono m-0"
+                className="text-xs leading-relaxed whitespace-pre-wrap font-mono m-0 px-1"
                 style={{
-                  height: "3em", // Approximately 2 lines
+                  height: "1.5em", // Approximately 2 lines
                   lineHeight: "1.5em",
                   overflowY: "hidden",
                   overflowX: "hidden",

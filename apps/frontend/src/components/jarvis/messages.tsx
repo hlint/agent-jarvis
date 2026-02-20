@@ -2,11 +2,13 @@ import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import JarvisAssistantEntry from "./entry/assistant";
+import JarvisAttachmentEntry from "./entry/attachment";
 import JarvisSystemEventEntry from "./entry/system-event";
 import JarvisThinkingEntry from "./entry/thinking";
 import JarvisToolCallEntry from "./entry/tool-call";
 import JarvisUserEntry from "./entry/user";
 import useJarvisStore from "./use-jarvis-store";
+import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 
 const messageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -47,6 +49,7 @@ export default function JarvisMessages() {
           if (
             !debugMode &&
             historyEntry.role !== "agent-reply" &&
+            historyEntry.role !== "attachment" &&
             historyEntry?.status === "completed"
           ) {
             const isInCompletedIds = completedIds.includes(historyEntry.id);
@@ -82,6 +85,11 @@ export default function JarvisMessages() {
               break;
             case "agent-thinking":
               entry = <JarvisThinkingEntry {...historyEntry} />;
+              break;
+            case "attachment":
+              entry = (
+                <JarvisAttachmentEntry {...(historyEntry as AttachmentEntry)} />
+              );
               break;
             default:
               return null;

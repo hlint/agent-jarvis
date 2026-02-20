@@ -16,7 +16,7 @@ export default function JarvisAssistantEntry({
     );
   }
   return (
-    <div className="py-1 rounded-lg ">
+    <div className="rounded-xl bg-background border p-3">
       <JarvisMarkdown
         className="overflow-auto mr-2"
         text={text}

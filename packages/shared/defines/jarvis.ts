@@ -15,3 +15,17 @@ export type JarvisChatState = {
   snapshotId: string;
   dialogHistory: DialogHistory;
 };
+
+export type AttachmentEntry = {
+  id: string;
+  role: "attachment";
+  from: "user" | "assistant";
+  channel: "web" | "telegram";
+  createdTime: string;
+  data: {
+    originalName: string;
+    type: string;
+    size: number;
+    path: string;
+  };
+};

@@ -4,6 +4,7 @@ export type HistoryEntry = {
     | "user"
     | "agent-thinking"
     | "agent-reply"
+    | "attachment"
     | "agent-tool-call"
     | "system-event";
   status?: "pending" | "completed" | "failed";
@@ -11,6 +12,7 @@ export type HistoryEntry = {
   updatedTime?: string;
   content?: string;
   error?: string;
+  from?: "user" | "assistant" | "system";
   channel?: string;
   action?: any;
   data?: any;

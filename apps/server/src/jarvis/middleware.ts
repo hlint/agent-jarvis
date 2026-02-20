@@ -38,6 +38,16 @@ export default function jarvisMiddleware() {
         jarvis.clearDialog();
         return { success: true };
       })
+      .post("/jarvis/upload", async (ctx) => {
+        const formData = await ctx.request.formData();
+        const uploadedFile = formData.get("file");
+        if (!uploadedFile || !(uploadedFile instanceof File)) {
+          ctx.set.status = 400;
+          return { success: false, error: "No file provided" };
+        }
+        await jarvis.incomingAttachment(uploadedFile, "web");
+        return { success: true };
+      })
       .post(
         "/jarvis/user-message",
         ({ body }: { body: { content: string } }) => {
