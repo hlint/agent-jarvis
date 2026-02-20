@@ -1,30 +1,45 @@
 FROM lscr.io/linuxserver/webtop:ubuntu-xfce
 
-# System Dependencies
-RUN apt-get update && apt-get install -y unzip tmux\
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Environment Variables
+ENV CUSTOM_PORT=4201
+ENV JARVIS_SERVER_PORT=4202
+ENV PUID=1000
+ENV PGID=1000
+ENV NPM_CONFIG_PREFIX=/usr/local/share/.npm-global
+ENV BUN_INSTALL_GLOBAL="/usr/local/share/.bun"
+ENV PLAYWRIGHT_BROWSERS_PATH=/usr/local/share/playwright
+ENV PATH=$PATH:$NPM_CONFIG_PREFIX/bin:$BUN_INSTALL_GLOBAL/bin
 
-# Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get update \
+# Install base tools and Node.js
+RUN apt-get update && apt-get install -y unzip tmux curl \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Bun (system-wide for all users)
+# Install Playwright Dependencies
+RUN npx -y playwright install-deps
+
+# Install Bun
 ENV BUN_INSTALL="/usr/local"
 RUN curl -fsSL https://bun.sh/install | bash
 
-# Agent Browser
-RUN npm install -g agent-browser && npx playwright install
+# Pre-install tools and browsers required by the application
+RUN mkdir -p $NPM_CONFIG_PREFIX $BUN_INSTALL_GLOBAL $PLAYWRIGHT_BROWSERS_PATH && \
+    npm install -g agent-browser && agent-browser install
 
-# Jarvis App
-COPY ./apps/server/dist /jarvis
-# webtop port
-ENV CUSTOM_PORT=4201
-ENV JARVIS_SERVER_PORT=4202
+# Desktop Icon
+RUN mkdir -p /usr/local/share/default-desktop
+COPY /docker/build/desktop /usr/local/share/default-desktop
 
-# 创建 s6 服务目录
+# Webtop Title
+ENV TITLE="Jarvis Computer"
+
+# S6 service startup configuration
 RUN mkdir -p /etc/services.d/jarvis
-RUN printf '#!/usr/bin/with-contenv bash\ncd /jarvis\nexec bun index.js\n' \
-    > /etc/services.d/jarvis/run && \
-    chmod +x /etc/services.d/jarvis/run
+COPY ./docker/build/jarvis-run.sh /etc/services.d/jarvis/run
+RUN chmod +x /etc/services.d/jarvis/run
+
+
+# Application
+RUN mkdir -p /jarvis
+COPY ./output/dist /jarvis
