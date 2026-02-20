@@ -10,9 +10,11 @@ export default function Jarvis() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
   const isEmpty = dialogHistory.length === 0;
   return (
-    <div className="max-w-4xl mx-auto h-full relative">
+    <div className="max-w-4xl mx-auto h-screen relative">
       <JarvisTop />
-      {isEmpty ? <JarvisWelcome /> : <JarvisMessages />}
+      <div className="min-h-[calc(100%-364px)] lg:min-h-[calc(100%-474px)]">
+        {isEmpty ? <JarvisWelcome /> : <JarvisMessages />}
+      </div>
       <JarvisInput />
     </div>
   );

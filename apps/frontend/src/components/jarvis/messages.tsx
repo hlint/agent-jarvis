@@ -41,7 +41,7 @@ export default function JarvisMessages() {
     };
   }, [setHandleScrollToBottom]);
   return (
-    <div className="flex flex-col gap-3 flex-1 px-2">
+    <div className="flex flex-col gap-3 flex-1 px-3">
       <AnimatePresence initial={false}>
         {dialogHistory.map((historyEntry) => {
           if (
