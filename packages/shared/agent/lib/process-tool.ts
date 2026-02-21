@@ -1,7 +1,6 @@
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
 import type { AgentContext } from "../defines/context";
-import type { CallToolsAction } from "../defines/think-action";
 
 export default async function processToolCalling({
   dialogHistory,
@@ -9,22 +8,10 @@ export default async function processToolCalling({
   onDialogHistoryChange,
   lastThinkAction,
 }: AgentContext) {
-  const callToolsAction = lastThinkAction! as CallToolsAction;
-
-  if (callToolsAction.userBriefing?.trim()) {
-    dialogHistory.push({
-      id: shortId(),
-      role: "agent-reply",
-      status: "completed",
-      createdTime: timeFormat(),
-      updatedTime: timeFormat(),
-      content: callToolsAction.userBriefing.trim(),
-    });
-    onDialogHistoryChange();
-  }
-
+  const toolCalls = lastThinkAction?.toolCalls;
+	if (!toolCalls) return;
   const tasks: Promise<void>[] = [];
-  for (const toolCall of callToolsAction.toolCalls) {
+  for (const toolCall of toolCalls) {
     const id = shortId();
     dialogHistory.push({
       id,

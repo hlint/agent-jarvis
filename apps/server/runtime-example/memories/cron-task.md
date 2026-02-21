@@ -68,7 +68,7 @@ oneTimeOnly: false
 - `content`：该任务的 **body** 全文，即完整执行说明
 - `data`：含 `name`、`cronPattern`、`oneTimeOnly`、`enabled`、`description` 等
 
-你的职责是**根据 content（body）执行任务**，执行完后是否用自然语言向用户汇报或调用其他工具由你自行决定。
+你的职责是**根据 content（body）执行任务**，执行完后是否向用户汇报、调用其他工具，或二者在同一轮完成，由你自行决定。
 
 ## 建议流程
 

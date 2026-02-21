@@ -1,9 +1,10 @@
 import { delay } from "es-toolkit";
 import type { AgentContext } from "./defines/context";
-import type { AgentState } from "./defines/runtime";
-import processOutput from "./lib/process-output";
+import processOutputDirectly from "./lib/process-output-directly";
+import processOutputNext from "./lib/process-output-next";
 import processThinking from "./lib/process-thinking";
 import processToolCalling from "./lib/process-tool";
+import processUserBriefing from "./lib/process-user-briefing";
 
 export default async function callAgent({
   maxSteps = 32,
@@ -15,7 +16,6 @@ export default async function callAgent({
   stoppedBy?: "completed" | "user" | "max-steps-reached" | "error";
 }> {
   const context: AgentContext = { ...props };
-  let agentState: AgentState = "thinking";
   let steps = 0;
   while (steps < maxSteps) {
     steps++;
@@ -33,39 +33,14 @@ export default async function callAgent({
       };
     }
     try {
-      switch (agentState) {
-        case "thinking": {
-          const thinkAction = await processThinking(context);
-          context.lastThinkAction = thinkAction;
-          switch (thinkAction.type) {
-            case "call-tools":
-              agentState = "tool-calling";
-              break;
-            case "output-next":
-              agentState = "outputting";
-              break;
-            case "output-directly":
-              agentState = "outputting";
-              break;
-            case "silent":
-              agentState = "completed";
-              break;
-          }
-          break;
-        }
-        case "tool-calling":
-          await processToolCalling(context);
-          agentState = "thinking";
-          break;
-        case "outputting":
-          await processOutput(context);
-          agentState = "completed";
-          break;
-        case "completed":
-          return {
-            stoppedReason: "The agent has completed its execution.",
-            stoppedBy: "completed",
-          };
+      const thinkAction = await processThinking(context);
+      context.lastThinkAction = thinkAction;
+      await processUserBriefing(context);
+      await processToolCalling(context);
+      await processOutputDirectly(context);
+      await processOutputNext(context);
+      if (thinkAction.done) {
+        break;
       }
     } catch (error) {
       await delay(500);

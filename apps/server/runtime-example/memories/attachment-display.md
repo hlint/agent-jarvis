@@ -4,7 +4,7 @@
 
 ## 调用顺序
 
-**先调用 attachment 工具，再输出正文。** 若回复中需要附带文件，务必先完成工具调用，确认附件已展示给用户后，再考虑正文内容（说明、补充等）。不要反过来在正文里描述「见下图」却未先调用工具。
+**先调用 attachment 工具，再输出正文。** 若回复中需要附带文件，务必先完成工具调用，再输出说明文字。两者可在同一轮完成：在同一 action 中同时设置 `toolCalls`（含 attachment）和 `outputNext`/`outputDirectly`，系统会先执行工具再输出。不要反过来在正文里描述「见下图」却未先调用工具。
 
 ## 区分
 
@@ -45,14 +45,15 @@ attachment(type="remote-url", url="https://...")
 
 ## 示例
 
-- 展示工作目录下的图表：`attachment(type="local-file", path="workspace/output/chart.png")`
+- 展示图表并附带说明（同一轮）：`toolCalls` 含 attachment + `outputNext` 或 `outputDirectly`
+- 仅展示工作目录下的图表：`attachment(type="local-file", path="workspace/output/chart.png")`
 - 展示临时生成的图片：`attachment(type="local-file", path="/tmp/screenshot.png")`
 - 展示网络上的图片直链：`attachment(type="remote-url", url="https://example.com/diagram.png")`
 - 网页链接仍在正文嵌入：`详见 [官方文档](https://docs.example.com)`
 
 ## 注意
 
-- **先工具后正文**：有文件要展示时，先调用 attachment，再输出说明文字
+- **先工具后正文**：有文件要展示时，先调用 attachment，再输出说明文字；二者可在同一轮并行设置（toolCalls + outputNext/outputDirectly）
 - 确保 path 指向的文件存在且可读，否则工具会报错
 - 对于小型纯文本内容，仍可直接在回复中展示
 - 图片、附件等文件用 attachment 工具；网页链接用正文中的 `[文字](url)` 嵌入

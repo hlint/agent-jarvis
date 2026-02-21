@@ -63,7 +63,7 @@ export default async function processThinking({
       },
     });
     const [reasoning, thinkAction] = parseLlmResultWithDivider(
-      await response.text,
+      response.text,
       ThinkActionSchema,
     );
     entry.status = "completed";

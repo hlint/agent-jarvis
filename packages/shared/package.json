@@ -13,6 +13,7 @@
     "./llm/call-gemini": "./llm/call-gemini.ts",
     "./lib/utils": "./lib/utils.ts",
     "./agent/defines/tool": "./agent/defines/tool.ts",
+    "./agent/defines/think-action": "./agent/defines/think-action.ts",
     "./agent/index": "./agent/index.ts"
   },
   "scripts": {

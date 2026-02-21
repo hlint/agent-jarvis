@@ -1,5 +1,9 @@
 import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
+import {
+  isNothingToDo,
+  type ThinkAction,
+} from "@repo/shared/agent/defines/think-action";
 import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
@@ -20,8 +24,8 @@ import {
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 
-// If the system is inactive for 20 minutes, it will push a system-inactive event.
-const SYSTEM_INACTIVE_INTERVAL = 20 * 60 * 1000;
+// If the system is inactive for 5 minutes, it will push a system-inactive event.
+const SYSTEM_INACTIVE_INTERVAL = 5 * 60 * 1000;
 
 export default class Jarvis {
   public runner = new Runner(this);
@@ -38,7 +42,7 @@ export default class Jarvis {
     // 如果最后一条和倒数第二条都是静默状态，说明AI已经认为不需要做任何事了，此时不需要唤醒
     if (
       lastEntry?.role === "agent-thinking" &&
-      lastEntry?.action?.type === "silent" &&
+      isNothingToDo(lastEntry?.action as ThinkAction) &&
       secondLastEntry?.role === "system-event" &&
       secondLastEntry?.data?.type === "system-inactive"
     ) {
