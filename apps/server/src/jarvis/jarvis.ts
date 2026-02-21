@@ -3,7 +3,7 @@ import type { HistoryEntry } from "@repo/shared/agent/defines/history";
 import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
-import callLlm from "@repo/shared/llm";
+import callGemini from "@repo/shared/llm/call-gemini";
 import { env } from "bun";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
@@ -128,7 +128,7 @@ export default class Jarvis {
       file.name.startsWith("voice.")
     ) {
       try {
-        const { text } = await callLlm({
+        const response = await callGemini({
           model: env.MM_LLM_MODEL,
           apiKey: env.MM_LLM_API_KEY,
           baseURL: env.MM_LLM_BASE_URL,
@@ -145,7 +145,7 @@ export default class Jarvis {
           role: "system-event",
           createdTime: timeFormat(),
           brief: "Automatic transcription of audio file from user",
-          content: text,
+          content: response.text,
           status: "completed",
           data: {
             type: "automatic-transcription",
@@ -155,6 +155,19 @@ export default class Jarvis {
         });
       } catch (error) {
         console.error(error);
+        this.pushHistoryEntry({
+          id: shortId(),
+          role: "system-event",
+          createdTime: timeFormat(),
+          brief: "Automatic transcription of audio file from user",
+          error: "Failed to transcribe audio file",
+          status: "failed",
+          data: {
+            type: "automatic-transcription",
+            attachmentId,
+            filePath: destPath,
+          },
+        });
       }
     }
   }

@@ -1,7 +1,7 @@
 import { cloneDeep } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
-import callLlm from "../../llm";
+import callLlm from "../../llm/call-llm";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { outputContentPrompt } from "../prompt/output";

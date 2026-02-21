@@ -9,7 +9,8 @@
     "./agent/defines/history": "./agent/defines/history.ts",
     "./lib/state-sync": "./lib/state-sync.ts",
     "./lib/time": "./lib/time.ts",
-    "./llm": "./llm/index.ts",
+    "./llm/call-llm": "./llm/call-llm.ts",
+    "./llm/call-gemini": "./llm/call-gemini.ts",
     "./lib/utils": "./lib/utils.ts",
     "./agent/defines/tool": "./agent/defines/tool.ts",
     "./agent/index": "./agent/index.ts"
@@ -19,8 +20,10 @@
     "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.30",
     "@ai-sdk/openai": "^3.0.27",
     "@ai-sdk/openai-compatible": "^2.0.30",
+    "@google/genai": "^1.42.0",
     "ai": "^6.0.81",
     "fast-json-patch": "^3.1.1",
     "lz-string": "^1.5.0",
