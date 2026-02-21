@@ -18,7 +18,7 @@ export const ThinkActionSchema = z.object({
     .string()
     .optional()
     .describe(
-      "Optional. A short status message shown to the user immediately before tools run, e.g. 'Searching for weather, please wait'. Use when tools may take a while—gives the user feedback while waiting. Use the user's language. Keep it to one sentence.",
+      "Optional. Immediate output before tools. Text shown to user right away. Use for short status e.g. 'Searching, please wait'.",
     ),
   toolCalls: z
     .array(ToolCallItemSchema)
@@ -34,7 +34,7 @@ export const ThinkActionSchema = z.object({
     .string()
     .optional()
     .describe(
-      "Optional. The complete output content to be displayed to the user. Skips the output node.",
+      "Optional. Immediate output after tools. Text shown to user right away. For simple, brief replies only.",
     ),
   done: z
     .boolean()

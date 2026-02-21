@@ -13,8 +13,7 @@
 使用 file 工具自行管理 `memories/` 下的内容：
 
 - 新建记忆：用 [write-file] 写入 `memories/<topic>.md`
-- 更新已有记忆：用 [read-file] 读取后，[edit-file] 或 [write-file] 修改
-- 查看目录：用 [list-dir] 列出 `memories/` 下的文件
+- 更新已有记忆：记忆已自动加载到上下文，可直接用 [edit-file] 或 [write-file] 修改
 
 ## 何时更新记忆
 

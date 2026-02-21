@@ -49,6 +49,7 @@ export default class JarvisCron {
   }
 
   private loadCronTasks() {
+    this.stopAllCronJobs();
     const dirs = fs.existsSync(DIR_CRON_TASKS)
       ? fs.readdirSync(DIR_CRON_TASKS)
       : [];
@@ -79,10 +80,8 @@ export default class JarvisCron {
   }
 
   private resetCronJobs() {
+    this.stopAllCronJobs();
     this.cronTasks.forEach((task) => {
-      if (task.cronJob) {
-        task.cronJob.stop();
-      }
       task.cronJob = new CronJob(task.cronPattern, () => {
         this.jarvis.pushHistoryEntry({
           id: nanoid(6),
@@ -96,11 +95,20 @@ export default class JarvisCron {
         });
         this.jarvis.wakeUp();
         if (task.oneTimeOnly) {
-          this.handleOneTimeOnly(task.name);
+          this.writeOneTimeOnlyFile(task.name);
+          task.cronJob?.stop();
         }
       });
       if (task.enabled) {
         task.cronJob.start();
+      }
+    });
+  }
+
+  private stopAllCronJobs() {
+    this.cronTasks.forEach((task) => {
+      if (task.cronJob) {
+        task.cronJob.stop();
       }
     });
   }
@@ -112,7 +120,7 @@ export default class JarvisCron {
     }));
   }
 
-  private handleOneTimeOnly(name: string) {
+  private writeOneTimeOnlyFile(name: string) {
     try {
       const taskPath = join(DIR_CRON_TASKS, name, "CRON.md");
       const content = fs.readFileSync(taskPath, "utf-8");
