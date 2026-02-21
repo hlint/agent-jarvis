@@ -5,7 +5,8 @@ import { defineJarvisTool } from "../tool";
 
 export const execTool = defineJarvisTool({
   name: "exec",
-  description: "Execute a command and return the output",
+  description:
+    "Execute a command and return the result. Result: stdout (string), stderr (string), exitCode (number), exitedDueToTimeout? (true if killed by timeout)",
   inputSchema: z.object({
     command: z.string().describe("Command"),
     cwd: z

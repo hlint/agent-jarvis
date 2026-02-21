@@ -14,12 +14,6 @@ export const ToolCallItemSchema = z.object({
 });
 
 export const ThinkActionSchema = z.object({
-  userBriefing: z
-    .string()
-    .optional()
-    .describe(
-      "Optional. Immediate output before tools. Text shown to user right away. Use for short status e.g. 'Searching, please wait'.",
-    ),
   toolCalls: z
     .array(ToolCallItemSchema)
     .optional()
@@ -34,7 +28,7 @@ export const ThinkActionSchema = z.object({
     .string()
     .optional()
     .describe(
-      "Optional. Immediate output after tools. Text shown to user right away. For simple, brief replies only.",
+      "Optional. Immediate output, runs before tools. Use for: (1) short status before tools e.g. 'Searching, please wait'; (2) simple brief reply when done. Same semantics—instant display—different timing.",
     ),
   done: z
     .boolean()
@@ -49,7 +43,6 @@ export type ToolCallItem = z.infer<typeof ToolCallItemSchema>;
 export function isNothingToDo(thinkAction: ThinkAction) {
   return (
     thinkAction.done &&
-    !thinkAction.userBriefing &&
     !thinkAction.toolCalls &&
     !thinkAction.outputNext &&
     !thinkAction.outputDirectly

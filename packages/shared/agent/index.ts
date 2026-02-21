@@ -4,7 +4,6 @@ import processOutputDirectly from "./lib/process-output-directly";
 import processOutputNext from "./lib/process-output-next";
 import processThinking from "./lib/process-thinking";
 import processToolCalling from "./lib/process-tool";
-import processUserBriefing from "./lib/process-user-briefing";
 
 export default async function callAgent({
   maxSteps = 32,
@@ -35,9 +34,8 @@ export default async function callAgent({
     try {
       const thinkAction = await processThinking(context);
       context.lastThinkAction = thinkAction;
-      await processUserBriefing(context);
-      await processToolCalling(context);
       await processOutputDirectly(context);
+      await processToolCalling(context);
       await processOutputNext(context);
       if (thinkAction.done) {
         break;
