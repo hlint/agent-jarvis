@@ -11,6 +11,8 @@ type State = {
   handleScrollToBottom: () => void;
   snapshotId: string;
   dialogHistory: DialogHistory;
+  entryHiddenMarks: Record<string, boolean>;
+  isFirstPull: boolean;
 };
 
 type Actions = {
@@ -20,13 +22,16 @@ type Actions = {
     wsMessageDialogHistoryPatch: WsMessageDialogHistoryPatch,
   ) => void;
   setHandleScrollToBottom: (handleScrollToBottom: () => void) => void;
+  setEntryHiddenMarks: () => void;
 };
 
 const useJarvisStore = create<State & Actions>((set, get) => ({
   debugMode: false,
   handleScrollToBottom: () => {},
   snapshotId: "",
+  isFirstPull: true,
   dialogHistory: [],
+  entryHiddenMarks: {},
   setDebugMode: (debugMode) => set({ debugMode }),
   pullFullDialogState: debounce(() => {
     api.jarvis["dialog-state"].get().then((response) => {
@@ -38,6 +43,10 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
         set({
           snapshotId: response.data.snapshotId,
           dialogHistory: response.data.dialogHistory,
+        });
+        get().setEntryHiddenMarks();
+        set({
+          isFirstPull: false,
         });
       } else {
         toast.error("Failed to pull chat state");
@@ -54,12 +63,40 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
         snapshotId: toId,
         dialogHistory: applyDiff(get().dialogHistory, diff),
       });
+      get().setEntryHiddenMarks();
     } else {
       get().pullFullDialogState();
     }
   },
   setHandleScrollToBottom: (handleScrollToBottom: () => void) => {
     set({ handleScrollToBottom });
+  },
+  setEntryHiddenMarks: () => {
+    const { dialogHistory, isFirstPull } = get();
+    for (const historyEntry of dialogHistory) {
+      const isCompleted =
+        historyEntry.role !== "agent-reply" &&
+        historyEntry.role !== "attachment" &&
+        historyEntry?.status === "completed";
+      if (isCompleted) {
+        const setMark = (hidden: boolean) => {
+          set({
+            entryHiddenMarks: {
+              ...get().entryHiddenMarks,
+              [historyEntry.id]: hidden,
+            },
+          });
+        };
+        if (isFirstPull) {
+          setMark(true);
+        } else if (get().entryHiddenMarks[historyEntry.id] === undefined) {
+          setMark(false);
+          setTimeout(() => {
+            setMark(true);
+          }, 100);
+        }
+      }
+    }
   },
 }));
 

@@ -24,6 +24,15 @@ export default function InfoCard({
   const [jsonExpanded, setJsonExpanded] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
 
+  // Scroll to bottom when jsonExpanded is false immediately
+  useEffect(() => {
+    if (!jsonExpanded && preRef.current) {
+      preRef.current?.scrollTo({
+        top: preRef.current?.scrollHeight,
+      });
+    }
+  }, [jsonExpanded]);
+
   // Scroll to bottom when content changes and jsonExpanded is false
   useEffect(() => {
     if (!jsonExpanded && content && preRef.current) {
@@ -54,7 +63,7 @@ export default function InfoCard({
   return (
     <div
       className={cn(
-        "rounded-md text-sm text-muted-foreground overflow-hidden",
+        "rounded-md text-sm text-muted-foreground overflow-hidden max-w-[90%]",
         jsonExpanded && "border bg-background",
       )}
     >
@@ -83,7 +92,7 @@ export default function InfoCard({
                 className="text-xs leading-relaxed whitespace-pre-wrap font-mono m-0 px-1"
                 style={{
                   height: "1.5em", // Approximately 2 lines
-                  lineHeight: "1.5em",
+                  lineHeight: "1.6em",
                   overflowY: "hidden",
                   overflowX: "hidden",
                 }}
@@ -114,7 +123,12 @@ export default function InfoCard({
                   <div
                     className={content ? "min-w-0 shrink-0 overflow-auto" : ""}
                   >
-                    <ReactJson src={data} collapsed={2} />
+                    <ReactJson
+                      src={data}
+                      collapsed={2}
+                      theme="monokai"
+                      style={{ backgroundColor: "transparent" }}
+                    />
                   </div>
                 ) : null}
               </div>

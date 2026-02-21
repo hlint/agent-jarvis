@@ -56,9 +56,10 @@ Output a single action object. **done** is required: false = continue loop (you 
 - Can be combined with toolCalls in the same round (tools run first, then output). DO NOT use when done=false (you need another round to process tool results).
 - Provide only guidance and requirements (e.g. "Summarize the search results and provide recommendations"), NOT the complete content—the output node has full context
 
-**outputDirectly** (when done and reply is brief)
+**outputDirectly** (when done and reply is simple and short)
 - Skip the output node; display content directly and end conversation
-- Can be combined with toolCalls in the same round. Suitable when no further thinking needed and reply is short
+- **Only for simple, brief text** (e.g. one-line acknowledgment, short confirmation). For structured, long, or formatted content, use **outputNext** instead.
+- Can be combined with toolCalls in the same round. Do NOT use for multi-paragraph, markdown-heavy, or list-style outputs—those require outputNext.
 
 **done: true with none of the above** (silent)
 - End conversation without any output to the user

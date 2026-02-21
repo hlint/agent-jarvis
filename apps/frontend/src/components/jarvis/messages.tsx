@@ -1,6 +1,7 @@
+import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import JarvisAssistantEntry from "./entry/assistant";
 import JarvisAttachmentEntry from "./entry/attachment";
 import JarvisSystemEventEntry from "./entry/system-event";
@@ -8,11 +9,14 @@ import JarvisThinkingEntry from "./entry/thinking";
 import JarvisToolCallEntry from "./entry/tool-call";
 import JarvisUserEntry from "./entry/user";
 import useJarvisStore from "./use-jarvis-store";
-import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 
 const messageVariants = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 12 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0, duration: 0.25, ease: "easeOut" as const },
+  },
   exit: {
     opacity: 0,
     y: -8,
@@ -22,8 +26,7 @@ const messageVariants = {
 
 export default function JarvisMessages() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
-  const [completedIds, setCompletedIds] = useState<string[]>([]);
-  const [shouldHideIds, setShouldHideIds] = useState<string[]>([]);
+  const entryHiddenMarks = useJarvisStore((state) => state.entryHiddenMarks);
   const debugMode = useJarvisStore((state) => state.debugMode);
   const setHandleScrollToBottom = useJarvisStore(
     (state) => state.setHandleScrollToBottom,
@@ -43,26 +46,12 @@ export default function JarvisMessages() {
     };
   }, [setHandleScrollToBottom]);
   return (
-    <div className="flex flex-col gap-3 flex-1 px-3">
-      <AnimatePresence initial={false}>
+    <div className="flex flex-col gap-4 flex-1 px-3">
+      <AnimatePresence initial>
         {dialogHistory.map((historyEntry) => {
-          if (
-            !debugMode &&
-            historyEntry.role !== "agent-reply" &&
-            historyEntry.role !== "attachment" &&
-            historyEntry?.status === "completed"
-          ) {
-            const isInCompletedIds = completedIds.includes(historyEntry.id);
-            const shouldHide = shouldHideIds.includes(historyEntry.id);
-            if (!isInCompletedIds) {
-              setCompletedIds((prev) => [...prev, historyEntry.id]);
-              setTimeout(() => {
-                setShouldHideIds((prev) => [...prev, historyEntry.id]);
-              }, 100);
-            }
-            if (shouldHide) {
-              return null;
-            }
+          const shouldHide = entryHiddenMarks[historyEntry.id];
+          if (!debugMode && shouldHide) {
+            return null;
           }
           let entry: ReactNode;
           switch (historyEntry.role) {
@@ -101,7 +90,7 @@ export default function JarvisMessages() {
               initial="initial"
               animate="animate"
               exit="exit"
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
             >
               {entry}
             </motion.div>

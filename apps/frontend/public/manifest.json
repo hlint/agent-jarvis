@@ -1,0 +1,16 @@
+{
+  "name": "Agent Jarvis",
+  "short_name": "Jarvis",
+  "description": "Your private AI assistant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/favicon.jpg",
+      "sizes": "any",
+      "type": "image/jpeg"
+    }
+  ]
+}

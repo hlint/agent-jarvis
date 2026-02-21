@@ -42,6 +42,24 @@ export default function JarvisInput() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
+
+    const items = e.dataTransfer.items;
+    if (items?.length) {
+      const entry =
+        items[0].webkitGetAsEntry?.() ??
+        (
+          items[0] as { getAsEntry?: () => FileSystemEntry | null }
+        ).getAsEntry?.();
+      if (entry?.isDirectory) {
+        toast.error("Folders are not allowed. Please drop a single file.");
+        return;
+      }
+      if (items.length > 1) {
+        toast.error("Only one file at a time.");
+        return;
+      }
+    }
+
     const file = e.dataTransfer.files[0];
     if (file) processFile(file);
   };
@@ -70,19 +88,20 @@ export default function JarvisInput() {
   };
 
   return (
-    <div className="sticky bottom-0 z-10 from-transparent to-gray-50 bg-linear-to-b p-3 lg:pb-6">
-      <div className="h-24 from-transparent to-gray-50 bg-linear-to-b" />
+    <div className="sticky bottom-0 z-10 from-transparent to-background bg-linear-to-b lg:pb-6">
+      <div className="h-20 from-transparent to-background bg-linear-to-b" />
+      <div className="h-4 bg-background" />
       <div
         role="region"
         aria-label="Upload area"
-        className={`relative p-2 border rounded-lg bg-background transition-colors ${isDragging ? "border-primary ring-2 ring-primary/20" : ""}`}
+        className={`relative border border-foreground/10 rounded-xl overflow-hidden bg-background transition-colors focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 ${isDragging ? "border-primary ring-2 ring-primary/20" : ""}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
         <Textarea
           placeholder="Ask me anything"
-          className="w-full h-32 md:text-sm bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="p-4 w-full h-32 md:text-sm bg-transparent rounded-none border-none focus-visible:ring-0 focus-visible:ring-offset-0"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={(e) => {

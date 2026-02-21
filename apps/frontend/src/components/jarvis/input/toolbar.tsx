@@ -71,7 +71,7 @@ export default function InputToolbar({
   };
 
   return (
-    <div className="flex flex-row gap-2 items-center">
+    <div className="flex flex-row gap-2 items-center p-2 bg-foreground/10">
       <Button
         variant="ghost"
         size="icon-lg"
@@ -102,7 +102,12 @@ export default function InputToolbar({
       <ClearHistoryButton />
       <DebugModeSwitch />
       <StateIndicator />
-      <Button variant="ghost" className="ml-auto" size="lg" onClick={onSend}>
+      <Button
+        variant="outline"
+        className="ml-auto dark:bg-primary/60 dark:hover:bg-primary/70"
+        size="lg"
+        onClick={onSend}
+      >
         <SendIcon />
         Send
       </Button>
