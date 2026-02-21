@@ -1,6 +1,8 @@
+import { delay } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
 import type { AgentContext } from "../defines/context";
+import type { HistoryEntry } from "../defines/history";
 
 export default async function processToolCalling({
   dialogHistory,
@@ -9,26 +11,26 @@ export default async function processToolCalling({
   lastThinkAction,
 }: AgentContext) {
   const toolCalls = lastThinkAction?.toolCalls;
-	if (!toolCalls) return;
+  if (!toolCalls) return;
   const tasks: Promise<void>[] = [];
-  for (const toolCall of toolCalls) {
-    const id = shortId();
-    dialogHistory.push({
-      id,
-      role: "agent-tool-call",
-      status: "pending",
-      createdTime: timeFormat(),
-      updatedTime: timeFormat(),
-      brief: toolCall.brief,
-      toolName: toolCall.toolName,
-      toolInput: toolCall.input,
-      toolOutput: null,
-    });
-    onDialogHistoryChange();
-
+  for (const [index, toolCall] of toolCalls.entries()) {
     tasks.push(
       (async () => {
-        const entry = dialogHistory.find((item) => item.id === id);
+        // 避免一些时序问题
+        await delay(index * 500);
+        const entry: HistoryEntry = {
+          id: shortId(),
+          role: "agent-tool-call",
+          status: "pending",
+          createdTime: timeFormat(),
+          updatedTime: timeFormat(),
+          brief: toolCall.brief,
+          toolName: toolCall.toolName,
+          toolInput: toolCall.input,
+          toolOutput: null,
+        };
+        dialogHistory.push(entry);
+        onDialogHistoryChange();
         if (entry) {
           try {
             const tool = tools.find((tool) => tool.name === toolCall.toolName);

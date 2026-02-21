@@ -42,7 +42,7 @@ export default class JarvisCron {
     const reloadCron = debounce(() => {
       this.loadCronTasks();
       this.resetCronJobs();
-    }, 300);
+    }, 100);
     chokidar
       .watch(DIR_CRON_TASKS, { ignoreInitial: true })
       .on("all", reloadCron);
