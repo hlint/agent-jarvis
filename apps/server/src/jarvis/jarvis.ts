@@ -116,10 +116,11 @@ export default class Jarvis {
       channel: from,
       createdTime: timeFormat(),
       data: {
+        type: "local-file",
         originalName: file.name,
-        type: file.type,
-        size: file.size,
-        path: destPath,
+        fileType: file.type,
+        fileSize: file.size,
+        filePath: destPath,
       },
     } satisfies AttachmentEntry);
     if (
@@ -160,7 +161,8 @@ export default class Jarvis {
           role: "system-event",
           createdTime: timeFormat(),
           brief: "Automatic transcription of audio file from user",
-          error: "Failed to transcribe audio file",
+          error:
+            "Failed to transcribe audio file (file may be too large or format not supported)",
           status: "failed",
           data: {
             type: "automatic-transcription",
@@ -169,6 +171,7 @@ export default class Jarvis {
           },
         });
       }
+      this.wakeUp();
     }
   }
 

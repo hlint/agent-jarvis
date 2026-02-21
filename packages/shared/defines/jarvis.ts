@@ -20,12 +20,18 @@ export type AttachmentEntry = {
   id: string;
   role: "attachment";
   from: "user" | "assistant";
-  channel: "web" | "telegram";
+  channel: "web" | "tool-call" | "telegram";
   createdTime: string;
-  data: {
-    originalName: string;
-    type: string;
-    size: number;
-    path: string;
-  };
+  data:
+    | {
+        type: "local-file" | "remote-url";
+        originalName: string;
+        fileType: string;
+        fileSize: number;
+        filePath: string;
+      }
+    | {
+        type: "remote-url";
+        url: string;
+      };
 };

@@ -27,7 +27,7 @@ workspace/
 
 - **用户项目**：用户会在 `workspace/` 下按项目放置代码、文档、数据等。
 - **AI 产出**：脚本、图表、报告、分析结果等，写入**当前项目目录**下的对应子目录（`output/`、`data/`、`tmp/`）。
-- **向用户展示**：详见 `display-local-files`。
+- **向用户展示**：详见 `attachment-display`。
 
 ## 使用建议
 

@@ -13,18 +13,50 @@ function getFileUrl(path: string): string {
 
 export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
   const { data, from } = entry;
-  if (!data?.path) return null;
+  // Support both filePath (AttachmentEntry) and path (legacy), and url for remote-url
+  const fileUrl =
+    "url" in data
+      ? data.url
+      : "filePath" in data
+        ? getFileUrl(data.filePath)
+        : "path" in data
+          ? getFileUrl((data as { path: string }).path)
+          : null;
+  if (!fileUrl) return null;
 
-  const isImage = data.type?.startsWith("image/");
+  const fileType =
+    "fileType" in data
+      ? data.fileType
+      : ((data as { type?: string }).type ?? "");
+  const isImage = fileType.startsWith("image/");
   const isAudio =
-    data.type?.startsWith("audio/") || data.originalName === "voice.webm";
-  const isVideo = data.type?.startsWith("video/");
-  const fileUrl = getFileUrl(data.path);
+    fileType.startsWith("audio/") ||
+    ("originalName" in data && data.originalName === "voice.webm");
+  const isVideo = fileType.startsWith("video/");
+  const isRemoteUrl = "url" in data;
   const isUser = from === "user";
+  const displayName =
+    ("originalName" in data ? data.originalName : undefined) ??
+    (isRemoteUrl
+      ? (() => {
+          try {
+            return (
+              new URL((data as { url: string }).url).pathname
+                .split("/")
+                .pop() ?? "Link"
+            );
+          } catch {
+            return "Link";
+          }
+        })()
+      : "File");
+  const fileSize =
+    "fileSize" in data ? data.fileSize : (data as { size?: number }).size;
 
   const downloadLinkClass = `text-xs text-muted-foreground truncate hover:underline ${isUser ? "text-right" : "text-left"}`;
 
-  if (isImage) {
+  // For remote URL without known type, try displaying as image
+  if (isImage || (isRemoteUrl && !isAudio && !isVideo)) {
     return (
       <div
         className={`flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}
@@ -37,16 +69,12 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
         >
           <img
             src={fileUrl}
-            alt={data.originalName ?? "Image"}
+            alt={displayName}
             className="max-h-64 object-contain block"
           />
         </a>
-        <a
-          href={fileUrl}
-          download={data.originalName}
-          className={downloadLinkClass}
-        >
-          {data.originalName ?? "Image"}
+        <a href={fileUrl} download={displayName} className={downloadLinkClass}>
+          {displayName}
         </a>
       </div>
     );
@@ -60,12 +88,8 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
         <audio src={fileUrl} controls preload="metadata" className="max-w-sm ">
           <track kind="captions" />
         </audio>
-        <a
-          href={fileUrl}
-          download={data.originalName}
-          className={downloadLinkClass}
-        >
-          {data.originalName ?? "Audio"}
+        <a href={fileUrl} download={displayName} className={downloadLinkClass}>
+          {displayName}
         </a>
       </div>
     );
@@ -86,10 +110,10 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
         </video>
         <a
           href={fileUrl}
-          download={data.originalName}
+          download={displayName}
           className={`${downloadLinkClass} max-w-sm block`}
         >
-          {data.originalName ?? "Video"}
+          {displayName}
         </a>
       </div>
     );
@@ -107,17 +131,17 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
             className="text-sm font-medium truncate block text-inherit underline"
             title="Preview"
           >
-            {data.originalName ?? "File"}
+            {displayName}
           </a>
-          {data.size != null && (
+          {fileSize != null && (
             <p className="text-xs text-muted-foreground">
-              {formatFileSize(data.size)}
+              {formatFileSize(fileSize)}
             </p>
           )}
         </div>
         <a
           href={fileUrl}
-          download={data.originalName}
+          download={displayName}
           className="shrink-0 p-2 rounded-md hover:bg-muted transition-colors"
           title="Download"
         >

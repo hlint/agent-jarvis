@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
-import type { WsMessage } from "@repo/shared/defines/jarvis";
+import type { AttachmentEntry, WsMessage } from "@repo/shared/defines/jarvis";
 import { env } from "bun";
 import fs from "fs-extra";
 import { Bot, InputFile } from "grammy";
@@ -125,17 +125,27 @@ export default class JarvisClientManager {
           );
         }
         if (message.role === "attachment" && message.channel !== "telegram") {
-          const path = message.data?.path;
-          if (!path) return;
-          const resolvedPath = path.startsWith("/")
-            ? path
-            : join(DIR_RUNTIME, path);
-          if (!fs.existsSync(resolvedPath)) return;
-          await this.telegramBot.api.sendDocument(
-            this.telegramChatId ?? this.telegramUserId,
-            new InputFile(resolvedPath, message.data.originalName),
-            { caption: `Channel: ${message.channel ?? "unknown"}` },
-          );
+          const { data } = message as AttachmentEntry;
+          const chatId = this.telegramChatId ?? this.telegramUserId;
+          const caption = `Channel: ${message.channel ?? "unknown"}`;
+
+          if ("url" in data) {
+            // 外链：直接传 URL，Telegram 会拉取
+            await this.telegramBot.api.sendDocument(chatId, data.url, {
+              caption,
+            });
+          } else if ("filePath" in data) {
+            // 本地文件
+            const resolvedPath = data.filePath.startsWith("/")
+              ? data.filePath
+              : join(DIR_RUNTIME, data.filePath);
+            if (!fs.existsSync(resolvedPath)) return;
+            await this.telegramBot.api.sendDocument(
+              chatId,
+              new InputFile(resolvedPath, data.originalName),
+              { caption },
+            );
+          }
         }
       }
     } catch (error) {

@@ -1,5 +1,6 @@
 import type { AgentTool } from "@repo/shared/agent/defines/tool";
 import type z from "zod";
+import attachmentTool from "./built-in-tools/attachement";
 import { contextPruneTool } from "./built-in-tools/context-prune";
 import { listCronTasksTool } from "./built-in-tools/cron";
 import { execTool } from "./built-in-tools/exec";
@@ -10,6 +11,7 @@ import webSearchTool from "./built-in-tools/web-search";
 import type Jarvis from "./jarvis";
 
 export const builtInTools = [
+  attachmentTool,
   webSearchTool,
   webExtractTool,
   // notifyTool,
