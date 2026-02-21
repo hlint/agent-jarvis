@@ -101,6 +101,7 @@ export default function JarvisInput() {
       >
         <Textarea
           placeholder="Ask me anything"
+          autoFocus
           className="p-4 w-full h-32 md:text-sm bg-transparent rounded-none border-none focus-visible:ring-0 focus-visible:ring-offset-0"
           value={content}
           onChange={(e) => setContent(e.target.value)}
