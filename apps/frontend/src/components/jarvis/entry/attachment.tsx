@@ -16,12 +16,19 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
   if (!data?.path) return null;
 
   const isImage = data.type?.startsWith("image/");
+  const isAudio =
+    data.type?.startsWith("audio/") || data.originalName === "voice.webm";
+  const isVideo = data.type?.startsWith("video/");
   const fileUrl = getFileUrl(data.path);
   const isUser = from === "user";
 
+  const downloadLinkClass = `text-xs text-muted-foreground truncate hover:underline ${isUser ? "text-right" : "text-left"}`;
+
   if (isImage) {
     return (
-      <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+      <div
+        className={`flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}
+      >
         <a
           href={fileUrl}
           target="_blank"
@@ -33,6 +40,56 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
             alt={data.originalName ?? "Image"}
             className="max-h-64 object-contain block"
           />
+        </a>
+        <a
+          href={fileUrl}
+          download={data.originalName}
+          className={downloadLinkClass}
+        >
+          {data.originalName ?? "Image"}
+        </a>
+      </div>
+    );
+  }
+
+  if (isAudio) {
+    return (
+      <div
+        className={`flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}
+      >
+        <audio src={fileUrl} controls preload="metadata" className="max-w-sm ">
+          <track kind="captions" />
+        </audio>
+        <a
+          href={fileUrl}
+          download={data.originalName}
+          className={downloadLinkClass}
+        >
+          {data.originalName ?? "Audio"}
+        </a>
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <div
+        className={`flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}
+      >
+        <video
+          src={fileUrl}
+          controls
+          className="max-h-80 max-w-sm rounded-xl border"
+          preload="metadata"
+        >
+          <track kind="captions" />
+        </video>
+        <a
+          href={fileUrl}
+          download={data.originalName}
+          className={`${downloadLinkClass} max-w-sm block`}
+        >
+          {data.originalName ?? "Video"}
         </a>
       </div>
     );

@@ -80,7 +80,8 @@ export class JarvisStateManager {
         item.role === "agent-reply" &&
         item.status !== "pending" &&
         (!previousItem || previousItem.status === "pending");
-      if (isNewUserMessage || isNewAgentMessage) {
+      const isNewAttachmentEntry = item.role === "attachment" && !previousItem;
+      if (isNewUserMessage || isNewAgentMessage || isNewAttachmentEntry) {
         newCompletedDialogHistory.push(item);
       }
     }

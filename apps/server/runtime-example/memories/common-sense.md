@@ -24,11 +24,12 @@ description: <property description>
 
 当系统空闲时，会推送 system-event（`data.type="system-inactive"`）。建议：
 
+- 尽量不打扰用户（静默工作）
 - 检查未完成事项
-- 清理不需要的文件、定时任务
+- 清理不必要的文件
 - 整理记忆
 - 写日记（若有值得记录的）
-- 压缩上下文
+- 裁剪上下文
 - 决定是否主动联系用户或保持沉默
 
 ## 命名约定

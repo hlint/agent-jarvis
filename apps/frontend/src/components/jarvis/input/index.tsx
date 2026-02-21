@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import { uploadFile } from "@/lib/upload";
 import { Textarea } from "../../ui/textarea";
 import InputToolbar from "./toolbar";
 
@@ -20,12 +19,23 @@ export default function JarvisInput() {
   const processFile = async (file: File) => {
     if (isUploading) return;
     setIsUploading(true);
-    const result = await uploadFile(file);
-    setIsUploading(false);
-    if (result.success) {
-      toast.success(`Uploaded: ${result.filename}`);
-    } else {
-      toast.error(result.error);
+    const uploadFn = async () => {
+      const result = await api.jarvis.upload.post({ file });
+      if (!result.data?.success) {
+        throw new Error(
+          (result.data as { error?: string })?.error ?? "Upload failed",
+        );
+      }
+      return file.name;
+    };
+    try {
+      toast.promise(uploadFn(), {
+        loading: "Uploading...",
+        success: (name) => `Uploaded: ${name}`,
+        error: (err) => err.message,
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -85,6 +95,7 @@ export default function JarvisInput() {
         <InputToolbar
           onSend={handleSend}
           onUploadClick={() => fileInputRef.current?.click()}
+          onFileReady={processFile}
           isUploading={isUploading}
         />
         <input

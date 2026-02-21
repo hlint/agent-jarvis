@@ -1,7 +1,10 @@
+import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
 import type { WsMessage } from "@repo/shared/defines/jarvis";
 import { env } from "bun";
-import { Bot } from "grammy";
+import fs from "fs-extra";
+import { Bot, InputFile } from "grammy";
+import { DIR_RUNTIME } from "./defines";
 import type Jarvis from "./jarvis";
 
 type Client = {
@@ -36,9 +39,9 @@ export default class JarvisClientManager {
         }
         ctx.reply("Welcome! Jarvis is running now.");
       });
-      telegramBot.on("message", (ctx) => {
+      telegramBot.on("message", async (ctx) => {
         if (ctx.from?.id !== this.telegramUserId) {
-          telegramBot.api.sendMessage(
+          await telegramBot.api.sendMessage(
             ctx.chat.id,
             "You are not authorized to use this bot.",
           );
@@ -47,10 +50,30 @@ export default class JarvisClientManager {
         this.telegramChatId = ctx.chat.id;
         if (ctx.message.text) {
           this.jarvis.incomingUserMessage(ctx.message.text, "telegram");
-        } else {
-          telegramBot.api.sendMessage(
+          return;
+        }
+        const fileInfo = this.getTelegramFileInfo(ctx);
+        if (!fileInfo) {
+          await telegramBot.api.sendMessage(
             ctx.chat.id,
-            "Only text messages are supported (For now).",
+            "Only text and file messages are supported.",
+          );
+          return;
+        }
+        try {
+          const file = await this.downloadTelegramFile(
+            TELEGRAM_BOT_TOKEN,
+            fileInfo.fileId,
+          );
+          const webFile = new File([file], fileInfo.filename, {
+            type: fileInfo.mimeType,
+          });
+          await this.jarvis.incomingAttachment(webFile, "telegram");
+        } catch (err) {
+          console.error("Failed to process Telegram file:", err);
+          await telegramBot.api.sendMessage(
+            ctx.chat.id,
+            "Failed to process the file. Please try again.",
           );
         }
       });
@@ -84,7 +107,7 @@ export default class JarvisClientManager {
     }
   }
 
-  pushTelegramMessage(message: HistoryEntry) {
+  async pushTelegramMessage(message: HistoryEntry) {
     try {
       if (this.telegramBot && this.telegramUserId) {
         if (message.role === "user" && message.channel !== "telegram") {
@@ -101,6 +124,19 @@ export default class JarvisClientManager {
             { parse_mode: "Markdown" },
           );
         }
+        if (message.role === "attachment" && message.channel !== "telegram") {
+          const path = message.data?.path;
+          if (!path) return;
+          const resolvedPath = path.startsWith("/")
+            ? path
+            : join(DIR_RUNTIME, path);
+          if (!fs.existsSync(resolvedPath)) return;
+          await this.telegramBot.api.sendDocument(
+            this.telegramChatId ?? this.telegramUserId,
+            new InputFile(resolvedPath, message.data.originalName),
+            { caption: `Channel: ${message.channel ?? "unknown"}` },
+          );
+        }
       }
     } catch (error) {
       console.error(error);
@@ -109,5 +145,74 @@ export default class JarvisClientManager {
 
   notifyAgentBusy(isBusy: boolean) {
     this.telegramIsBusy = isBusy;
+  }
+
+  private getTelegramFileInfo(ctx: {
+    message?: {
+      document?: { file_id: string; file_name?: string; mime_type?: string };
+      photo?: Array<{ file_id: string }>;
+      audio?: { file_id: string; file_name?: string; mime_type?: string };
+      video?: { file_id: string; file_name?: string; mime_type?: string };
+      voice?: { file_id: string; mime_type?: string };
+      video_note?: { file_id: string };
+    };
+  }): { fileId: string; filename: string; mimeType: string } | null {
+    const msg = ctx.message;
+    if (!msg) return null;
+    if (msg.document) {
+      return {
+        fileId: msg.document.file_id,
+        filename: msg.document.file_name ?? "document",
+        mimeType: msg.document.mime_type ?? "application/octet-stream",
+      };
+    }
+    if (msg.photo?.length) {
+      const largest = msg.photo[msg.photo.length - 1];
+      return {
+        fileId: largest.file_id,
+        filename: "photo.jpg",
+        mimeType: "image/jpeg",
+      };
+    }
+    if (msg.audio) {
+      return {
+        fileId: msg.audio.file_id,
+        filename: msg.audio.file_name ?? "audio",
+        mimeType: msg.audio.mime_type ?? "audio/mpeg",
+      };
+    }
+    if (msg.video) {
+      return {
+        fileId: msg.video.file_id,
+        filename: msg.video.file_name ?? "video",
+        mimeType: msg.video.mime_type ?? "video/mp4",
+      };
+    }
+    if (msg.voice) {
+      return {
+        fileId: msg.voice.file_id,
+        filename: "voice.ogg",
+        mimeType: msg.voice.mime_type ?? "audio/ogg",
+      };
+    }
+    if (msg.video_note) {
+      return {
+        fileId: msg.video_note.file_id,
+        filename: "video_note.mp4",
+        mimeType: "video/mp4",
+      };
+    }
+    return null;
+  }
+
+  private async downloadTelegramFile(
+    token: string,
+    fileId: string,
+  ): Promise<ArrayBuffer> {
+    const file = await this.telegramBot!.api.getFile(fileId);
+    const url = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to download: ${res.status}`);
+    return res.arrayBuffer();
   }
 }
