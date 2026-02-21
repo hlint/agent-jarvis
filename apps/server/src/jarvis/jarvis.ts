@@ -1,7 +1,10 @@
 import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
+import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
+import callLlm from "@repo/shared/llm";
+import { env } from "bun";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
@@ -16,7 +19,6 @@ import {
 } from "./defines";
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
-import { AttachmentEntry } from "@repo/shared/defines/jarvis";
 
 // If the system is inactive for 20 minutes, it will push a system-inactive event.
 const SYSTEM_INACTIVE_INTERVAL = 20 * 60 * 1000;
@@ -106,8 +108,9 @@ export default class Jarvis {
     const filename = `${shortId()}${ext}`;
     const destPath = join(DIR_TMP, filename);
     await Bun.write(destPath, file);
+    const attachmentId = shortId();
     this.pushHistoryEntry({
-      id: shortId(),
+      id: attachmentId,
       role: "attachment",
       from: "user",
       channel: from,
@@ -119,6 +122,41 @@ export default class Jarvis {
         path: destPath,
       },
     } satisfies AttachmentEntry);
+    if (
+      env.MM_LLM_MODEL &&
+      env.MM_LLM_API_KEY &&
+      file.name.startsWith("voice.")
+    ) {
+      try {
+        const { text } = await callLlm({
+          model: env.MM_LLM_MODEL,
+          apiKey: env.MM_LLM_API_KEY,
+          baseURL: env.MM_LLM_BASE_URL,
+          dialog: [
+            {
+              role: "user",
+              content: "Transcribe the following audio file",
+              filePath: destPath,
+            },
+          ],
+        });
+        this.pushHistoryEntry({
+          id: shortId(),
+          role: "system-event",
+          createdTime: timeFormat(),
+          brief: "Automatic transcription of audio file from user",
+          content: text,
+          status: "completed",
+          data: {
+            type: "automatic-transcription",
+            attachmentId,
+            filePath: destPath,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
   }
 
   wakeUp() {

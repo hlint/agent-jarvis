@@ -34,9 +34,9 @@ export default class Runner {
     const dialogHistory = this.jarvis.state.getState().dialogHistory;
     // 调用 AI 对话
     const { stoppedReason, stoppedBy } = await callAgent({
-      llmModel: env.LLM_MODEL!,
-      llmApiKey: env.LLM_API_KEY!,
-      llmBaseUrl: env.LLM_BASE_URL,
+      llmModel: env.CHAT_LLM_MODEL!,
+      llmApiKey: env.CHAT_LLM_API_KEY!,
+      llmBaseUrl: env.CHAT_LLM_BASE_URL,
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
       additionalAgentInformation: buildAgentPrompt(this.jarvis),

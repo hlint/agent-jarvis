@@ -15,8 +15,10 @@
     "start": "turbo run start"
   },
   "dependencies": {
+    "@types/mime-types": "^3.0.1",
     "dayjs": "^1.11.19",
     "es-toolkit": "^1.44.0",
+    "mime-types": "^3.0.2",
     "nanoid": "^5.1.6",
     "zod": "^4.3.6"
   },
