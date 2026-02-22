@@ -129,22 +129,54 @@ export default class JarvisClientManager {
           const chatId = this.telegramChatId ?? this.telegramUserId;
           const caption = `Channel: ${message.channel ?? "unknown"}`;
 
+          const isImage = (t: string) => t.startsWith("image/");
+          const isVideo = (t: string) =>
+            t.startsWith("video/") && !t.includes("webm");
+          const mediaTypeFromUrl = (url: string) => {
+            try {
+              const ext = url
+                .split(".")
+                .pop()
+                ?.toLowerCase()
+                .replace(/\?.*/, "");
+              if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext ?? ""))
+                return "image";
+              if (["mp4", "mov", "avi", "mpeg"].includes(ext ?? ""))
+                return "video";
+            } catch {}
+            return "document";
+          };
+
           if ("url" in data) {
-            // 外链：直接传 URL，Telegram 会拉取
-            await this.telegramBot.api.sendDocument(chatId, data.url, {
-              caption,
-            });
+            const mediaType = mediaTypeFromUrl(data.url);
+            if (mediaType === "image") {
+              await this.telegramBot.api.sendPhoto(chatId, data.url, {
+                caption,
+              });
+            } else if (mediaType === "video") {
+              await this.telegramBot.api.sendVideo(chatId, data.url, {
+                caption,
+              });
+            } else {
+              await this.telegramBot.api.sendDocument(chatId, data.url, {
+                caption,
+              });
+            }
           } else if ("filePath" in data) {
-            // 本地文件
             const resolvedPath = data.filePath.startsWith("/")
               ? data.filePath
               : join(DIR_RUNTIME, data.filePath);
             if (!fs.existsSync(resolvedPath)) return;
-            await this.telegramBot.api.sendDocument(
-              chatId,
-              new InputFile(resolvedPath, data.originalName),
-              { caption },
-            );
+            const file = new InputFile(resolvedPath, data.originalName);
+            if (isImage(data.fileType)) {
+              await this.telegramBot.api.sendPhoto(chatId, file, { caption });
+            } else if (isVideo(data.fileType)) {
+              await this.telegramBot.api.sendVideo(chatId, file, { caption });
+            } else {
+              await this.telegramBot.api.sendDocument(chatId, file, {
+                caption,
+              });
+            }
           }
         }
       }

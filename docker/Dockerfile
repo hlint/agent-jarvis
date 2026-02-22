@@ -29,10 +29,13 @@ RUN mkdir -p $NPM_CONFIG_PREFIX $BUN_INSTALL_GLOBAL $PLAYWRIGHT_BROWSERS_PATH &&
 
 # Desktop Icon
 RUN mkdir -p /usr/local/share/default-desktop
-COPY /docker/build/desktop /usr/local/share/default-desktop
+COPY ./docker/build/desktop /usr/local/share/default-desktop
 
 # Webtop Title
 ENV TITLE="Jarvis Computer"
+
+# Webtop Icon
+COPY ./output/dist/html/favicon.png /usr/share/selkies/www/icon.png
 
 # S6 service startup configuration
 RUN mkdir -p /etc/services.d/jarvis

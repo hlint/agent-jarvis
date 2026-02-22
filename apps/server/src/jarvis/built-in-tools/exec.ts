@@ -20,16 +20,13 @@ export const execTool = defineJarvisTool({
         ? input.cwd
         : path.join(path.resolve(DIR_RUNTIME), input.cwd)
       : path.resolve(DIR_RUNTIME);
-    const result = await runBun(input.command, cwd, {
-      timeoutMs: 60_000,
-      maxOutputBytes: 2 * 1024 * 1024,
-    });
+    const result = await runBun(input.command, cwd, {});
     return result;
   },
 });
 
 /** Default timeout (ms) for runBun. */
-const RUN_BUN_DEFAULT_TIMEOUT_MS = 60_000;
+const RUN_BUN_DEFAULT_TIMEOUT_MS = 45_000;
 /** Default max bytes for runBun stdout/stderr before truncation. */
 const RUN_BUN_DEFAULT_MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
 

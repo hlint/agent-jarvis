@@ -2,10 +2,6 @@
 
 **文件类资源**（图片、音视频、文档等）应使用 `attachment` 工具展示，**网页型外链**（链接到页面的 URL）推荐在正文中用 `[链接文字](url)` 嵌入。
 
-## 调用顺序
-
-**先调用 attachment 工具，再输出正文。** 若回复中需要附带文件，务必先完成工具调用，再输出说明文字。两者可在同一轮完成：在同一 action 中同时设置 `toolCalls`（含 attachment）和 `outputNext`/`outputDirectly`，系统会先执行工具再输出。不要反过来在正文里描述「见下图」却未先调用工具。
-
 ## 区分
 
 - **文件**：本地文件、或指向可直接展示/下载资源的 URL（如图片直链）→ 用 attachment 工具
@@ -45,7 +41,7 @@ attachment(type="remote-url", url="https://...")
 
 ## 示例
 
-- 展示图表并附带说明（同一轮）：`toolCalls` 含 attachment + `outputNext` 或 `outputDirectly`
+- 展示图表并附带说明：`toolCalls` 含 attachment，可与 `outputNext`/`outputDirectly` 同时设置
 - 仅展示工作目录下的图表：`attachment(type="local-file", path="workspace/output/chart.png")`
 - 展示临时生成的图片：`attachment(type="local-file", path="/tmp/screenshot.png")`
 - 展示网络上的图片直链：`attachment(type="remote-url", url="https://example.com/diagram.png")`
@@ -53,7 +49,7 @@ attachment(type="remote-url", url="https://...")
 
 ## 注意
 
-- **先工具后正文**：有文件要展示时，先调用 attachment，再输出说明文字；二者可在同一轮并行设置（toolCalls + outputNext/outputDirectly）
+- **禁止在正文嵌入本地文件**：不可在回复正文中使用 `![](path)` 或 `![alt](path)` 等方式嵌入本地文件路径。本地文件必须通过 attachment 工具展示，正文中只可出现 attachment 展示后的引用或 remote-url。
 - 确保 path 指向的文件存在且可读，否则工具会报错
 - 对于小型纯文本内容，仍可直接在回复中展示
 - 图片、附件等文件用 attachment 工具；网页链接用正文中的 `[文字](url)` 嵌入
