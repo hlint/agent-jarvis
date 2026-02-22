@@ -12,7 +12,7 @@ export default function Jarvis() {
   return (
     <div className="max-w-4xl mx-auto h-screen relative flex flex-col">
       <JarvisTop />
-      <div className="flex-1">
+      <div className="flex-1 lg:flex-0 lg:min-h-[350px]">
         {isEmpty ? <JarvisWelcome /> : <JarvisMessages />}
       </div>
       <JarvisInput />

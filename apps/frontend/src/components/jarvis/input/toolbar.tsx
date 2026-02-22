@@ -65,7 +65,7 @@ export default function InputToolbar({
   };
 
   return (
-    <div className="flex flex-row gap-2 items-center p-2 bg-foreground/10">
+    <div className="flex flex-row gap-2 items-center p-2 ">
       <Button
         variant="ghost"
         size="icon-lg"

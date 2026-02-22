@@ -17,7 +17,12 @@ export default function ClearHistoryButton() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button variant="ghost" size="icon-lg" onClick={() => setOpen(true)}>
+      <Button
+        variant="ghost"
+        title="Clear chat history"
+        size="icon-lg"
+        onClick={() => setOpen(true)}
+      >
         <TrashIcon />
       </Button>
       <AlertDialog open={open} onOpenChange={setOpen}>

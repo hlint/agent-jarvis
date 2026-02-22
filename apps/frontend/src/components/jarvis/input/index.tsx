@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { Textarea } from "../../ui/textarea";
 import InputToolbar from "./toolbar";
 
@@ -94,7 +95,10 @@ export default function JarvisInput() {
       <div
         role="region"
         aria-label="Upload area"
-        className={`relative border border-foreground/10 rounded-xl overflow-hidden bg-background transition-colors focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 ${isDragging ? "border-primary ring-2 ring-primary/20" : ""}`}
+        className={cn(
+          "relative border border-foreground/10 rounded-xl overflow-hiddentransition-colors focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 bg-foreground/5",
+          isDragging ? "border-primary ring-2 ring-primary/20" : "",
+        )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -102,7 +106,7 @@ export default function JarvisInput() {
         <Textarea
           placeholder="Ask Jarvis"
           autoFocus
-          className="p-4 w-full h-32 md:text-sm bg-transparent rounded-none border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="p-4 w-full h-32 md:text-sm dark:bg-transparent rounded-none border-none focus-visible:ring-0 focus-visible:ring-offset-0"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={(e) => {
