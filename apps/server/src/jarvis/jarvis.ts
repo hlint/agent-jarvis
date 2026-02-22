@@ -52,6 +52,7 @@ export default class Jarvis {
     this.pushHistoryEntry({
       id: nanoid(6),
       role: "system-event",
+      createdAt: Date.now(),
       createdTime: timeFormat(),
       brief: "System Inactive",
       content: "The system has been inactive for 5 minutes.",
@@ -98,6 +99,7 @@ export default class Jarvis {
     this.pushHistoryEntry({
       id: nanoid(6),
       role: "user",
+      createdAt: Date.now(),
       createdTime: timeFormat(),
       content: content,
       channel: from,
@@ -118,6 +120,7 @@ export default class Jarvis {
       role: "attachment",
       from: "user",
       channel: from,
+      createdAt: Date.now(),
       createdTime: timeFormat(),
       data: {
         type: "local-file",
@@ -148,6 +151,7 @@ export default class Jarvis {
         this.pushHistoryEntry({
           id: shortId(),
           role: "system-event",
+          createdAt: Date.now(),
           createdTime: timeFormat(),
           brief: "Automatic transcription of audio file from user",
           content: response.text,
@@ -163,6 +167,7 @@ export default class Jarvis {
         this.pushHistoryEntry({
           id: shortId(),
           role: "system-event",
+          createdAt: Date.now(),
           createdTime: timeFormat(),
           brief: "Automatic transcription of audio file from user",
           error:

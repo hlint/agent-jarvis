@@ -56,13 +56,19 @@ export default function JarvisMessages() {
           let entry: ReactNode;
           switch (historyEntry.role) {
             case "user":
-              entry = <JarvisUserEntry text={historyEntry.content ?? ""} />;
+              entry = (
+                <JarvisUserEntry
+                  text={historyEntry.content ?? ""}
+                  createdAt={historyEntry.createdAt}
+                />
+              );
               break;
             case "agent-reply":
               entry = (
                 <JarvisAssistantEntry
                   text={historyEntry.content ?? ""}
                   status={historyEntry.status ?? "pending"}
+                  createdAt={historyEntry.createdAt}
                 />
               );
               break;

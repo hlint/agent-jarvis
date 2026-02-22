@@ -21,6 +21,7 @@ export type AttachmentEntry = {
   role: "attachment";
   from: "user" | "assistant";
   channel: "web" | "tool-call" | "telegram";
+  createdAt: number;
   createdTime: string;
   data:
     | {

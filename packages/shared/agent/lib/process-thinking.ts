@@ -28,7 +28,7 @@ export default async function processThinking({
     role: "agent-thinking",
     status: "pending",
     createdTime: timeFormat(),
-    updatedTime: timeFormat(),
+    createdAt: Date.now(),
   };
   dialogHistory.push(entry);
   onDialogHistoryChange();
@@ -58,7 +58,6 @@ export default async function processThinking({
       ],
       onStream: (content) => {
         entry.content = parseLlmResultBeforeDivider(content);
-        entry.updatedTime = timeFormat();
         onDialogHistoryChange();
       },
     });
@@ -69,14 +68,12 @@ export default async function processThinking({
     entry.status = "completed";
     entry.content = reasoning;
     entry.action = thinkAction;
-    entry.updatedTime = timeFormat();
     onDialogHistoryChange();
     return thinkAction;
   } catch (error) {
     entry.status = "failed";
     entry.content = `Something went wrong during reasoning.`;
     entry.error = error instanceof Error ? error.message : String(error);
-    entry.updatedTime = timeFormat();
     onDialogHistoryChange();
     throw error;
   }

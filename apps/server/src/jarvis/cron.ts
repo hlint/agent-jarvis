@@ -86,6 +86,7 @@ export default class JarvisCron {
         this.jarvis.pushHistoryEntry({
           id: nanoid(6),
           role: "system-event",
+          createdAt: Date.now(),
           createdTime: timeFormat(),
           brief: `Cron task ${task.name} triggered`,
           content: task.body,

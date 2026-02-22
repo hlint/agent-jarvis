@@ -23,7 +23,7 @@ export default async function processToolCalling({
           role: "agent-tool-call",
           status: "pending",
           createdTime: timeFormat(),
-          updatedTime: timeFormat(),
+          createdAt: Date.now(),
           brief: toolCall.brief,
           toolName: toolCall.toolName,
           toolInput: toolCall.input,
@@ -46,7 +46,6 @@ export default async function processToolCalling({
               error instanceof Error ? error.message : String(error);
             entry.toolOutput = `Something went wrong when this tool was called. `;
           }
-          entry.updatedTime = timeFormat();
           onDialogHistoryChange();
         }
       })(),

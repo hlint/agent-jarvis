@@ -5,14 +5,14 @@
 ## 存储位置与格式
 
 - **路径**：`diaries/YYYY/MM/DD.md`（相对于 runtime），月、日两位补零，例如 `diaries/2026/02/17.md`。
-- **单条格式**：每条占一行，格式为 `**Weekday, Month DD, YYYY HH:MM AM/PM:** 内容`（与系统 当前时间格式一致，如 `**Friday, February 17, 2026 21:35 PM:** 内容`）。条与条之间空一行。
+- **单条格式**：每条占一行，格式为 `**Weekday, Month DD, YYYY HH:MM:** 内容`（与系统 当前时间格式一致，如 `**Friday, February 17, 2026 21:35:** 内容`）。条与条之间空一行。
 
 示例：
 
 ```
-**Friday, January 01, 2026 01:00 AM:** Foo
+**Friday, January 01, 2026 01:00:** Foo
 
-**Friday, January 01, 2026 02:00 AM:** Bar
+**Friday, January 01, 2026 22:00:** Bar
 
 ```
 

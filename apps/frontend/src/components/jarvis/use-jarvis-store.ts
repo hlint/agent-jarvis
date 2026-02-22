@@ -38,7 +38,9 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
       if (response.data) {
         const snapshotIdChanged = response.data.snapshotId !== get().snapshotId;
         if (snapshotIdChanged) {
-          get().handleScrollToBottom();
+          setTimeout(() => {
+            get().handleScrollToBottom();
+          }, 100);
         }
         set({
           snapshotId: response.data.snapshotId,

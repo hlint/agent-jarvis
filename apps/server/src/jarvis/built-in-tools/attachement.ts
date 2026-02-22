@@ -51,6 +51,7 @@ const attachmentTool = defineJarvisTool({
         role: "attachment",
         from: "assistant",
         channel: "tool-call",
+        createdAt: Date.now(),
         createdTime,
         data: {
           type: "local-file",
@@ -71,6 +72,7 @@ const attachmentTool = defineJarvisTool({
       from: "assistant",
       channel: "tool-call",
       createdTime,
+      createdAt: Date.now(),
       data: {
         type: "remote-url",
         url: input.url,

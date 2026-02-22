@@ -1,12 +1,15 @@
+import { smartTimeFormat } from "@repo/shared/lib/time";
 import JarvisMarkdown from "../components/markdown";
 import StatusIcon from "../components/StatusIcon";
 
 export default function JarvisAssistantEntry({
   text,
   status,
+  createdAt,
 }: {
   text: string;
   status: "pending" | "completed" | "failed";
+  createdAt: number;
 }) {
   if (!text && status === "pending") {
     return (
@@ -16,12 +19,17 @@ export default function JarvisAssistantEntry({
     );
   }
   return (
-    <div className="rounded-xl bg-foreground/5 border border-foreground/10 p-3 max-w-[90%]">
-      <JarvisMarkdown
-        className="overflow-auto mr-2"
-        text={text}
-        isAnimating={status === "pending"}
-      />
+    <div className="flex flex-col gap-3 max-w-[90%]">
+      <div className="rounded-xl bg-foreground/5 border border-foreground/10 p-3">
+        <JarvisMarkdown
+          className="overflow-auto mr-2"
+          text={text}
+          isAnimating={status === "pending"}
+        />
+      </div>
+      <span className="text-xs text-muted-foreground">
+        {smartTimeFormat(createdAt)}
+      </span>
     </div>
   );
 }

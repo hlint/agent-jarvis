@@ -16,7 +16,7 @@ export default async function processOutputDirectly({
     role: "agent-reply",
     status: "completed",
     createdTime: timeFormat(),
-    updatedTime: timeFormat(),
+    createdAt: Date.now(),
     content: outputContent,
   };
   dialogHistory.push(entry);

@@ -53,6 +53,7 @@ export default class Runner {
           id: shortId(),
           role: "system-event",
           createdTime: timeFormat(),
+          createdAt: Date.now(),
           brief: "Aborted.",
           content: "The agent's execution has been aborted by user.",
         });
@@ -62,6 +63,7 @@ export default class Runner {
           id: shortId(),
           role: "system-event",
           createdTime: timeFormat(),
+          createdAt: Date.now(),
           brief: "Maximum steps reached.",
           content:
             'The agent has reached the maximum number of steps and stopped by system. Please ask the user to continue the conversation. (e.g. "Sorry, I have reached the maximum number of steps. Should I continue?")',
@@ -74,6 +76,7 @@ export default class Runner {
             id: shortId(),
             role: "system-event",
             createdTime: timeFormat(),
+            createdAt: Date.now(),
             brief: `Runtime Error, Retrying... (Attempt ${this.jarvis.retryCount}/${MAX_RETRY_COUNT})`,
             content: "Something went wrong during the agent execution.",
             error: stoppedReason,
@@ -84,6 +87,7 @@ export default class Runner {
             id: shortId(),
             role: "system-event",
             createdTime: timeFormat(),
+            createdAt: Date.now(),
             brief: "Runtime Error, Maximum retries reached.",
             content:
               "Something went wrong and cannot be recovered by AI Agent, wait for user to continue.",

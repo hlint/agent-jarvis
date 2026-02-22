@@ -8,8 +8,8 @@ export type HistoryEntry = {
     | "agent-tool-call"
     | "system-event";
   status?: "pending" | "completed" | "failed";
+  createdAt: number;
   createdTime: string;
-  updatedTime?: string;
   content?: string;
   error?: string;
   from?: "user" | "assistant" | "system";

@@ -26,7 +26,7 @@ export default async function processOutput({
     role: "agent-reply",
     status: "pending",
     createdTime: timeFormat(),
-    updatedTime: timeFormat(),
+    createdAt: Date.now(),
   };
   dialogHistory.push(entry);
   onDialogHistoryChange();
@@ -56,7 +56,6 @@ export default async function processOutput({
       ],
       onStream: (content) => {
         entry.content = content;
-        entry.updatedTime = timeFormat();
         onDialogHistoryChange();
       },
     });
@@ -64,11 +63,9 @@ export default async function processOutput({
     entry.status = "failed";
     entry.content = `Something went wrong when outputting content.`;
     entry.error = error instanceof Error ? error.message : String(error);
-    entry.updatedTime = timeFormat();
     onDialogHistoryChange();
     throw error;
   }
   entry.status = "completed";
-  entry.updatedTime = timeFormat();
   onDialogHistoryChange();
 }
