@@ -1,8 +1,8 @@
 import callAgent from "@repo/shared/agent/index";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
-import { env } from "bun";
 import buildAgentPrompt from "./agent-prompt";
+import { aiOutputProvider, aiThinkProvider } from "./ai-providers";
 import type Jarvis from "./jarvis";
 import { builtInTools, createAiTools } from "./tool";
 
@@ -32,11 +32,13 @@ export default class Runner {
     this.jarvis.clientManager.notifyAgentBusy(true);
     this.needRunNext = false;
     const dialogHistory = this.jarvis.state.getState().dialogHistory;
+    if (!aiThinkProvider) {
+      throw new Error("No think provider found");
+    }
     // 调用 AI 对话
     const { stoppedReason, stoppedBy } = await callAgent({
-      llmModel: env.CHAT_LLM_MODEL!,
-      llmApiKey: env.CHAT_LLM_API_KEY!,
-      llmBaseUrl: env.CHAT_LLM_BASE_URL,
+      thinkProvider: aiThinkProvider,
+      outputProvider: aiOutputProvider,
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
       additionalAgentInformation: buildAgentPrompt(this.jarvis),

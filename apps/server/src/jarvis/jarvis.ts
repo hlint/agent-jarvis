@@ -7,11 +7,12 @@ import {
 import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
-import callGemini from "@repo/shared/llm/call-gemini";
-import { env } from "bun";
+import getModel from "@repo/shared/llm/get-model";
+import { generateText } from "ai";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
+import { aiMultimodalityProvider } from "./ai-providers";
 import JarvisClientManager from "./client";
 import JarvisCron from "./cron";
 import {
@@ -39,10 +40,13 @@ export default class Jarvis {
     const lastEntry = dialogHistory[dialogHistory.length - 1];
     const secondLastEntry = dialogHistory[dialogHistory.length - 2];
 
-    // 如果最后一条和倒数第二条都是静默状态，说明AI已经认为不需要做任何事了，此时不需要唤醒
+    // 如果最后一条是错误信息，或者最后一条和倒数第二条都是静默状态，说明AI已经认为不需要做任何事了，此时不需要唤醒
     if (
       !lastEntry ||
       !secondLastEntry ||
+      lastEntry?.content?.startsWith(
+        "Runtime Error, Maximum retries reached",
+      ) ||
       (lastEntry?.role === "agent-thinking" &&
         isNothingToDo(lastEntry?.action as ThinkAction) &&
         secondLastEntry?.role === "system-event" &&
@@ -132,21 +136,22 @@ export default class Jarvis {
         filePath: destPath,
       },
     } satisfies AttachmentEntry);
-    if (
-      env.MM_LLM_MODEL &&
-      env.MM_LLM_API_KEY &&
-      file.name.startsWith("voice.")
-    ) {
+    if (aiMultimodalityProvider && file.name.startsWith("voice.")) {
       try {
-        const response = await callGemini({
-          model: env.MM_LLM_MODEL,
-          apiKey: env.MM_LLM_API_KEY,
-          baseURL: env.MM_LLM_BASE_URL,
-          dialog: [
+        const response = await generateText({
+          model: getModel(aiMultimodalityProvider),
+          messages: [
             {
               role: "user",
-              content: "Transcribe the following audio file",
-              filePath: destPath,
+              content: [
+                { type: "text", text: "Transcribe the following audio file" },
+                {
+                  type: "file",
+                  data: await Bun.file(destPath).arrayBuffer(),
+                  mediaType:
+                    file.type === "video/webm" ? "audio/webm" : file.type, // "video/webm" => "audio/webm"
+                },
+              ],
             },
           ],
         });

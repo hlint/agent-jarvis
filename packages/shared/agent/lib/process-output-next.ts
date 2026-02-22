@@ -1,16 +1,16 @@
+import { streamText } from "ai";
 import { cloneDeep } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
-import callLlm from "../../llm/call-llm";
+import getModel from "../../llm/get-model";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { outputContentPrompt } from "../prompt/output";
 import { getToolsInfo, parsePrompt } from "./llm-parse";
 
 export default async function processOutput({
-  llmModel,
-  llmApiKey,
-  llmBaseUrl,
+  thinkProvider,
+  outputProvider,
   tools,
   dialogHistory,
   additionalAgentInformation,
@@ -31,11 +31,9 @@ export default async function processOutput({
   dialogHistory.push(entry);
   onDialogHistoryChange();
   try {
-    await callLlm({
-      model: llmModel,
-      apiKey: llmApiKey,
-      baseURL: llmBaseUrl,
-      dialog: [
+    const { fullStream } = streamText({
+      model: getModel(outputProvider ?? thinkProvider),
+      messages: [
         {
           role: "system",
           content: parsePrompt(outputContentPrompt, {
@@ -54,11 +52,15 @@ export default async function processOutput({
 	`,
         },
       ],
-      onStream: (content) => {
+    });
+    let content = "";
+    for await (const chunk of fullStream) {
+      if (chunk.type === "text-delta") {
+        content += chunk.text;
         entry.content = content;
         onDialogHistoryChange();
-      },
-    });
+      }
+    }
   } catch (error) {
     entry.status = "failed";
     entry.content = `Something went wrong when outputting content.`;

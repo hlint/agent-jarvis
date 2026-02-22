@@ -1,20 +1,26 @@
-import callLlm from "@repo/shared/llm/call-llm";
+import getModel from "@repo/shared/llm/get-model";
 import { tavily } from "@tavily/core";
+import { generateText } from "ai";
 import { env } from "bun";
 import { z } from "zod";
+import { aiOutputProvider, aiThinkProvider } from "../ai-providers";
 import { defineJarvisTool } from "../tool";
 
 const toolDisabled = !env.TAVILY_API_KEY;
+const toolDisabledMessage = "Tool disabled due to missing env.TAVILY_API_KEY.";
 
 const webExtractTool = defineJarvisTool({
   name: "web-extract",
   description:
     "Fetch and extract content from given URL(s). " +
-    (toolDisabled ? "(Tool disabled due to missing env.TAVILY_API_KEY.)" : ""),
+    (toolDisabled ? `(${toolDisabledMessage})` : ""),
   inputSchema: z.object({
     urls: z.array(z.string()).min(1).max(8),
   }),
   execute: async (input) => {
+    if (toolDisabled) {
+      throw new Error(toolDisabledMessage);
+    }
     const { urls } = input;
     const client = tavily({ apiKey: env.TAVILY_API_KEY! });
     const { results } = await client.extract(urls, {
@@ -24,11 +30,9 @@ const webExtractTool = defineJarvisTool({
     if (!firstResult) {
       throw new Error("No results found");
     }
-    const { text } = await callLlm({
-      model: env.CHAT_LLM_MODEL!,
-      apiKey: env.CHAT_LLM_API_KEY!,
-      baseURL: env.CHAT_LLM_BASE_URL,
-      dialog: [
+    const { text } = await generateText({
+      model: getModel(aiOutputProvider ?? aiThinkProvider!),
+      messages: [
         {
           role: "system",
           content: ContentDistillerPrompt,

@@ -1,11 +1,11 @@
+import type { AiProvider } from "../../llm/types";
 import type { DialogHistory } from "./history";
 import type { ThinkAction } from "./think-action";
 import type { AgentTool } from "./tool";
 
 export type AgentContext = {
-  llmModel: string;
-  llmApiKey: string;
-  llmBaseUrl?: string;
+  thinkProvider: AiProvider;
+  outputProvider?: AiProvider;
   tools: AgentTool[];
   dialogHistory: DialogHistory;
   additionalAgentInformation: string;

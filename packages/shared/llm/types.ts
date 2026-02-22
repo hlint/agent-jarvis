@@ -9,3 +9,9 @@ export type LlmDialog = Array<
       content: string;
     }
 >;
+
+export type AiProvider = {
+  model: string;
+  apiKey?: string;
+  baseURL?: string;
+};

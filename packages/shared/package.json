@@ -9,8 +9,7 @@
     "./agent/defines/history": "./agent/defines/history.ts",
     "./lib/state-sync": "./lib/state-sync.ts",
     "./lib/time": "./lib/time.ts",
-    "./llm/call-llm": "./llm/call-llm.ts",
-    "./llm/call-gemini": "./llm/call-gemini.ts",
+    "./llm/get-model": "./llm/get-model.ts",
     "./lib/utils": "./lib/utils.ts",
     "./agent/defines/tool": "./agent/defines/tool.ts",
     "./agent/defines/think-action": "./agent/defines/think-action.ts",
@@ -21,14 +20,22 @@
     "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.46",
+    "@ai-sdk/azure": "^3.0.31",
+    "@ai-sdk/black-forest-labs": "^1.0.20",
+    "@ai-sdk/bytedance": "^1.0.0",
+    "@ai-sdk/deepseek": "^2.0.20",
+    "@ai-sdk/fal": "^2.0.21",
     "@ai-sdk/google": "^3.0.30",
+    "@ai-sdk/google-vertex": "^4.0.61",
+    "@ai-sdk/huggingface": "^1.0.32",
     "@ai-sdk/openai": "^3.0.27",
-    "@ai-sdk/openai-compatible": "^2.0.30",
-    "@google/genai": "^1.42.0",
+    "@ai-sdk/togetherai": "^2.0.33",
+    "@ai-sdk/vercel": "^2.0.32",
+    "@ai-sdk/xai": "^3.0.57",
     "ai": "^6.0.81",
     "fast-json-patch": "^3.1.1",
-    "lz-string": "^1.5.0",
-    "openai": "^6.21.0"
+    "lz-string": "^1.5.0"
   },
   "devDependencies": {
     "@types/bun": "latest"

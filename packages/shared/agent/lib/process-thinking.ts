@@ -1,7 +1,8 @@
+import { streamText } from "ai";
 import { cloneDeep } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
-import callLlm from "../../llm/call-llm";
+import getModel from "../../llm/get-model";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { ThinkActionSchema } from "../defines/think-action";
@@ -14,9 +15,7 @@ import {
 } from "./llm-parse";
 
 export default async function processThinking({
-  llmModel,
-  llmApiKey,
-  llmBaseUrl,
+  thinkProvider,
   tools,
   dialogHistory,
   additionalAgentInformation,
@@ -33,11 +32,9 @@ export default async function processThinking({
   dialogHistory.push(entry);
   onDialogHistoryChange();
   try {
-    const response = await callLlm({
-      model: llmModel,
-      apiKey: llmApiKey,
-      baseURL: llmBaseUrl,
-      dialog: [
+    const { fullStream } = streamText({
+      model: getModel(thinkProvider),
+      messages: [
         {
           role: "system",
           content: parsePrompt(thinkPrompt, {
@@ -56,13 +53,17 @@ export default async function processThinking({
 	`,
         },
       ],
-      onStream: (content) => {
+    });
+    let content = "";
+    for await (const chunk of fullStream) {
+      if (chunk.type === "text-delta") {
+        content += chunk.text;
         entry.content = parseLlmResultBeforeDivider(content);
         onDialogHistoryChange();
-      },
-    });
+      }
+    }
     const [reasoning, thinkAction] = parseLlmResultWithDivider(
-      response.text,
+      content,
       ThinkActionSchema,
     );
     entry.status = "completed";
