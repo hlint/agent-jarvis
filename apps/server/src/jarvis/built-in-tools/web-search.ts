@@ -32,7 +32,7 @@ const webSearchTool = defineJarvisTool({
       searchDepth: "basic",
       maxResults: 9,
       // timeRange: timeRangeMap[timeRange],
-      include_raw_content: "markdown",
+      // include_raw_content: "markdown",
     });
     return results;
   },

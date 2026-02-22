@@ -24,8 +24,8 @@ import {
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 
-// If the system is inactive for 5 minutes, it will push a system-inactive event.
-const SYSTEM_INACTIVE_INTERVAL = 5 * 60 * 1000;
+// If the system is inactive for N minutes, it will push a system-inactive event.
+const SYSTEM_INACTIVE_INTERVAL = 10 * 60 * 1000;
 
 export default class Jarvis {
   public runner = new Runner(this);
@@ -41,10 +41,12 @@ export default class Jarvis {
 
     // 如果最后一条和倒数第二条都是静默状态，说明AI已经认为不需要做任何事了，此时不需要唤醒
     if (
-      lastEntry?.role === "agent-thinking" &&
-      isNothingToDo(lastEntry?.action as ThinkAction) &&
-      secondLastEntry?.role === "system-event" &&
-      secondLastEntry?.data?.type === "system-inactive"
+      !lastEntry ||
+      !secondLastEntry ||
+      (lastEntry?.role === "agent-thinking" &&
+        isNothingToDo(lastEntry?.action as ThinkAction) &&
+        secondLastEntry?.role === "system-event" &&
+        secondLastEntry?.data?.type === "system-inactive")
     ) {
       return;
     }
