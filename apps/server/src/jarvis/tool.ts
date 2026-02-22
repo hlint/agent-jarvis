@@ -6,6 +6,7 @@ import { listCronTasksTool } from "./built-in-tools/cron";
 import { execTool } from "./built-in-tools/exec";
 import { fileTools } from "./built-in-tools/file";
 // import notifyTool from "./built-in-tools/notify";
+import imageSearchTool from "./built-in-tools/image-search";
 import webExtractTool from "./built-in-tools/web-extract";
 import webSearchTool from "./built-in-tools/web-search";
 import type Jarvis from "./jarvis";
@@ -14,6 +15,7 @@ export const builtInTools = [
   attachmentTool,
   webSearchTool,
   webExtractTool,
+  imageSearchTool,
   // notifyTool,
   execTool,
   listCronTasksTool,
