@@ -1,10 +1,4 @@
-import {
-  Loader2Icon,
-  MicIcon,
-  PaperclipIcon,
-  SendIcon,
-  SquareIcon,
-} from "lucide-react";
+import { Loader2Icon, MicIcon, PaperclipIcon, SquareIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../ui/button";
@@ -103,13 +97,18 @@ export default function InputToolbar({
       <DebugModeSwitch />
       <StateIndicator />
       <Button
-        variant="outline"
-        className="ml-auto dark:bg-primary/60 dark:hover:bg-primary/70"
-        size="lg"
+        type="button"
+        size="icon-sm"
+        variant="ghost"
+        className="group ml-auto"
+        title="Send Message"
         onClick={onSend}
       >
-        <SendIcon />
-        Send
+        <img
+          src="/favicon.png"
+          alt="Jarvis"
+          className="transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.5)]"
+        />
       </Button>
     </div>
   );

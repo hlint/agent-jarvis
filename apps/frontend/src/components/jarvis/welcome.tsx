@@ -24,36 +24,47 @@ const SECTIONS = [
   {
     title: "🔍 Search & Research",
     examples: [
-      { emoji: "🌤️", text: "What's the weather like today?" },
       { emoji: "🔎", text: "Search the web for the latest tech news" },
       { emoji: "📰", text: "Find recent updates on AI and LLMs" },
-    ],
-  },
-  {
-    title: "✨ Create & Analyze",
-    examples: [
-      { emoji: "📐", text: "Help me plan a simple project structure" },
-      { emoji: "🐍", text: "Write a short Python script to parse JSON" },
-      { emoji: "📊", text: "Generate a summary of the workspace files" },
-    ],
-  },
-  {
-    title: "📋 Organize & Execute",
-    examples: [
       {
-        emoji: "📂",
-        text: "List what's in my workspace and suggest improvements",
+        emoji: "🔗",
+        text: "Extract and summarize the content from this URL",
       },
-      { emoji: "⏰", text: "Create a daily reminder to check the weather" },
-      { emoji: "📝", text: "Help me organize my notes in the data folder" },
+    ],
+  },
+  {
+    title: "🖼️ Images",
+    examples: [
+      { emoji: "🎨", text: "Generate an image of a minimalist app icon" },
+      { emoji: "📷", text: "Search for sunset beach stock photos" },
+      { emoji: "🐱", text: "Create a cat wearing a cozy sweater" },
     ],
   },
   {
     title: "📁 File & Workspace",
     examples: [
       { emoji: "📖", text: "Read and summarize the README in my project" },
+      {
+        emoji: "📂",
+        text: "List workspace contents and suggest improvements",
+      },
       { emoji: "📁", text: "Create a new directory and add a config file" },
-      { emoji: "📂", text: "Show me the contents of the output folder" },
+    ],
+  },
+  {
+    title: "📄 Document & Media",
+    examples: [
+      { emoji: "🎤", text: "Transcribe the audio file I'm about to attach" },
+      { emoji: "📑", text: "Summarize this PDF document" },
+      { emoji: "🖼️", text: "Analyze what's in these images" },
+    ],
+  },
+  {
+    title: "⚡ Execute & Notify",
+    examples: [
+      { emoji: "⌨️", text: "Run git status and show me the output" },
+      { emoji: "📋", text: "List my scheduled cron tasks" },
+      { emoji: "🔔", text: "Send me a notification when you're done" },
     ],
   },
   {
@@ -82,13 +93,16 @@ export default function JarvisWelcome() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <motion.h1
+      <motion.div
         variants={fadeUp}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="text-4xl font-bold bg-linear-to-r from-cyan-500 via-violet-500 to-fuchsia-500 bg-clip-text text-transparent"
+        className="flex items-center gap-2"
       >
-        ✨ Hi, I'm Jarvis
-      </motion.h1>
+        <img src="/favicon.png" alt="Jarvis" className="size-12" />
+        <h1 className="text-4xl font-bold bg-linear-to-r from-red-200 via-blue-200 to-green-200 bg-clip-text text-transparent">
+          Hi, I'm Jarvis
+        </h1>
+      </motion.div>
       <AnimatePresence mode="wait">
         {!section && (
           <motion.p

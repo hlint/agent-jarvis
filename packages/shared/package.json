@@ -10,6 +10,7 @@
     "./lib/state-sync": "./lib/state-sync.ts",
     "./lib/time": "./lib/time.ts",
     "./llm/get-model": "./llm/get-model.ts",
+    "./llm/types": "./llm/types.ts",
     "./lib/utils": "./lib/utils.ts",
     "./agent/defines/tool": "./agent/defines/tool.ts",
     "./agent/defines/think-action": "./agent/defines/think-action.ts",
