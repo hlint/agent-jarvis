@@ -1,4 +1,4 @@
-import getModel from "@repo/shared/llm/get-model";
+import { getLanguageModel } from "@repo/shared/llm/get-model";
 import { tavily } from "@tavily/core";
 import { generateText } from "ai";
 import { env } from "bun";
@@ -32,7 +32,7 @@ const webSearchTool = defineJarvisTool({
 
     if (!results.length) return "";
 
-    const model = getModel(aiOutputProvider ?? aiThinkProvider!);
+    const model = getLanguageModel(aiOutputProvider ?? aiThinkProvider!);
     const { text } = await generateText({
       model,
       messages: [

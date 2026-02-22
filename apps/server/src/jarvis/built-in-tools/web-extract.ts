@@ -1,4 +1,4 @@
-import getModel from "@repo/shared/llm/get-model";
+import { getLanguageModel } from "@repo/shared/llm/get-model";
 import { tavily } from "@tavily/core";
 import { generateText } from "ai";
 import { env } from "bun";
@@ -31,7 +31,7 @@ const webExtractTool = defineJarvisTool({
       throw new Error("No results found");
     }
     const { text } = await generateText({
-      model: getModel(aiOutputProvider ?? aiThinkProvider!),
+      model: getLanguageModel(aiOutputProvider ?? aiThinkProvider!),
       messages: [
         {
           role: "system",

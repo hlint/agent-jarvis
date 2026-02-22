@@ -2,7 +2,7 @@ import { streamText } from "ai";
 import { cloneDeep } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
-import getModel from "../../llm/get-model";
+import { getLanguageModel } from "../../llm/get-model";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { ThinkActionSchema } from "../defines/think-action";
@@ -33,7 +33,7 @@ export default async function processThinking({
   onDialogHistoryChange();
   try {
     const { fullStream } = streamText({
-      model: getModel(thinkProvider),
+      model: getLanguageModel(thinkProvider),
       messages: [
         {
           role: "system",

@@ -7,7 +7,7 @@ import {
 import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
-import getModel from "@repo/shared/llm/get-model";
+import { getLanguageModel } from "@repo/shared/llm/get-model";
 import { generateText } from "ai";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
@@ -139,7 +139,7 @@ export default class Jarvis {
     if (aiMultimodalityProvider && file.name.startsWith("voice.")) {
       try {
         const response = await generateText({
-          model: getModel(aiMultimodalityProvider),
+          model: getLanguageModel(aiMultimodalityProvider),
           messages: [
             {
               role: "user",

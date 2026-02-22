@@ -2,7 +2,7 @@ import { streamText } from "ai";
 import { cloneDeep } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
-import getModel from "../../llm/get-model";
+import { getLanguageModel } from "../../llm/get-model";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { outputContentPrompt } from "../prompt/output";
@@ -32,7 +32,7 @@ export default async function processOutput({
   onDialogHistoryChange();
   try {
     const { fullStream } = streamText({
-      model: getModel(outputProvider ?? thinkProvider),
+      model: getLanguageModel(outputProvider ?? thinkProvider),
       messages: [
         {
           role: "system",

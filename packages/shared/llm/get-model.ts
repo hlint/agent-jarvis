@@ -13,7 +13,7 @@ import { createVercel } from "@ai-sdk/vercel";
 import { createXai } from "@ai-sdk/xai";
 import { createProviderRegistry } from "ai";
 
-export default function getModel({
+export function getLanguageModel({
   apiKey,
   baseURL,
   model,
@@ -43,4 +43,35 @@ export default function getModel({
   });
 
   return registry.languageModel(model as any);
+}
+
+export function getImageModel({
+  apiKey,
+  baseURL,
+  model,
+}: {
+  apiKey?: string;
+  baseURL?: string;
+  model: string;
+}) {
+  const providerOptions = {
+    apiKey,
+    baseURL: baseURL || undefined,
+  };
+  const registry = createProviderRegistry({
+    anthropic: createAnthropic(providerOptions),
+    openai: createOpenAI(providerOptions),
+    google: createGoogleGenerativeAI(providerOptions),
+    xai: createXai(providerOptions),
+    vercel: createVercel(providerOptions),
+    azure: createAzure(providerOptions),
+    blackForestLabs: createBlackForestLabs(providerOptions),
+    fal: createFal(providerOptions),
+    vertex: createVertex(providerOptions),
+    togetherAI: createTogetherAI(providerOptions),
+    byteDance: createByteDance(providerOptions),
+    deepSeek: createDeepSeek(providerOptions),
+    huggingFace: createHuggingFace(providerOptions),
+  });
+  return registry.imageModel(model as any);
 }
