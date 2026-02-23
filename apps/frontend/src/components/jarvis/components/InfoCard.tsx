@@ -112,7 +112,7 @@ export default function InfoCard({
                 }
               >
                 {content ? (
-                  <div className="min-w-0 overflow-auto">
+                  <div className="min-w-0">
                     <JarvisMarkdown
                       text={content}
                       className="text-xs/relaxed"

@@ -35,7 +35,7 @@ export default function jarvisMiddleware() {
         { query: z.object({ path: z.string() }) },
       )
       .delete("/jarvis/dialog-history", () => {
-        jarvis.clearDialog();
+        jarvis.newConversation();
         return { success: true };
       })
       .post("/jarvis/upload", async (ctx) => {
@@ -56,6 +56,10 @@ export default function jarvisMiddleware() {
         },
         { body: z.object({ content: z.string() }) },
       )
+      .post("/jarvis/abort-execution", () => {
+        jarvis.abortAgentExecution();
+        return { success: true };
+      })
       .ws("/jarvis/ws", {
         open: (ws) => {
           jarvis.clientManager.saveWsClient({

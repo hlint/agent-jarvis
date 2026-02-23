@@ -9,8 +9,11 @@ import type Jarvis from "./jarvis";
 
 export class JarvisStateManager {
   private jarvis: Jarvis;
-  private snapshotId: string = nanoid(6);
-  private dialogHistory: DialogHistory = [];
+  private chatState: JarvisChatState = {
+    snapshotId: nanoid(6),
+    dialogHistory: [],
+    status: "idle",
+  };
   private previousDialogHistory: DialogHistory = [];
 
   constructor(jarvis: Jarvis) {
@@ -21,37 +24,39 @@ export class JarvisStateManager {
     try {
       const chatState = fs.readJSONSync(PATH_CHAT_STATE) as JarvisChatState;
       this.setState(chatState);
-      this.previousDialogHistory = cloneDeep(this.dialogHistory);
+      this.previousDialogHistory = cloneDeep(this.chatState.dialogHistory);
     } catch (_error) {
       fs.writeJSONSync(PATH_CHAT_STATE, this.getState(), { spaces: 2 });
     }
   }
 
-  setState(state: JarvisChatState) {
-    this.snapshotId = state.snapshotId;
-    this.dialogHistory = state.dialogHistory;
-  }
-
-  getState(): JarvisChatState {
-    return {
-      snapshotId: this.snapshotId,
-      dialogHistory: this.dialogHistory,
+  setState(state: Partial<JarvisChatState>) {
+    this.chatState = {
+      ...this.chatState,
+      ...state,
     };
   }
 
+  getState(): JarvisChatState {
+    return this.chatState;
+  }
+
   pushDiff = throttle(() => {
-    this.syncTelegramState();
-    this.syncWsState();
+    this.syncTelegramsyncDialogHistory();
+    this.syncWsDialogHistory();
     this.persist();
   }, 1000);
 
   // 同步WebSocket状态
-  private syncWsState() {
-    const previousSnapshotId = this.snapshotId;
+  private syncWsDialogHistory() {
+    const previousSnapshotId = this.chatState.snapshotId;
     const newSnapshotId = nanoid(6);
-    this.snapshotId = newSnapshotId;
-    const diff = createDiff(this.previousDialogHistory, this.dialogHistory);
-    this.previousDialogHistory = cloneDeep(this.dialogHistory);
+    this.chatState.snapshotId = newSnapshotId;
+    const diff = createDiff(
+      this.previousDialogHistory,
+      this.chatState.dialogHistory,
+    );
+    this.previousDialogHistory = cloneDeep(this.chatState.dialogHistory);
     this.jarvis.clientManager.pushWebSocketMessage({
       type: "dialog-history-patch",
       fromId: previousSnapshotId,
@@ -61,7 +66,7 @@ export class JarvisStateManager {
   }
 
   // 同步Telegram状态
-  private syncTelegramState() {
+  private syncTelegramsyncDialogHistory() {
     const newCompletedDialogHistory = this.getNewCompletedDialogHistory();
     newCompletedDialogHistory.forEach((t) => {
       this.jarvis.clientManager.pushTelegramMessage(t);
@@ -71,7 +76,7 @@ export class JarvisStateManager {
   // 从前后两个状态中，找出新增的已完成的聊天类消息（user和agent的message）
   private getNewCompletedDialogHistory() {
     const newCompletedDialogHistory: DialogHistory = [];
-    for (const item of this.dialogHistory) {
+    for (const item of this.chatState.dialogHistory) {
       const previousItem = this.previousDialogHistory.find(
         (pItem) => pItem.id === item.id,
       );

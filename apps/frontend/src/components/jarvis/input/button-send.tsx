@@ -1,5 +1,8 @@
+import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import useJarvisStore from "../use-jarvis-store";
+import { api } from "@/lib/api";
 
 export default function ButtonSend({
   onClick,
@@ -8,6 +11,32 @@ export default function ButtonSend({
   onClick: () => void;
   className?: string;
 }) {
+  const status = useJarvisStore((state) => state.status);
+  if (status === "running")
+    return (
+      <Button
+        type="button"
+        variant="secondary"
+        className={className}
+        onClick={() => api.jarvis["abort-execution"].post()}
+      >
+        <Loader2Icon className="size-4 animate-spin" />
+        <span>Abort Execution</span>
+      </Button>
+    );
+  if (status === "stopping")
+    return (
+      <Button
+        type="button"
+        variant="destructive"
+        disabled
+        className={className}
+        onClick={onClick}
+      >
+        <Loader2Icon className="size-4 animate-spin" />
+        <span>Aborting...</span>
+      </Button>
+    );
   return (
     <Button
       type="button"

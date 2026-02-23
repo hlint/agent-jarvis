@@ -2,6 +2,7 @@ import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 import JarvisAssistantEntry from "./entry/assistant";
 import JarvisAttachmentEntry from "./entry/attachment";
 import JarvisSystemEventEntry from "./entry/system-event";
@@ -46,7 +47,7 @@ export default function JarvisMessages() {
     };
   }, [setHandleScrollToBottom]);
   return (
-    <div className="flex flex-col gap-4 flex-1 px-3">
+    <div className="space-y-4 flex-1 px-3">
       <AnimatePresence initial>
         {dialogHistory.map((historyEntry) => {
           const shouldHide = entryHiddenMarks[historyEntry.id];
@@ -54,6 +55,7 @@ export default function JarvisMessages() {
             return null;
           }
           let entry: ReactNode;
+          let compact = false;
           switch (historyEntry.role) {
             case "user":
               entry = (
@@ -74,12 +76,15 @@ export default function JarvisMessages() {
               break;
             case "agent-tool-call":
               entry = <JarvisToolCallEntry {...historyEntry} />;
+              compact = true;
               break;
             case "system-event":
               entry = <JarvisSystemEventEntry {...historyEntry} />;
+              compact = true;
               break;
             case "agent-thinking":
               entry = <JarvisThinkingEntry {...historyEntry} />;
+              compact = true;
               break;
             case "attachment":
               entry = (
@@ -93,6 +98,7 @@ export default function JarvisMessages() {
             <motion.div
               key={historyEntry.id}
               variants={messageVariants}
+              className={cn(compact && "my-0")}
               initial="initial"
               animate="animate"
               exit="exit"

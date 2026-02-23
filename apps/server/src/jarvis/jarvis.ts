@@ -4,7 +4,10 @@ import {
   isNothingToDo,
   type ThinkAction,
 } from "@repo/shared/agent/defines/think-action";
-import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
+import type {
+  AttachmentEntry,
+  JarvisChatStatus,
+} from "@repo/shared/defines/jarvis";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
 import { getLanguageModel } from "@repo/shared/llm/get-model";
@@ -197,20 +200,38 @@ export default class Jarvis {
 
   pushHistoryEntry(historyEntry: HistoryEntry) {
     this.state.getState().dialogHistory.push(historyEntry);
-    this.notifyStateChanged();
+    this.notifyDialogHistoryChanged();
   }
 
-  notifyStateChanged() {
+  notifyDialogHistoryChanged() {
     this.pushInactiveEvent();
     this.state.pushDiff();
   }
 
-  clearDialog() {
+  newConversation() {
     this.state.setState({
       snapshotId: nanoid(6),
       dialogHistory: [],
+      status: "idle",
     });
-    this.notifyStateChanged();
+    this.notifyDialogHistoryChanged();
+  }
+
+  abortAgentExecution() {
+    if (this.state.getState().status === "running") {
+      this.updateChatStatus("stopping");
+      this.runner.stop();
+    }
+  }
+
+  updateChatStatus(status: JarvisChatStatus) {
+    this.state.setState({
+      status,
+    });
+    this.clientManager.pushWebSocketMessage({
+      type: "chat-status-update",
+      status,
+    });
   }
 
   setWebsiteUrl(websiteUrl: string) {

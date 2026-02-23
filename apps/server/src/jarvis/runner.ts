@@ -16,6 +16,7 @@ export default class Runner {
   private jarvis: Jarvis;
   private busy: boolean = false; // 是否正在执行中
   private needRunNext: boolean = false; // 是否需要继续执行下一轮
+  private abortSignal: { signal: boolean } = { signal: false };
 
   constructor(jarvis: Jarvis) {
     this.jarvis = jarvis;
@@ -29,21 +30,26 @@ export default class Runner {
     // 防止重复执行
     if (this.busy) return;
     this.busy = true;
-    this.jarvis.clientManager.notifyAgentBusy(true);
+    this.jarvis.updateChatStatus("running");
     this.needRunNext = false;
     const dialogHistory = this.jarvis.state.getState().dialogHistory;
     if (!aiThinkProvider) {
       throw new Error("No think provider found");
     }
-    // 调用 AI 对话
+    // 调用 AI Agent
+    const abortSignal = {
+      signal: false,
+    };
+    this.abortSignal = abortSignal;
     const { stoppedReason, stoppedBy } = await callAgent({
       thinkProvider: aiThinkProvider,
       outputProvider: aiOutputProvider,
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
       additionalAgentInformation: buildAgentPrompt(this.jarvis),
+      abortSignal,
       onDialogHistoryChange: () => {
-        this.jarvis.notifyStateChanged();
+        this.jarvis.notifyDialogHistoryChanged();
       },
     });
 
@@ -102,11 +108,15 @@ export default class Runner {
 
     // 释放锁
     this.busy = false;
-    this.jarvis.clientManager.notifyAgentBusy(false);
+    this.jarvis.updateChatStatus("idle");
     // 如果需要，继续执行下一轮
     if (this.needRunNext) {
       this.run();
     }
+  }
+
+  stop() {
+    this.abortSignal.signal = true;
   }
 
   /**

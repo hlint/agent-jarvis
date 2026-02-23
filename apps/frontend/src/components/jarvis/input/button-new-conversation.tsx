@@ -1,4 +1,4 @@
-import { TrashIcon } from "lucide-react";
+import { SquarePenIcon } from "lucide-react";
 import { useState } from "react";
 import { api } from "@/lib/api";
 import {
@@ -13,17 +13,17 @@ import {
 } from "../../ui/alert-dialog";
 import { Button } from "../../ui/button";
 
-export default function ButtonClearHistory() {
+export default function ButtonNewConversation() {
   const [open, setOpen] = useState(false);
   return (
     <>
       <Button
         variant="ghost"
-        title="Clear chat history"
+        title="New Conversation"
         size="icon-lg"
         onClick={() => setOpen(true)}
       >
-        <TrashIcon />
+        <SquarePenIcon />
       </Button>
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent>

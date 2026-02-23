@@ -83,7 +83,7 @@ export default class JarvisClientManager {
           this.telegramBot &&
           this.telegramUserId &&
           this.telegramChatId &&
-          this.telegramIsBusy
+          this.jarvis.state.getState().status !== "idle"
         ) {
           this.telegramBot.api.sendChatAction(this.telegramChatId, "typing");
         }
@@ -183,10 +183,6 @@ export default class JarvisClientManager {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  notifyAgentBusy(isBusy: boolean) {
-    this.telegramIsBusy = isBusy;
   }
 
   private getTelegramFileInfo(ctx: {

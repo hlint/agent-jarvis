@@ -1,5 +1,8 @@
 import type { DialogHistory } from "@repo/shared/agent/defines/history";
-import type { WsMessageDialogHistoryPatch } from "@repo/shared/defines/jarvis";
+import type {
+  JarvisChatStatus,
+  WsMessageDialogHistoryPatch,
+} from "@repo/shared/defines/jarvis";
 import { applyDiff } from "@repo/shared/lib/state-sync";
 import { debounce } from "es-toolkit";
 import { toast } from "sonner";
@@ -11,6 +14,7 @@ type State = {
   handleScrollToBottom: () => void;
   snapshotId: string;
   dialogHistory: DialogHistory;
+  status: JarvisChatStatus;
   entryHiddenMarks: Record<string, boolean>;
   isFirstPull: boolean;
   inputMode: "text" | "voice";
@@ -30,6 +34,7 @@ type Actions = {
   setIsUploading: (isUploading: boolean) => void;
   setInputText: (inputText: string) => void;
   sendMessage: () => void;
+  setChatStatus: (status: JarvisChatStatus) => void;
 };
 
 const useJarvisStore = create<State & Actions>((set, get) => ({
@@ -37,6 +42,7 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
   inputMode: "text",
   isUploading: false,
   inputText: "",
+  status: "idle",
   setInputMode: (inputMode) => set({ inputMode }),
   handleScrollToBottom: () => {},
   snapshotId: "",
@@ -46,6 +52,7 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
   setDebugMode: (debugMode) => set({ debugMode }),
   setIsUploading: (isUploading) => set({ isUploading }),
   setInputText: (inputText) => set({ inputText }),
+  setChatStatus: (status) => set({ status }),
   sendMessage: () => {
     if (get().inputText.trim() === "") return;
     api.jarvis["user-message"].post({ content: get().inputText });
@@ -63,6 +70,7 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
         set({
           snapshotId: response.data.snapshotId,
           dialogHistory: response.data.dialogHistory,
+          status: response.data.status,
         });
         get().setEntryHiddenMarks();
         set({

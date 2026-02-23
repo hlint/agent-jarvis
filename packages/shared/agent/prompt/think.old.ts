@@ -1,3 +1,4 @@
+import { DIVIDER } from "../defines/text";
 import { ThinkActionSchema } from "../defines/think-action";
 
 export const thinkPrompt = `
@@ -39,7 +40,7 @@ Then: if **done=false**, the loop continues → you are called again with the up
 
 --------------------------------
 
-Output a single action object. **done** and **reasoning** are required. **reasoning**: 1-2 sentences only, brief summary of why this action (e.g. "Need weather data to advise on clothing."). Optionally include (see Execution Flow for processing order):
+Output a single action object. **done** is required: false = continue loop (you will see tool results next round); true = end loop. Optionally include (see Execution Flow for processing order):
 
 **toolCalls** (when need to execute tools)
 - Create tool call tasks to be executed in parallel
@@ -67,7 +68,6 @@ Output a single action object. **done** and **reasoning** are required. **reason
 
 [User Experience Optimization]
 - The user can only see dialogue content with role as "user" or "assistant"
-- **reasoning** and **outputDirectly** are visible to the user; use the user's language for these fields, unless there is a specific reason to use another language
 - Tool call results and output content are only visible in the background, not to the user
 - Only after done=true (with outputNext, outputDirectly, or silent) can the user reply; until then they keep waiting
 - Avoid long periods without output: use **outputDirectly** when tools may take time
@@ -76,18 +76,40 @@ Output a single action object. **done** and **reasoning** are required. **reason
 --------------------------------
 
 [CRITICAL OUTPUT REQUIREMENTS]
-- Output ONLY a valid JSON object. No other text, no markdown, no explanation.
+- Your output MUST have EXACTLY two parts separated by ${DIVIDER}:
+	1. Your thinking (markdown format)
+	2. Action to execute (VALID JSON wrapped in a \`\`\`json code block)
+- The JSON part MUST be valid JSON and MUST follow the exact schema provided above
 - You MUST wrap the JSON in a markdown code block with the \`\`\`json ... \`\`\` syntax
-- The JSON MUST follow the exact schema provided above
-- DO NOT include any text before or after the code block
+- DO NOT include any text after the code block
+- The code block must be the last thing in your response
 
 --------------------------------
 
 [Output Example]
+**User Needs**
+
+- The user is in Beijing and wants clothing advice for today
+
+**Current Status**
+
+- User language: Simplified Chinese
+- No available climate information for Beijing or user clothing habits
+
+**Action Strategy**
+
+Current information is insufficient to fulfill the user's needs. These tool calling tasks should be helpful:
+- Get Beijing's weather information
+- Search for popular fashion information
+
+**Next-round decision**
+
+The tool results (weather + fashion) will need to be analyzed and synthesized into advice. I must see the results before I can output. So done=false—continue the loop for another round.
+
+${DIVIDER}
 
 \`\`\`json
 {
-  "reasoning": "Need Beijing weather and fashion data to give clothing advice.",
   "outputDirectly": "Searching for Beijing weather and fashion info, please wait",
   "toolCalls": [
     {

@@ -12,7 +12,7 @@ Generate the main reply content for the user (supports markdown, avoid H1/H2 hea
 - The [outputInstruction] in the latest [agent-thinking] describes the requirements and instructions for your output.
 - Use markdown syntax, avoid H1/H2 headings
 - Keep it professional, concise, and easy to read
-- Display images using the original path in image blocks, display code in code blocks
+- Display code in code blocks
 - Support structured expressions such as lists and tables
 - Use the user's language to generate the content, unless there is a specific reason to usez other languages
 - Provide reference website links(if any)

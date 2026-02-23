@@ -1,4 +1,4 @@
-import type { WsMessageDialogHistoryPatch } from "@repo/shared/defines/jarvis";
+import type { WsMessage } from "@repo/shared/defines/jarvis";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { api } from "@/lib/api";
@@ -9,7 +9,7 @@ const useConnect = () => {
   const applyDialogHistoryPatch = useJarvisStore(
     (state) => state.applyDialogHistoryPatch,
   );
-
+  const setChatStatus = useJarvisStore((state) => state.setChatStatus);
   const pullFullDialogState = useJarvisStore(
     (state) => state.pullFullDialogState,
   );
@@ -37,10 +37,14 @@ const useConnect = () => {
       clearTimerReconnect();
     });
     ws.on("message", ({ data }) => {
-      const message = data as WsMessageDialogHistoryPatch;
+      const message = data as WsMessage;
       switch (message.type) {
         case "dialog-history-patch": {
           applyDialogHistoryPatch(message);
+          break;
+        }
+        case "chat-status-update": {
+          setChatStatus(message.status);
           break;
         }
       }

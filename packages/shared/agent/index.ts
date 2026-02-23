@@ -1,9 +1,17 @@
 import { delay } from "es-toolkit";
+import z from "zod";
 import type { AgentContext } from "./defines/context";
 import processOutputDirectly from "./lib/process-output-directly";
 import processOutputNext from "./lib/process-output-next";
 import processThinking from "./lib/process-thinking";
 import processToolCalling from "./lib/process-tool";
+
+const StopByUserErrorSchema = z.object({
+  stoppedReason: z.string(),
+  stoppedBy: z.literal("user"),
+});
+
+type StopByUserError = z.infer<typeof StopByUserErrorSchema>;
 
 export default async function callAgent({
   maxSteps = 32,
@@ -25,23 +33,34 @@ export default async function callAgent({
         stoppedBy: "max-steps-reached",
       };
     }
-    if (context.abortSignal?.signal === true) {
-      return {
-        stoppedReason: "The agent's execution has been aborted by user.",
-        stoppedBy: "user",
-      };
-    }
+    const checkAbort = () => {
+      if (context.abortSignal?.signal === true) {
+        throw {
+          stoppedReason: "The agent's execution has been aborted by user.",
+          stoppedBy: "user",
+        } satisfies StopByUserError;
+      }
+    };
     try {
+      checkAbort();
       const thinkAction = await processThinking(context);
       context.lastThinkAction = thinkAction;
+      checkAbort();
       await processOutputDirectly(context);
+      checkAbort();
       await processToolCalling(context);
+      checkAbort();
       await processOutputNext(context);
       if (thinkAction.done) {
         break;
       }
+      checkAbort();
     } catch (error) {
       await delay(500);
+      const errorParsed = StopByUserErrorSchema.safeParse(error);
+      if (errorParsed.success) {
+        return errorParsed.data;
+      }
       return {
         stoppedReason: `Something went wrong: ${error}`,
         stoppedBy: "error",

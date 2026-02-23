@@ -14,6 +14,12 @@ export const ToolCallItemSchema = z.object({
 });
 
 export const ThinkActionSchema = z.object({
+  reasoning: z
+    .string()
+    .max(350)
+    .describe(
+      "Brief 1-2 sentence summary of why this action. Concise only; no long paragraphs.",
+    ),
   toolCalls: z
     .array(ToolCallItemSchema)
     .optional()
