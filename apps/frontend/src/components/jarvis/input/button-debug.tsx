@@ -1,22 +1,18 @@
-import { Switch } from "../../ui/switch";
+import { BugIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import useJarvisStore from "../use-jarvis-store";
 
 export default function ButtonDebug() {
   const debugMode = useJarvisStore((s) => s.debugMode);
   const setDebugMode = useJarvisStore((s) => s.setDebugMode);
   return (
-    <div className="flex items-center gap-2 ml-4">
-      <Switch
-        id="jarvis-debug-mode"
-        checked={debugMode}
-        onCheckedChange={(checked) => setDebugMode(checked)}
-      />
-      <label
-        htmlFor="jarvis-debug-mode"
-        className="text-sm text-muted-foreground cursor-pointer"
-      >
-        Debug
-      </label>
-    </div>
+    <Button
+      variant={debugMode ? "default" : "ghost"}
+      size="icon-lg"
+      title="Debug"
+      onClick={() => setDebugMode(!debugMode)}
+    >
+      <BugIcon />
+    </Button>
   );
 }

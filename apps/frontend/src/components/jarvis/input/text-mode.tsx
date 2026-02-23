@@ -11,7 +11,7 @@ export default function TextMode() {
       <Textarea
         placeholder="Ask Jarvis"
         autoFocus
-        className="p-4 w-full h-32 md:text-sm dark:bg-transparent rounded-none border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="p-4 w-full flex-1 md:text-sm dark:bg-transparent rounded-none border-none focus-visible:ring-0 focus-visible:ring-offset-0"
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
         onKeyDown={(e) => {

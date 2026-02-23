@@ -15,7 +15,7 @@ export default function ButtonSend() {
       <img
         src="/favicon.png"
         alt="Jarvis"
-        className="transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.5)]"
+        className="transition-all duration-200 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.5)]"
       />
     </Button>
   );
