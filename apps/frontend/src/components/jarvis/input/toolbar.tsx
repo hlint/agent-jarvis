@@ -1,115 +1,16 @@
-import { Loader2Icon, MicIcon, PaperclipIcon, SquareIcon } from "lucide-react";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
-import { Button } from "../../ui/button";
-import ClearHistoryButton from "./clear-history-button";
-import DebugModeSwitch from "./debug-mode-switch";
+import ButtonClearHistory from "./button-clear-history";
+import ButtonDebug from "./button-debug";
+import ButtonSend from "./button-send";
+import ButtonUpload from "./button-upload";
 
-export default function InputToolbar({
-  onSend,
-  onUploadClick,
-  onFileReady,
-  isUploading = false,
-}: {
-  onSend: () => void;
-  onUploadClick?: () => void;
-  onFileReady?: (file: File) => void;
-  isUploading?: boolean;
-}) {
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-
-  const handleMicClick = async () => {
-    if (isUploading) return;
-
-    if (isRecording) {
-      mediaRecorderRef.current?.stop();
-      return;
-    }
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = MediaRecorder.isTypeSupported("audio/webm")
-        ? "audio/webm"
-        : "audio/mp4";
-      const recorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = recorder;
-      chunksRef.current = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
-
-      recorder.onstop = () => {
-        stream.getTracks().forEach((t) => {
-          t.stop();
-        });
-        setIsRecording(false);
-        const blob = new Blob(chunksRef.current, { type: mimeType });
-        const ext = mimeType.includes("webm") ? ".webm" : ".mp4";
-        const file = new File([blob], `voice${ext}`, {
-          type: mimeType,
-        });
-        onFileReady?.(file);
-        mediaRecorderRef.current = null;
-      };
-
-      recorder.start();
-      setIsRecording(true);
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Microphone access denied",
-      );
-    }
-  };
-
+export default function InputToolbar() {
   return (
     <div className="flex flex-row gap-2 items-center p-2 ">
-      <Button
-        variant="ghost"
-        size="icon-lg"
-        onClick={onUploadClick}
-        disabled={isUploading || isRecording}
-        title="Upload file"
-      >
-        {isUploading ? (
-          <Loader2Icon className="size-4 animate-spin" />
-        ) : (
-          <PaperclipIcon />
-        )}
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon-lg"
-        onClick={handleMicClick}
-        disabled={isUploading}
-        title={isRecording ? "Stop recording" : "Record audio"}
-        className={isRecording ? "text-destructive" : undefined}
-      >
-        {isRecording ? (
-          <SquareIcon className="size-4 fill-current" />
-        ) : (
-          <MicIcon />
-        )}
-      </Button>
-      <ClearHistoryButton />
-      <DebugModeSwitch />
+      <ButtonUpload />
+      <ButtonClearHistory />
+      <ButtonDebug />
       <StateIndicator />
-      <Button
-        type="button"
-        size="icon-sm"
-        variant="ghost"
-        className="group ml-auto"
-        title="Send Message"
-        onClick={onSend}
-      >
-        <img
-          src="/favicon.png"
-          alt="Jarvis"
-          className="transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:drop-shadow-[0_0_6px_rgba(255,255,255,0.5)]"
-        />
-      </Button>
+      <ButtonSend />
     </div>
   );
 }

@@ -20,7 +20,7 @@ export default function JarvisAssistantEntry({
   }
   return (
     <div className="flex flex-col gap-3 max-w-[90%]">
-      <div className="rounded-xl bg-foreground/5 border border-foreground/10 p-3">
+      <div className="rounded-xl bg-neutral-900 border border-foreground/10 p-3">
         <JarvisMarkdown
           className="overflow-auto mr-2"
           text={text}

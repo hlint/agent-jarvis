@@ -13,6 +13,9 @@ type State = {
   dialogHistory: DialogHistory;
   entryHiddenMarks: Record<string, boolean>;
   isFirstPull: boolean;
+  inputMode: "text" | "voice";
+  isUploading: boolean;
+  inputText: string;
 };
 
 type Actions = {
@@ -23,16 +26,31 @@ type Actions = {
   ) => void;
   setHandleScrollToBottom: (handleScrollToBottom: () => void) => void;
   setEntryHiddenMarks: () => void;
+  setInputMode: (inputMode: "text" | "voice") => void;
+  setIsUploading: (isUploading: boolean) => void;
+  setInputText: (inputText: string) => void;
+  sendMessage: () => void;
 };
 
 const useJarvisStore = create<State & Actions>((set, get) => ({
   debugMode: false,
+  inputMode: "text",
+  isUploading: false,
+  inputText: "",
+  setInputMode: (inputMode) => set({ inputMode }),
   handleScrollToBottom: () => {},
   snapshotId: "",
   isFirstPull: true,
   dialogHistory: [],
   entryHiddenMarks: {},
   setDebugMode: (debugMode) => set({ debugMode }),
+  setIsUploading: (isUploading) => set({ isUploading }),
+  setInputText: (inputText) => set({ inputText }),
+  sendMessage: () => {
+    if (get().inputText.trim() === "") return;
+    api.jarvis["user-message"].post({ content: get().inputText });
+    set({ inputText: "" });
+  },
   pullFullDialogState: debounce(() => {
     api.jarvis["dialog-state"].get().then((response) => {
       if (response.data) {

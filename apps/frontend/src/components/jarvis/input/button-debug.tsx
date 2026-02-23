@@ -1,11 +1,11 @@
 import { Switch } from "../../ui/switch";
 import useJarvisStore from "../use-jarvis-store";
 
-export default function DebugModeSwitch() {
+export default function ButtonDebug() {
   const debugMode = useJarvisStore((s) => s.debugMode);
   const setDebugMode = useJarvisStore((s) => s.setDebugMode);
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 ml-4">
       <Switch
         id="jarvis-debug-mode"
         checked={debugMode}

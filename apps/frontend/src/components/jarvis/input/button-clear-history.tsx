@@ -13,7 +13,7 @@ import {
 } from "../../ui/alert-dialog";
 import { Button } from "../../ui/button";
 
-export default function ClearHistoryButton() {
+export default function ButtonClearHistory() {
   const [open, setOpen] = useState(false);
   return (
     <>
