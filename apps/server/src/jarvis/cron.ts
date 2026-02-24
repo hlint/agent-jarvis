@@ -12,7 +12,6 @@ import type Jarvis from "./jarvis";
 import { stringifyFrontmatterMd } from "./utils";
 
 const cronTaskMetadataSchema = z.object({
-  name: z.string().regex(/^[a-zA-Z0-9_-]+$/),
   description: z.string(),
   cronPattern: z.string(),
   oneTimeOnly: z.boolean(),
@@ -20,6 +19,7 @@ const cronTaskMetadataSchema = z.object({
 });
 
 type CronTask = z.infer<typeof cronTaskMetadataSchema> & {
+  name: string;
   body: string;
   cronJob?: CronJob;
 };
@@ -62,6 +62,7 @@ export default class JarvisCron {
         const { attributes } = fm(raw);
         const metadata = cronTaskMetadataSchema.parse(attributes);
         cronTasks.push({
+          name: dir,
           ...metadata,
           body: raw,
         });

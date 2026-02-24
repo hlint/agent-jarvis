@@ -1,4 +1,7 @@
-# Installed Software
+---
+description: 已安装软件的列表与维护方式
+autoLoad: true
+---
 
 此处记录系统中已安装的软件和工具，便于在需要时快速了解可用资源。
 
@@ -21,13 +24,6 @@ which node && node --version
 which bun && bun --version
 which tmux && tmux -V
 ```
-
-### 更新格式
-
-- 每个软件占一行，格式：`- **软件名**：版本号（用途说明）`
-- 按类别分组，同类软件放在一起
-- 版本号可用 `command --version` 获取，若无法获取可省略
-- 用途说明简短，说明主要用途
 
 ## 已安装软件
 

@@ -1,10 +1,8 @@
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import fm from "front-matter";
 import fs from "fs-extra";
-import { DIR_MEMORIES, DIR_SKILLS } from "../defines";
+import { DIR_NOTES, DIR_SKILLS } from "../defines";
 import { getDiaryPath } from "../utils";
-
-const SKILL_FILE = "SKILL.md";
 
 export function getSkills(): Record<string, string> {
   const result: Record<string, string> = {};
@@ -12,7 +10,7 @@ export function getSkills(): Record<string, string> {
   const entries = fs.readdirSync(DIR_SKILLS, { withFileTypes: true });
   for (const ent of entries) {
     if (!ent.isDirectory()) continue;
-    const skillPath = join(DIR_SKILLS, ent.name, SKILL_FILE);
+    const skillPath = join(DIR_SKILLS, ent.name, "SKILL.md");
     if (!fs.existsSync(skillPath)) continue;
     try {
       const raw = fs.readFileSync(skillPath, "utf-8");
@@ -27,23 +25,53 @@ export function getSkills(): Record<string, string> {
   return result;
 }
 
-export function getLongTermMemory(): Record<string, string> {
-  const result: Record<string, string> = {};
-  if (!fs.existsSync(DIR_MEMORIES)) return result;
-  const files = fs
-    .readdirSync(DIR_MEMORIES)
-    .filter((f) => f.endsWith(".md"))
-    .sort();
-  for (const f of files) {
+function findMdFiles(dir: string): string[] {
+  const results: string[] = [];
+  if (!fs.existsSync(dir)) return results;
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const ent of entries) {
+    const fullPath = join(dir, ent.name);
+    if (ent.isDirectory()) {
+      results.push(...findMdFiles(fullPath));
+    } else if (ent.name.endsWith(".md")) {
+      results.push(fullPath);
+    }
+  }
+  return results;
+}
+
+export function getNotes(): Array<{
+  path: string;
+  description: string;
+  body: string;
+}> {
+  const notes: Array<{
+    path: string;
+    description: string;
+    autoLoad: boolean;
+    body: string;
+  }> = [];
+  const files = findMdFiles(DIR_NOTES);
+  for (const filePath of files) {
     try {
-      const content = fs.readFileSync(join(DIR_MEMORIES, f), "utf-8");
-      const name = f.replace(/\.md$/, "");
-      result[name] = content;
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const { attributes, body } = fm<{
+        path?: string;
+        description?: string;
+        autoLoad?: boolean;
+      }>(raw);
+      const relativePath = relative(DIR_NOTES, filePath).replace(/\\/g, "/");
+      notes.push({
+        path: relativePath,
+        description: attributes.description ?? "",
+        autoLoad: attributes.autoLoad ?? false,
+        body: attributes.autoLoad ? body.trim() : "<Not Loaded>",
+      });
     } catch {
       // skip this file
     }
   }
-  return result;
+  return notes;
 }
 
 export function getRecentDiaries(): string {
