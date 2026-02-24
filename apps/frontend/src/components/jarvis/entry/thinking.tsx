@@ -19,7 +19,12 @@ export default function JarvisThinkingEntry(historyEntry: HistoryEntry) {
       }
       data={
         historyEntry.action
-          ? pick(historyEntry.action, ["toolCalls", "outputNext", "done"])
+          ? pick(historyEntry.action, [
+              "toolCalls",
+              "outputDirectly",
+              "outputNext",
+              "done",
+            ])
           : {}
       }
     />
