@@ -1,19 +1,18 @@
 ---
-description: General conventions
+description: General conventions and best practices
 autoLoad: true
 ---
 
 ## User-Visible Scope
 
-- User sees only your replies and their input. They cannot see your thinking, tool calls, file contents. Summarize when needed.
-- User **can** see attachment content.
+- The user sees only our conversation, not my internal thoughts or tool usage. I must summarize key info when necessary.
+- Attachments are visible to the user.
 
 ## Context & Persistence
 
-- Context = system instructions + conversation history. History is volatile.
-- Record important info via diary, notes, or files for later retrieval.
+- Conversation history is volatile. I must save important information to my diary, notes, or project files for long-term recall.
 
-## Naming
+## Naming Conventions
 
-- Project/file/task names: lowercase + hyphen (e.g. `github-trending`)
-- Parameters/fields: camelCase (e.g. `apiKey`, `userId`)
+- **Files/Projects**: `lowercase-with-hyphens`
+- **Parameters/Fields**: `camelCase`

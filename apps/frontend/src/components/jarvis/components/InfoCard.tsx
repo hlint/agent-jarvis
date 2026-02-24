@@ -13,6 +13,7 @@ export default function InfoCard({
   content,
   icon,
   tag,
+  disableMarkdown,
 }: {
   brief?: string;
   status?: "pending" | "completed" | "failed";
@@ -20,6 +21,7 @@ export default function InfoCard({
   content?: string;
   icon?: React.ReactNode;
   tag?: string;
+  disableMarkdown?: boolean;
 }) {
   const [jsonExpanded, setJsonExpanded] = useState(false);
   const preRef = useRef<HTMLPreElement>(null);
@@ -89,10 +91,10 @@ export default function InfoCard({
             <div className="">
               <pre
                 ref={preRef}
-                className="text-xs leading-relaxed whitespace-pre-wrap font-mono m-0 px-1"
+                className="text-xs leading-relaxed whitespace-pre-wrap text-foreground/50 font-mono m-0 px-7"
                 style={{
-                  height: "3em", // Approximately 2 lines
-                  lineHeight: "1.5em",
+                  height: "2.8em", // Approximately 2 lines
+                  lineHeight: "1.4em",
                   overflowY: "hidden",
                   overflowX: "hidden",
                 }}
@@ -106,13 +108,19 @@ export default function InfoCard({
             style={{ gridTemplateRows: jsonExpanded ? "1fr" : "0fr" }}
           >
             <div className="min-h-0 overflow-hidden">
-              <div className={content ? "flex flex-col gap-2 p-2" : "p-2"}>
+              <div className="flex flex-col gap-2 p-2">
                 {content ? (
                   <div className="min-w-0">
-                    <JarvisMarkdown
-                      text={content}
-                      className="text-xs/relaxed"
-                    />
+                    {disableMarkdown ? (
+                      <pre className="text-xs/relaxed font-mono whitespace-pre-wrap">
+                        {content}
+                      </pre>
+                    ) : (
+                      <JarvisMarkdown
+                        text={content}
+                        className="text-xs/relaxed"
+                      />
+                    )}
                   </div>
                 ) : null}
                 {data ? (

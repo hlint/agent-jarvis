@@ -1,7 +1,7 @@
 import type { AgentTool } from "@repo/shared/agent/defines/tool";
 import type z from "zod";
 import attachmentTool from "./built-in-tools/attachement";
-// import { contextPruneTool } from "./built-in-tools/context-prune";
+import { contextPruneTool } from "./built-in-tools/context-prune";
 import { listCronTasksTool } from "./built-in-tools/cron";
 import { execTool } from "./built-in-tools/exec";
 import { fileTools } from "./built-in-tools/file";
@@ -23,7 +23,7 @@ export const builtInTools = [
   notifyTool,
   execTool,
   listCronTasksTool,
-  // contextPruneTool,
+  contextPruneTool,
   ...fileTools,
 ];
 

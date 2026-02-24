@@ -9,8 +9,8 @@ Notes are Markdown files under `notes/`. Your persistent memory for knowledge an
 
 ## Loading
 
-- **autoLoad=true**: Full content auto-loaded
-- **autoLoad=false**: Path + description only; read on demand
+- **autoLoad=true**: Full content is always loaded into context. Use only for short, stable, high-signal notes you want the agent to see every time.
+- **autoLoad=false**: Only path and description are loaded; open the note explicitly when needed.
 
 ## Format
 

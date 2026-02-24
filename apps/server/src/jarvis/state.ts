@@ -45,7 +45,7 @@ export class JarvisStateManager {
     this.syncTelegramsyncDialogHistory();
     this.syncWsDialogHistory();
     this.persist();
-  }, 1000);
+  }, 500);
 
   // 同步WebSocket状态
   private syncWsDialogHistory() {

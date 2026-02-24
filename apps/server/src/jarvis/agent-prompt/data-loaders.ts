@@ -1,8 +1,13 @@
 import { join, relative } from "node:path";
 import fm from "front-matter";
 import fs from "fs-extra";
-import { DIR_NOTES, DIR_SKILLS } from "../defines";
+import { DIR_NOTES, DIR_RUNTIME, DIR_SKILLS, PATH_SOUL } from "../defines";
 import { getDiaryPath } from "../utils";
+
+export function getSOUL(): string {
+  if (!fs.existsSync(PATH_SOUL)) return "<SOUL.md Not Found>";
+  return fs.readFileSync(PATH_SOUL, "utf-8");
+}
 
 export function getSkills(): Record<string, string> {
   const result: Record<string, string> = {};
@@ -40,32 +45,28 @@ function findMdFiles(dir: string): string[] {
   return results;
 }
 
-export function getNotes(): Array<{
-  path: string;
-  description: string;
-  body: string;
-}> {
+export function getNotes() {
   const notes: Array<{
     path: string;
-    description: string;
-    autoLoad: boolean;
-    body: string;
+    content: string;
   }> = [];
   const files = findMdFiles(DIR_NOTES);
   for (const filePath of files) {
     try {
       const raw = fs.readFileSync(filePath, "utf-8");
-      const { attributes, body } = fm<{
+      const { attributes } = fm<{
         path?: string;
         description?: string;
         autoLoad?: boolean;
       }>(raw);
-      const relativePath = relative(DIR_NOTES, filePath).replace(/\\/g, "/");
+      const relativePath = relative(DIR_RUNTIME, filePath).replace(/\\/g, "/");
+      const autoLoad = attributes.autoLoad ?? false;
+      const parts = raw.split("---\n");
       notes.push({
         path: relativePath,
-        description: attributes.description ?? "",
-        autoLoad: attributes.autoLoad ?? false,
-        body: attributes.autoLoad ? body.trim() : "<Not Loaded>",
+        content: autoLoad
+          ? raw
+          : ["", parts[1], "\n<Body Not Loaded>"].join("---\n"),
       });
     } catch {
       // skip this file

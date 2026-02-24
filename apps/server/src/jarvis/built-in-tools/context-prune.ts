@@ -6,14 +6,11 @@ const PRUNE_MIN_RETAIN = 8;
 
 const keepEntryIdsSchema = z
   .array(z.string())
-  .describe(
-    "Entry ids to keep (besides last N). Others removed. See context-prune memory.",
-  );
+  .describe("Entry ids to keep. Others removed.");
 
 export const contextPruneTool = defineJarvisTool({
   name: "context-prune",
-  description:
-    "Remove old entries, keep selected ones. System always retains last N entries.",
+  description: `Remove old entries, keep selected ones. System will always retain last ${PRUNE_MIN_RETAIN} entries.`,
   inputSchema: z.object({
     keepEntryIds: keepEntryIdsSchema,
   }),

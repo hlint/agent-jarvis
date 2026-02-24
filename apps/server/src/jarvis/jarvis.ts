@@ -29,7 +29,7 @@ import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 
 // If the system is inactive for N minutes, it will push a system-inactive event.
-const SYSTEM_INACTIVE_INTERVAL = 20 * 60 * 1000;
+const SYSTEM_INACTIVE_INTERVAL = 5 * 60 * 1000;
 
 export default class Jarvis {
   public runner = new Runner(this);
@@ -64,7 +64,7 @@ export default class Jarvis {
       createdAt: Date.now(),
       createdTime: timeFormat(),
       brief: "System Inactive",
-      content: "The system has been inactive for 5 minutes.",
+      content: "System inactive. User appears busy.",
       status: "completed",
       data: {
         type: "system-inactive",
