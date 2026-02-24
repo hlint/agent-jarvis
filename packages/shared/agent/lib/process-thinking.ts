@@ -50,15 +50,20 @@ export default async function processThinking({
       ],
     });
     let content = "";
+    let reasoning = "";
     for await (const chunk of fullStream) {
       if (chunk.type === "text-delta") {
         content += chunk.text;
         onDialogHistoryChange();
       }
+      if (chunk.type === "reasoning-delta") {
+        reasoning += chunk.text;
+        entry.content = reasoning;
+        onDialogHistoryChange();
+      }
     }
     const thinkAction = ThinkActionSchema.parse(betterJsonParse(content));
     entry.status = "completed";
-    entry.content = thinkAction.reasoning ?? "";
     entry.action = thinkAction;
     entry.inputTokens = (await usage).inputTokens;
     onDialogHistoryChange();

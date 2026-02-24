@@ -29,7 +29,7 @@ import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 
 // If the system is inactive for N minutes, it will push a system-inactive event.
-const SYSTEM_INACTIVE_INTERVAL = 10 * 60 * 1000;
+const SYSTEM_INACTIVE_INTERVAL = 20 * 60 * 1000;
 
 export default class Jarvis {
   public runner = new Runner(this);

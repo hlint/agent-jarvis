@@ -19,7 +19,6 @@ export default class JarvisClientManager {
   private telegramBot?: Bot;
   private telegramUserId?: number;
   private telegramChatId?: number;
-  private telegramIsBusy: boolean = false;
 
   constructor(jarvis: Jarvis) {
     this.jarvis = jarvis;

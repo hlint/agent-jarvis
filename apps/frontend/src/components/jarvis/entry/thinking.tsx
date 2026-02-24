@@ -10,6 +10,7 @@ export default function JarvisThinkingEntry(historyEntry: HistoryEntry) {
       brief={historyEntry.action?.reasoning ?? "Reasoning"}
       tag={actionType}
       status={status}
+      content={historyEntry.content}
       data={pick(historyEntry, ["action", "error"])}
     />
   );

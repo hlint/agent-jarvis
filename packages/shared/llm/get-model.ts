@@ -33,13 +33,13 @@ export function getLanguageModel({
     xai: createXai(providerOptions),
     vercel: createVercel(providerOptions),
     azure: createAzure(providerOptions),
-    blackForestLabs: createBlackForestLabs(providerOptions),
+    "black-forest-labs": createBlackForestLabs(providerOptions),
     fal: createFal(providerOptions),
     vertex: createVertex(providerOptions),
-    togetherAI: createTogetherAI(providerOptions),
-    byteDance: createByteDance(providerOptions),
-    deepSeek: createDeepSeek(providerOptions),
-    huggingFace: createHuggingFace(providerOptions),
+    "together-ai": createTogetherAI(providerOptions),
+    "byte-dance": createByteDance(providerOptions),
+    deepseek: createDeepSeek(providerOptions),
+    "hugging-face": createHuggingFace(providerOptions),
   });
 
   return registry.languageModel(model as any);

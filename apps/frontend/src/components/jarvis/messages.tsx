@@ -47,7 +47,7 @@ export default function JarvisMessages() {
     };
   }, [setHandleScrollToBottom]);
   return (
-    <div className="space-y-4 flex-1 px-3">
+    <div className="flex flex-col gap-0 flex-1 px-3">
       <AnimatePresence initial>
         {dialogHistory.map((historyEntry) => {
           const shouldHide = entryHiddenMarks[historyEntry.id];
@@ -98,7 +98,7 @@ export default function JarvisMessages() {
             <motion.div
               key={historyEntry.id}
               variants={messageVariants}
-              className={cn(compact && "my-0")}
+              className={cn(!compact && "my-4")}
               initial="initial"
               animate="animate"
               exit="exit"
