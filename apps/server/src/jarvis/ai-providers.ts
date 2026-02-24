@@ -3,7 +3,7 @@ import { env } from "bun";
 
 // DUTIES: THINK, OUTPUT, MULTIMODALITY, IMAGE_GENERATION
 
-const providers = [1, 2, 3, 4].map((index) => ({
+const providers = [1, 2, 3, 4, 5, 6].map((index) => ({
   model: env[`PROVIDER_${index}_MODEL`],
   apiKey: env[`PROVIDER_${index}_API_KEY`],
   baseURL: env[`PROVIDER_${index}_BASE_URL`],

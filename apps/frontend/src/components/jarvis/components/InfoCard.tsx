@@ -91,8 +91,8 @@ export default function InfoCard({
                 ref={preRef}
                 className="text-xs leading-relaxed whitespace-pre-wrap font-mono m-0 px-1"
                 style={{
-                  height: "1.5em", // Approximately 2 lines
-                  lineHeight: "1.6em",
+                  height: "3em", // Approximately 2 lines
+                  lineHeight: "1.5em",
                   overflowY: "hidden",
                   overflowX: "hidden",
                 }}
@@ -106,11 +106,7 @@ export default function InfoCard({
             style={{ gridTemplateRows: jsonExpanded ? "1fr" : "0fr" }}
           >
             <div className="min-h-0 overflow-hidden">
-              <div
-                className={
-                  content ? "grid grid-cols-[3fr_2fr] gap-2 p-2" : "p-2"
-                }
-              >
+              <div className={content ? "flex flex-col gap-2 p-2" : "p-2"}>
                 {content ? (
                   <div className="min-w-0">
                     <JarvisMarkdown
@@ -120,9 +116,7 @@ export default function InfoCard({
                   </div>
                 ) : null}
                 {data ? (
-                  <div
-                    className={content ? "min-w-0 shrink-0 overflow-auto" : ""}
-                  >
+                  <div className={content ? "overflow-auto" : ""}>
                     <ReactJson
                       src={data}
                       collapsed={2}

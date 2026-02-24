@@ -4,7 +4,7 @@ import useJarvisStore from "../use-jarvis-store";
 export default function TokenDisplay() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
   const lastThinkEntry = dialogHistory
-    .filter((entry) => entry.role === "agent-thinking")
+    .filter((entry) => entry.role === "agent-thinking" && entry.inputTokens)
     .at(-1);
   const inputTokens = lastThinkEntry?.inputTokens;
   if (!inputTokens) return null;

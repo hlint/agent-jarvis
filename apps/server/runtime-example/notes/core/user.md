@@ -1,10 +1,10 @@
 ---
-description: 用户画像
+description: User profile placeholder
 autoLoad: true
 ---
 
-- **称呼**：未知（默认：Boss）
-- **语言偏好**：未知（默认：从近期交流推断）
-- **现居住地**：未知（默认：从语言推断）
-- **所处时区**：未知（默认：从居住地推断）
-- **单位**：metric
+- **Name**: Unknown (default: Boss)
+- **Language**: Unknown (infer from conversation)
+- **Location**: Unknown (infer from language)
+- **Timezone**: Unknown (infer from location)
+- **Units**: metric
