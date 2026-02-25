@@ -1,5 +1,57 @@
 import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { DownloadIcon, FileIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const TEXT_CODE_EXTENSIONS = new Set([
+  "txt",
+  "md",
+  "js",
+  "ts",
+  "jsx",
+  "tsx",
+  "py",
+  "sh",
+  "bat",
+  "cmd",
+  "json",
+  "yaml",
+  "yml",
+  "xml",
+  "html",
+  "css",
+  "scss",
+  "sql",
+  "log",
+  "csv",
+  "ini",
+  "cfg",
+  "conf",
+  "c",
+  "cpp",
+  "h",
+  "hpp",
+  "go",
+  "rs",
+  "rb",
+]);
+
+function isTextOrCodeFile(fileType: string, filename: string): boolean {
+  const mime = fileType.toLowerCase().trim();
+  if (mime) {
+    if (mime.startsWith("text/")) return true;
+    if (
+      mime.startsWith("application/javascript") ||
+      mime.startsWith("application/json") ||
+      mime.startsWith("application/xml")
+    )
+      return true;
+  }
+  const ext =
+    filename.lastIndexOf(".") >= 0
+      ? filename.slice(filename.lastIndexOf(".") + 1).toLowerCase()
+      : "";
+  return TEXT_CODE_EXTENSIONS.has(ext);
+}
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -9,6 +61,52 @@ function formatFileSize(bytes: number): string {
 
 function getFileUrl(path: string): string {
   return `/jarvis/file?path=${encodeURIComponent(path)}`;
+}
+
+function TextCodePreview({
+  fileUrl,
+  displayName,
+  fileSize,
+  isUser,
+  downloadLinkClass,
+}: {
+  fileUrl: string;
+  displayName: string;
+  fileSize: number | undefined;
+  isUser: boolean;
+  downloadLinkClass: string;
+}) {
+  const [content, setContent] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(fileUrl)
+      .then((r) => r.text())
+      .then(setContent)
+      .catch((e) => setError(String(e)));
+  }, [fileUrl]);
+
+  return (
+    <div
+      className={`flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}
+    >
+      <div className="rounded-xl border overflow-auto bg-muted/30 max-w-2xl max-h-80">
+        {error && <p className="text-sm text-destructive p-3">{error}</p>}
+        {content !== null && !error && (
+          <pre className="text-xs p-3 m-0 font-mono whitespace-pre-wrap wrap-break-word max-h-[400px]">
+            {content}
+          </pre>
+        )}
+        {content === null && !error && (
+          <p className="text-xs text-muted-foreground p-3">Loading…</p>
+        )}
+      </div>
+      <a href={fileUrl} download={displayName} className={downloadLinkClass}>
+        {displayName}
+        {fileSize != null && ` · ${formatFileSize(fileSize)}`}
+      </a>
+    </div>
+  );
 }
 
 export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
@@ -116,6 +214,18 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
           {displayName}
         </a>
       </div>
+    );
+  }
+
+  if (isTextOrCodeFile(fileType, displayName)) {
+    return (
+      <TextCodePreview
+        fileUrl={fileUrl}
+        displayName={displayName}
+        fileSize={fileSize}
+        isUser={isUser}
+        downloadLinkClass={downloadLinkClass}
+      />
     );
   }
 
