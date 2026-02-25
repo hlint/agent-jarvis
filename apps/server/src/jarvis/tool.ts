@@ -2,7 +2,6 @@ import type { AgentTool } from "@repo/shared/agent/defines/tool";
 import type z from "zod";
 import attachmentTool from "./built-in-tools/attachement";
 import { contextCompressTool } from "./built-in-tools/context-compress";
-import { listCronTasksTool } from "./built-in-tools/cron";
 import { execTool } from "./built-in-tools/exec";
 import { fileTools } from "./built-in-tools/file";
 import imageGenerationTool from "./built-in-tools/image-generation";
@@ -22,7 +21,6 @@ export const builtInTools = [
   multimodalSubagentTool,
   notifyTool,
   execTool,
-  listCronTasksTool,
   contextCompressTool,
   ...fileTools,
 ];

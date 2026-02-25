@@ -11,7 +11,7 @@ import { api } from "@/lib/api";
 
 type State = {
   debugMode: boolean;
-  handleScrollToBottom: () => void;
+  handleScrollToBottom: (force?: boolean) => void;
   snapshotId: string;
   dialogHistory: DialogHistory;
   status: JarvisChatStatus;
@@ -28,7 +28,9 @@ type Actions = {
   applyDialogHistoryPatch: (
     wsMessageDialogHistoryPatch: WsMessageDialogHistoryPatch,
   ) => void;
-  setHandleScrollToBottom: (handleScrollToBottom: () => void) => void;
+  setHandleScrollToBottom: (
+    handleScrollToBottom: (force?: boolean) => void,
+  ) => void;
   setEntryHiddenMarks: () => void;
   setInputMode: (inputMode: "text" | "voice") => void;
   setIsUploading: (isUploading: boolean) => void;
@@ -64,7 +66,7 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
         const snapshotIdChanged = response.data.snapshotId !== get().snapshotId;
         if (snapshotIdChanged) {
           setTimeout(() => {
-            get().handleScrollToBottom();
+            get().handleScrollToBottom(true);
           }, 100);
         }
         set({

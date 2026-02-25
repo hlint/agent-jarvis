@@ -69,7 +69,7 @@ export default class JarvisCron {
       } catch {
         cronTasks.push({
           name: dir,
-          description: "加载失败：格式错误",
+          description: "Load failed: Format error",
           cronPattern: "0 0 1 1 *",
           oneTimeOnly: false,
           enabled: false,

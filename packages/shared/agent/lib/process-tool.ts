@@ -17,7 +17,7 @@ export default async function processToolCalling({
     tasks.push(
       (async () => {
         // 避免一些时序问题
-        await delay(index * 500);
+        await delay((index + 1) * 500);
         const entry: HistoryEntry = {
           id: shortId(),
           role: "agent-tool-call",

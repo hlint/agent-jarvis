@@ -1,7 +1,6 @@
 import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
-import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import JarvisAssistantEntry from "./entry/assistant";
 import JarvisAttachmentEntry from "./entry/attachment";
@@ -29,23 +28,6 @@ export default function JarvisMessages() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
   const entryHiddenMarks = useJarvisStore((state) => state.entryHiddenMarks);
   const debugMode = useJarvisStore((state) => state.debugMode);
-  const setHandleScrollToBottom = useJarvisStore(
-    (state) => state.setHandleScrollToBottom,
-  );
-  const listBottomRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const scrollToBottom = () => {
-      setTimeout(() => {
-        if (listBottomRef.current) {
-          listBottomRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 500);
-    };
-    setHandleScrollToBottom(scrollToBottom);
-    return () => {
-      setHandleScrollToBottom(() => {});
-    };
-  }, [setHandleScrollToBottom]);
   return (
     <div className="flex flex-col gap-0 flex-1 px-3">
       <AnimatePresence initial>
@@ -109,7 +91,6 @@ export default function JarvisMessages() {
           );
         })}
       </AnimatePresence>
-      <div className="h-0.5" ref={listBottomRef} />
     </div>
   );
 }
