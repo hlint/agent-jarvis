@@ -16,20 +16,19 @@ export default function Jarvis() {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const scrollToBottom = (force: boolean = false) => {
-      setTimeout(() => {
-        if (containerRef.current) {
-          const isAtBottom =
-            containerRef.current.scrollTop +
-              containerRef.current.clientHeight >=
-            containerRef.current.scrollHeight - 20;
-          if (force || isAtBottom) {
-            containerRef.current.scrollTo({
-              top: containerRef.current.scrollHeight,
+      if (containerRef.current) {
+        const isAtBottom =
+          containerRef.current.scrollTop + containerRef.current.clientHeight >=
+          containerRef.current.scrollHeight - 20;
+        if (force || isAtBottom) {
+          setTimeout(() => {
+            containerRef.current?.scrollTo({
+              top: containerRef.current?.scrollHeight,
               behavior: "smooth",
             });
-          }
+          }, 200);
         }
-      }, 200);
+      }
     };
     setHandleScrollToBottom(scrollToBottom);
     return () => {

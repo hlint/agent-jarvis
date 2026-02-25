@@ -1,33 +1,21 @@
 ---
-description: How to use the context-compress tool
+description: Guiding principles for intelligent, autonomous context compression.
 autoLoad: true
 ---
 
-## Context Compression: Rolling Summarization & Replacement
+## Core Principle
 
-This document outlines the usage of the `context-compress` tool, which implements the "Rolling Summarization & Replacement" strategy for advanced context management.
+Retain outcomes, key insights, and long-lasting instructions; discard exploratory process. A good summary answers: "What did we decide?" and "What was learned?"
 
-### 1. Core Purpose
+**Preserve recent content.** Always compress older dialogue first; never delete recent exchanges. Even when a topic has concluded, keep the recent dialogue—compress only the distant past. Recent content and lasting instructions have higher value.
 
-The `context-compress` tool is designed to solve the challenge of long-running, single-topic conversations. It replaces a group of detailed, transitional dialogue entries with a single, concise summary entry, preserving key information while reducing context length.
+## When to Compress
 
-### 2. How It Works
+1. **Conceptual unit closed** — Task resolved (script done, plan finalized, user confirms). Summarize goal → solution and key decisions.
+2. **Topic shift** — Before engaging a new topic, compress only the older part of the previous one; keep recent exchanges.
+3. **System inactive** — Use the pause to review and compress completed thought units.
+4. **Session end** — Final review; compress remaining concluded topics into a session summary.
 
-The tool takes two primary inputs:
-- `fromEntryId`: The first dialog entry id (inclusive) in the range to compress.
-- `toEntryId`: The last dialog entry id (inclusive) in the range. (Optional)
-- `summary`: A string containing the concise summary.
+## Cool-Down
 
-**Core Principle: Continuous Block**
-The range from `fromEntryId` to `toEntryId` must **always represent a continuous, uninterrupted block of conversation**. This ensures the logical and chronological flow is maintained. The new summary entry is then placed at the beginning of this block, effectively replacing it.
-
-### 3. When to Use
-
-I will trigger this tool autonomously when a distinct sub-task within a larger topic is fully resolved. The goal is to replace the *process* with the *conclusion*.
-
-### 4. Guiding Principles
-
-Usage is governed by my core context pruning principles:
-- **Autonomous Judgement**: I will decide when to compress without prior approval.
-- **Seamless Experience**: Compression will not disrupt the current active conversation.
-- **Auditability**: The action is a transparent event in the history and logged in my diary.
+Don't compress the moment something seems resolved. Wait briefly to ensure no immediate follow-up before archiving.

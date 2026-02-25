@@ -112,7 +112,7 @@ export default function InfoCard({
                 {content ? (
                   <div className="min-w-0">
                     {disableMarkdown ? (
-                      <pre className="text-xs/relaxed font-mono whitespace-pre-wrap">
+                      <pre className="text-xs/relaxed font-mono whitespace-pre-wrap max-h-[350px] overflow-auto">
                         {content}
                       </pre>
                     ) : (
