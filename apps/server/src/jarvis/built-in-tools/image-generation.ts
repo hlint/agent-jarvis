@@ -8,7 +8,7 @@ import fs from "fs-extra";
 import mime from "mime-types";
 import { z } from "zod";
 import { aiImageGenerationProvider } from "../ai-providers";
-import { DIR_RUNTIME, DIR_TMP } from "../defines";
+import { DIR_RUNTIME } from "../defines";
 import { defineJarvisTool } from "../tool";
 
 const MAX_REF_IMAGES = 5;
@@ -87,13 +87,32 @@ const imageGenerationTool = defineJarvisTool({
       .enum(["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"])
       .optional()
       .describe("Optional aspect ratio for the generated image."),
+    outputPath: z
+      .string()
+      .min(1)
+      .optional()
+      .describe(
+        "Optional. Output file path without extension (e.g. 'images/blog/hero'). If relative, it is resolved against the runtime directory.",
+      ),
+    autoAttach: z
+      .boolean()
+      .optional()
+      .describe(
+        "Optional. Whether to automatically attach and display the generated image to the user. Defaults to true.",
+      ),
   }),
   execute: async (input, jarvis) => {
     if (toolDisabled) {
       throw new Error(toolDisabledMessage);
     }
 
-    const { prompt, referenceImages = [], aspectRatio } = input;
+    const {
+      prompt,
+      referenceImages = [],
+      aspectRatio,
+      outputPath = path.join("tmp", `generated-${shortId()}`),
+      autoAttach = true,
+    } = input;
 
     const model = getImageModel(aiImageGenerationProvider!);
 
@@ -119,10 +138,13 @@ const imageGenerationTool = defineJarvisTool({
       throw new Error("No image was generated");
     }
 
-    await fs.ensureDir(DIR_TMP);
-    const ext = image.mediaType?.includes("png") ? "png" : "jpg";
-    const filename = `generated-${shortId()}.${ext}`;
-    const filePath = path.join(DIR_TMP, filename);
+    const ext =
+      (image.mediaType ? mime.extension(image.mediaType) : null) || "png";
+
+    const basePath = resolvePath(outputPath);
+    await fs.ensureDir(path.dirname(basePath));
+    const filePath = `${basePath}.${ext}`;
+    const filename = path.basename(filePath);
     const data =
       image.uint8Array ??
       (image.base64
@@ -132,29 +154,33 @@ const imageGenerationTool = defineJarvisTool({
           })());
     await Bun.write(filePath, data);
 
-    const stat = await fs.stat(filePath);
-    const entry: AttachmentEntry = {
-      id: shortId(),
-      role: "attachment",
-      from: "assistant",
-      channel: "tool-call",
-      createdAt: Date.now(),
-      createdTime: timeFormat(),
-      data: {
-        type: "local-file",
-        originalName: filename,
-        fileType: image.mediaType ?? "image/png",
-        fileSize: stat.size,
-        filePath,
-      },
-    };
-    jarvis.pushHistoryEntry(entry);
+    if (autoAttach) {
+      const stat = await fs.stat(filePath);
+      const entry: AttachmentEntry = {
+        id: shortId(),
+        role: "attachment",
+        from: "assistant",
+        channel: "tool-call",
+        createdAt: Date.now(),
+        createdTime: timeFormat(),
+        data: {
+          type: "local-file",
+          originalName: filename,
+          fileType: image.mediaType ?? "image/png",
+          fileSize: stat.size,
+          filePath,
+        },
+      };
+      jarvis.pushHistoryEntry(entry);
+    }
 
     return {
       success: true,
       path: filePath,
       filename,
-      message: "Image generated and displayed.",
+      message: autoAttach
+        ? "Image generated and displayed."
+        : "Image generated.",
     };
   },
 });

@@ -3,7 +3,7 @@ import { tavily } from "@tavily/core";
 import { generateText } from "ai";
 import { env } from "bun";
 import { z } from "zod";
-import { aiOutputProvider, aiThinkProvider } from "../ai-providers";
+import { aiChatProvider } from "../ai-providers";
 import { defineJarvisTool } from "../tool";
 
 const toolDisabled = !env.TAVILY_API_KEY;
@@ -31,7 +31,7 @@ const webExtractTool = defineJarvisTool({
       throw new Error("No results found");
     }
     const { text } = await generateText({
-      model: getLanguageModel(aiOutputProvider ?? aiThinkProvider!),
+      model: getLanguageModel(aiChatProvider!),
       messages: [
         {
           role: "system",

@@ -19,7 +19,7 @@ export default function Jarvis() {
       if (containerRef.current) {
         const isAtBottom =
           containerRef.current.scrollTop + containerRef.current.clientHeight >=
-          containerRef.current.scrollHeight - 20;
+          containerRef.current.scrollHeight - 100;
         if (force || isAtBottom) {
           setTimeout(() => {
             containerRef.current?.scrollTo({

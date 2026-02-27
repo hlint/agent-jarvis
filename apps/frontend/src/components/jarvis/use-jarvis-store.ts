@@ -59,6 +59,7 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
     if (get().inputText.trim() === "") return;
     api.jarvis["user-message"].post({ content: get().inputText });
     set({ inputText: "" });
+    get().handleScrollToBottom(true);
   },
   pullFullDialogState: debounce(() => {
     api.jarvis["dialog-state"].get().then((response) => {

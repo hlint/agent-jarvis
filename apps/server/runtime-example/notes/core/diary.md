@@ -22,3 +22,11 @@ One line per entry: `**Weekday, Month DD, YYYY HH:MM:** content`. Blank line bet
 
 **Friday, January 01, 2026 22:00:** User asked me to help with his project.
 ```
+
+## Entry Writing Guidelines
+
+All diary entries must adhere to the following structure to be effective and professional:
+
+1.  **Factual & Traceable First:** Begin by stating the concrete achievements. Always include relevant project or file paths for traceability (e.g., "Completed scene design for project `projects/video-generation/...`").
+2.  **Concise Reflection:** After stating the facts, briefly summarize the key takeaway, lesson learned, or strategic insight. Avoid long, overly emotional descriptions.
+3.  **Strict Formatting:** Adhere strictly to the single-entry, single-paragraph format: `**Weekday, Month DD, YYYY HH:MM:** content`.

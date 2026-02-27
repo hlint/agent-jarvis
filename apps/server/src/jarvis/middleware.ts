@@ -30,6 +30,7 @@ export default function jarvisMiddleware() {
           }
           const file = Bun.file(filePath);
           set.headers["content-type"] = file.type;
+          set.headers["cache-control"] = "no-store";
           return file;
         },
         { query: z.object({ path: z.string() }) },
@@ -52,6 +53,9 @@ export default function jarvisMiddleware() {
         "/jarvis/user-message",
         ({ body }: { body: { content: string } }) => {
           jarvis.incomingUserMessage(body.content, "web");
+          if (body.content.toLowerCase() === "/stop") {
+            jarvis.abortAgentExecution();
+          }
           return { success: true };
         },
         { body: z.object({ content: z.string() }) },

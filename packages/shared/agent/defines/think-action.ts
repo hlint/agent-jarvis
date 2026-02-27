@@ -5,19 +5,16 @@ export const ToolCallItemSchema = z.object({
   brief: z
     .string()
     .describe(
-      "A short one-sentence summary of the tool invocation action. Do not include specific parameters here; parameters should be provided in the input field. Provide the summary in the user's language.",
+      "A short one-sentence summary of what this tool call should achieve. Provide the summary in the user's language. The tool's input parameters will be generated separately.",
     ),
-  input: z
-    .any()
-    .optional()
-    .describe("Input(parameters) for the tool, following the tool's schema"),
 });
 
 export const ThinkActionSchema = z.object({
   reasoning: z
     .string()
+    .optional()
     .describe(
-      "Brief 1-2 sentence summary of why this action. Concise only; no long paragraphs.",
+      "Optional. Brief 1-2 sentence summary of why this action. Omit when thinking is provided separately before the JSON.",
     ),
   toolCalls: z
     .array(ToolCallItemSchema)

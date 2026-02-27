@@ -26,9 +26,9 @@ export const execTool = defineJarvisTool({
 });
 
 /** Default timeout (ms) for runBun. */
-const RUN_BUN_DEFAULT_TIMEOUT_MS = 45_000;
+const RUN_BUN_DEFAULT_TIMEOUT_MS = 20_000;
 /** Default max bytes for runBun stdout/stderr before truncation. */
-const RUN_BUN_DEFAULT_MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
+const RUN_BUN_DEFAULT_MAX_OUTPUT_BYTES = 1 * 1024 * 1024;
 
 type RunBunResult = {
   stdout: string;
@@ -59,7 +59,16 @@ async function runBun(
     cwd,
     stdout: "pipe",
     stderr: "pipe",
+    detached: process.platform !== "win32",
   });
+  // Consume streams immediately to avoid pipe buffer deadlock
+  const stdoutPromise = (
+    proc.stdout as ReadableStream<Uint8Array> & { text(): Promise<string> }
+  ).text();
+  const stderrPromise = (
+    proc.stderr as ReadableStream<Uint8Array> & { text(): Promise<string> }
+  ).text();
+
   let exitCode: number;
   let exitedDueToTimeout = false;
   try {
@@ -70,16 +79,21 @@ async function runBun(
       ),
     ]);
   } catch {
-    proc.kill();
     exitedDueToTimeout = true;
-    exitCode = await proc.exited;
+    if (process.platform !== "win32" && proc.pid) {
+      process.kill(-proc.pid, "SIGKILL");
+    } else {
+      proc.kill("SIGKILL");
+    }
+    exitCode = await Promise.race([
+      proc.exited,
+      new Promise<number>((_, reject) =>
+        setTimeout(() => reject(new Error("kill timeout")), 5000),
+      ),
+    ]).catch(() => 137);
   }
-  const stdout = await (
-    proc.stdout as ReadableStream<Uint8Array> & { text(): Promise<string> }
-  ).text();
-  const stderr = await (
-    proc.stderr as ReadableStream<Uint8Array> & { text(): Promise<string> }
-  ).text();
+  const stdout = await stdoutPromise;
+  const stderr = await stderrPromise;
   const truncate = (s: string) =>
     s.length > maxOutputBytes
       ? `${s.slice(0, maxOutputBytes)}\n...[truncated]`

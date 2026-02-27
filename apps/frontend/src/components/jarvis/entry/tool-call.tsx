@@ -9,8 +9,9 @@ import {
 import InfoCard from "../components/InfoCard";
 
 export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
-  const { status, brief, toolName } = historyEntry;
-  if (!historyEntry.error) {
+  const { status, brief, toolName, toolInput } = historyEntry;
+  const hasToolInput = toolInput != null;
+  if (!historyEntry.error && hasToolInput) {
     if (toolName === "read-file") {
       return (
         <InfoCard
@@ -54,7 +55,14 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
       brief={brief}
       status={status}
       tag={toolName}
-      data={pick(historyEntry, ["toolInput", "toolOutput", "data", "error"])}
+      content={hasToolInput ? undefined : historyEntry.content}
+      data={
+        hasToolInput
+          ? pick(historyEntry, ["toolInput", "toolOutput", "data", "error"])
+          : historyEntry.error
+            ? { error: historyEntry.error }
+            : undefined
+      }
     />
   );
 }

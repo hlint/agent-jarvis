@@ -18,7 +18,6 @@ const ensureDirTool = defineJarvisTool({
   name: "ensure-dir",
   description: "Ensure directory exists. Creates dirs if needed.",
   inputSchema: z.object({
-    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
   }),
   execute: async (input, _jarvis) => {
@@ -30,7 +29,6 @@ const readFileTool = defineJarvisTool({
   name: "read-file",
   description: "Read file (utf-8)",
   inputSchema: z.object({
-    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
   }),
   execute: async (input, _jarvis) => {
@@ -47,7 +45,6 @@ const writeFileTool = defineJarvisTool({
   name: "write-file",
   description: "Write file. Creates dirs if needed. Overwrites if exists.",
   inputSchema: z.object({
-    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
     content: z.string().describe("Content"),
   }),
@@ -60,7 +57,6 @@ const editFileTool = defineJarvisTool({
   name: "edit-file",
   description: "Replace oldText with newText. oldText must exist exactly.",
   inputSchema: z.object({
-    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
     oldText: z.string().describe("Exact text to find"),
     newText: z.string().describe("Replacement"),
@@ -90,7 +86,6 @@ const appendToFileTool = defineJarvisTool({
   name: "append-to-file",
   description: "Append to file. Creates dirs and file if not exists.",
   inputSchema: z.object({
-    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
     content: z.string().describe("Content to append"),
   }),
@@ -104,7 +99,6 @@ const listDirTool = defineJarvisTool({
   name: "list-dir",
   description: "List directory. Dir: dir/file count. File: size.",
   inputSchema: z.object({
-    brief: z.string().describe("Brief label"),
     path: z.string().describe(PATH_DESC),
   }),
   execute: async (input, _jarvis) => {

@@ -3,7 +3,7 @@ import { tavily } from "@tavily/core";
 import { generateText } from "ai";
 import { env } from "bun";
 import { z } from "zod";
-import { aiOutputProvider, aiThinkProvider } from "../ai-providers";
+import { aiChatProvider } from "../ai-providers";
 import { defineJarvisTool } from "../tool";
 
 const toolDisabled = !env.TAVILY_API_KEY;
@@ -32,7 +32,7 @@ const webSearchTool = defineJarvisTool({
 
     if (!results.length) return "";
 
-    const model = getLanguageModel(aiOutputProvider ?? aiThinkProvider!);
+    const model = getLanguageModel(aiChatProvider!);
     const { text } = await generateText({
       model,
       messages: [

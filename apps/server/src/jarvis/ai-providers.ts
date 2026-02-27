@@ -16,7 +16,6 @@ function getAiProvider(dutyName: string) {
     | undefined;
 }
 
-export const aiThinkProvider = getAiProvider("THINK");
-export const aiOutputProvider = getAiProvider("OUTPUT");
+export const aiChatProvider = getAiProvider("CHAT");
 export const aiMultimodalityProvider = getAiProvider("MULTIMODALITY");
 export const aiImageGenerationProvider = getAiProvider("IMAGE_GENERATION");

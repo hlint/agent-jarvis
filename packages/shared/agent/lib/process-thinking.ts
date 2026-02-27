@@ -7,7 +7,12 @@ import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { ThinkActionSchema } from "../defines/think-action";
 import { thinkPrompt } from "../prompt/think";
-import { betterJsonParse, getToolsInfo, parsePrompt } from "./llm-parse";
+import {
+  getToolsInfo,
+  parseLlmResultBeforeDivider,
+  parseLlmResultWithDivider,
+  parsePrompt,
+} from "./llm-parse";
 
 export default async function processThinking({
   thinkProvider,
@@ -50,20 +55,19 @@ export default async function processThinking({
       ],
     });
     let content = "";
-    let reasoning = "";
     for await (const chunk of fullStream) {
       if (chunk.type === "text-delta") {
         content += chunk.text;
-        onDialogHistoryChange();
-      }
-      if (chunk.type === "reasoning-delta") {
-        reasoning += chunk.text;
-        entry.content = reasoning;
+        entry.content = parseLlmResultBeforeDivider(content);
         onDialogHistoryChange();
       }
     }
-    const thinkAction = ThinkActionSchema.parse(betterJsonParse(content));
+    const [reasoning, thinkAction] = parseLlmResultWithDivider(
+      content,
+      ThinkActionSchema,
+    );
     entry.status = "completed";
+    entry.content = reasoning;
     entry.action = thinkAction;
     entry.inputTokens = (await usage).inputTokens;
     onDialogHistoryChange();
