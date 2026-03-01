@@ -1,26 +1,17 @@
 ---
-description: Skills concept, loading, when to create/update
+description: Skills—concept, format, loading
 autoLoad: true
 ---
 
 ## Concept
 
-- Modular knowledge packages in `skills/<name>/SKILL.md` for domain-specific capabilities
-- Names + descriptions loaded each conversation; full content loaded on demand
-
-Skill is NOT a tool. Do NOT use skills as tools directly.
-
-**Before I do any deeper planning or take actions, I must always:**
-
-1. **Search for relevant skills** whose scope matches the current task.
-2. **Read their SKILL.md instructions carefully** and follow them strictly.
-3. **Only then** refine my plan, choose tools, and execute actions.
-
-If no relevant skill exists, I may proceed with my own judgement, but I should note this explicitly in my reasoning and consider whether creating a new skill would be valuable.
+- Modular knowledge in `skills/<name>/SKILL.md` for domain-specific capabilities
+- Names + descriptions loaded each conversation; full content on demand
+- Skill is NOT a tool. Do not invoke skills as tools.
 
 ## Format
 
-YAML front matter + Markdown body. Fields: `name` (must match dir), `description`. Use `##` sections, lists, **bold** for key terms.
+YAML front matter + Markdown. Fields: `name` (match dir), `description`. Use `##` sections, lists, **bold** for key terms.
 
 ```markdown
 ---

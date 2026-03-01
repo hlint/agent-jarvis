@@ -6,6 +6,8 @@ import { z } from "zod";
 import { aiChatProvider } from "../ai-providers";
 import { defineJarvisTool } from "../tool";
 
+const ENABLE_SUB_AGENT = false;
+
 const toolDisabled = !env.TAVILY_API_KEY;
 const toolDisabledMessage = "Tool disabled due to missing env.TAVILY_API_KEY.";
 
@@ -30,7 +32,11 @@ const webSearchTool = defineJarvisTool({
       maxResults: 9,
     });
 
-    if (!results.length) return "";
+    if (!results.length) return "No results found";
+
+    if (!ENABLE_SUB_AGENT) {
+      return results;
+    }
 
     const model = getLanguageModel(aiChatProvider!);
     const { text } = await generateText({

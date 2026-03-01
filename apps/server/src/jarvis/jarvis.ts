@@ -30,6 +30,7 @@ import { JarvisStateManager } from "./state";
 
 // If the system is inactive for N minutes, it will push a system-inactive event.
 const SYSTEM_INACTIVE_INTERVAL = 5 * 60 * 1000;
+const SYSTEM_INACTIVE_ENABLED = false;
 
 export default class Jarvis {
   public runner = new Runner(this);
@@ -39,6 +40,9 @@ export default class Jarvis {
   public retryCount = 0;
   public websiteUrl: string = "";
   private pushInactiveEvent = debounce(() => {
+    if (!SYSTEM_INACTIVE_ENABLED) {
+      return;
+    }
     const dialogHistory = this.state.getState().dialogHistory;
     const lastEntry = dialogHistory[dialogHistory.length - 1];
     const secondLastEntry = dialogHistory[dialogHistory.length - 2];

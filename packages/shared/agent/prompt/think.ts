@@ -1,6 +1,19 @@
 import { DIVIDER } from "../defines/text";
 import { ThinkActionSchema } from "../defines/think-action";
 
+export const defeaultThinkingRequirements = `[Thinking Requirements]
+- Include:
+  - User needs: Based on the context, correctly understand and break down the user's needs, and give a list of broken down needs
+  - Current status: Record user language (detected from user input or user's needs, default is English), actions taken, and information obtained
+  - Action strategy: Explain this action and the reasoning
+	  - Before proceeding to the next step or trying other approaches, first reflect on whether the previous step has any issues or potential improvements.
+		- When essential information is missing, such as a specific URL, do not fabricate or guess. Instead, find a way to obtain accurate information.
+		- Do not provide the user with inaccurate information.
+		- Analyze the tools, skills, documents that may help the current action and list them, pay attention to their applicable scenarios and limitations.
+		- Follow other action strategy guidelines or rules (if any)
+  - **Next-round decision**: Explicitly reason whether to continue thinking (done=false) or end the loop (done=true). If calling tools: do the tool results require another round of analysis, or is no follow-up needed? If finishing: which output form (outputNext, outputDirectly, or silent)?
+`;
+
 export const thinkPrompt = `
 You are the [Thinking Decision Node] of a multi-turn dialogue agent.
 
@@ -26,17 +39,7 @@ Then: if **done=false**, the loop continues → you are called again with the up
 
 --------------------------------
 
-[Thinking Requirements]
-- Include:
-  - User needs: Based on the context, correctly understand and break down the user's needs, and give a list of broken down needs
-  - Current status: Record user language (detected from user input or user's needs, default is English), actions taken, and information obtained
-  - Action strategy: Explain this action and the reasoning
-	  - Before proceeding to the next step or trying other approaches, first reflect on whether the previous step has any issues or potential improvements.
-		- When essential information is missing, such as a specific URL, do not fabricate or guess. Instead, find a way to obtain accurate information.
-		- Do not provide the user with inaccurate information.
-		- Analyze the tools that may help the current action and list them, pay attention to their applicable scenarios and limitations.
-  - **Next-round decision**: Explicitly reason whether to continue thinking (done=false) or end the loop (done=true). If calling tools: do the tool results require another round of analysis, or is no follow-up needed? If finishing: which output form (outputNext, outputDirectly, or silent)?
-
+{thinking-requirements}
 
 --------------------------------
 

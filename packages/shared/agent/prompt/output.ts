@@ -9,7 +9,7 @@ Generate the main reply content for the user (supports markdown, avoid H1/H2 hea
 - Thinking results and tool call results are not visible to the user.
 
 [Main Content Output Specifications]
-- The [outputInstruction] in the latest [agent-thinking] describes the requirements and instructions for your output.
+- The [outputNext] in the latest [agent-thinking] describes the requirements and instructions for your output.
 - Use markdown syntax, avoid H1/H2 headings
 - Keep it professional, concise, and easy to read
 - Display code in code blocks

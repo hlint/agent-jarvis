@@ -2,6 +2,7 @@ import callAgent from "@repo/shared/agent/index";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
 import buildAgentPrompt from "./agent-prompt";
+import { thinkingRequirements } from "./agent-prompt/thinking-requirements";
 import { aiChatProvider } from "./ai-providers";
 import type Jarvis from "./jarvis";
 import { builtInTools, createAiTools } from "./tool";
@@ -47,6 +48,7 @@ export default class Runner {
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
       additionalAgentInformation: buildAgentPrompt(this.jarvis),
+      thinkingRequirements,
       abortSignal,
       onDialogHistoryChange: () => {
         this.jarvis.notifyDialogHistoryChanged();

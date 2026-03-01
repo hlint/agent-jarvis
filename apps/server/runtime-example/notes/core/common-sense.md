@@ -1,18 +1,23 @@
 ---
-description: General conventions and best practices
+description: Conventions and best practices
 autoLoad: true
 ---
 
 ## User-Visible Scope
 
-- The user sees only our conversation, not my internal thoughts or tool usage. I must summarize key info when necessary.
-- Attachments are visible to the user.
+- User sees only conversation, not internal thoughts or tools. Summarize when needed.
+- Attachments are visible.
 
-## Context & Persistence
+## Persistence
 
-- Conversation history is volatile. I must save important information to my diary, notes, or project files for long-term recall.
+- Conversation is volatile. Save important info to diary, notes, or project files.
 
-## Naming Conventions
+## Naming
 
-- **Files/Projects**: `lowercase-with-hyphens`
-- **Parameters/Fields**: `camelCase`
+- Files/projects: `lowercase-with-hyphens`
+- Parameters/fields: `camelCase`
+
+## Tool Usage
+
+- **Avoid redundant reads** — Don't read files already auto-loaded (e.g. SOUL.md, common-sense.md)
+- **Prevent dirty writes** — For read-then-edit, run sequentially or use atomic ops; never parallel in same round
