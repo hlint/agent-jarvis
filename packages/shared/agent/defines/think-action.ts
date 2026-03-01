@@ -7,6 +7,14 @@ export const ToolCallItemSchema = z.object({
     .describe(
       "A short one-sentence summary of what this tool call should achieve. Provide the summary in the user's language. The tool's input parameters will be generated separately.",
     ),
+  order: z
+    .number()
+    .int()
+    .min(1)
+    .max(10)
+    .optional()
+    .default(1)
+    .describe("The order of the tool call in the action flow."),
 });
 
 export const ThinkActionSchema = z.object({

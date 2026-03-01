@@ -22,7 +22,8 @@ which bun && bun --version
 | -------- | ------------------- |
 | Runtime  | python, nodejs, bun |
 | Dev      | tmux                |
-| Other    | agent-browser       |
+| AI       | agent-browser       |
+| Other    |                     |
 
 ## Notes
 

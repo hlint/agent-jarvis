@@ -14,7 +14,7 @@ const toolDisabledMessage = "Tool disabled due to missing env.TAVILY_API_KEY.";
 const webSearchTool = defineJarvisTool({
   name: "web-search",
   description:
-    "Search the web. Use when you need to find info without a specific URL. For known URL content, use web-extract." +
+    "Search the public internet. Use when you need to find info without a specific URL. For known URL content, use web-extract. NOT for intranet/internal resources." +
     (toolDisabled ? `(${toolDisabledMessage})` : ""),
   inputSchema: z.object({
     query: z.string().describe("Query"),

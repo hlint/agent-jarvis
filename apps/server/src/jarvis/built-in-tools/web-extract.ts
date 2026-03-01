@@ -13,7 +13,7 @@ const toolDisabledMessage = "Tool disabled due to missing env.TAVILY_API_KEY.";
 const webExtractTool = defineJarvisTool({
   name: "web-extract",
   description:
-    "Fetch and extract content from given URL(s). " +
+    "Fetch and extract content from public internet URL(s). NOT for intranet/internal URLs (localhost, 192.168.x.x, 10.x.x.x, internal domains). " +
     (toolDisabled ? `(${toolDisabledMessage})` : ""),
   inputSchema: z.object({
     urls: z.array(z.string()).min(1).max(8),
