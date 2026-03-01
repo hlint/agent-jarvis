@@ -117,11 +117,8 @@ const multimodalSubagentTool = defineJarvisTool({
     }
 
     const { text } = await generateText({
-      model: getLanguageModel({
-        model: provider.model,
-        apiKey: provider.apiKey,
-        baseURL: provider.baseURL,
-      }),
+      model: getLanguageModel(provider),
+      providerOptions: provider.providerOptions,
       messages: [
         {
           role: "user",

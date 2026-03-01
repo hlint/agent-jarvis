@@ -126,6 +126,7 @@ const imageGenerationTool = defineJarvisTool({
 
     const result = await generateImage({
       model,
+      providerOptions: provider.providerOptions,
       prompt: promptArg,
       n: 1,
       ...(aspectRatio && { aspectRatio }),

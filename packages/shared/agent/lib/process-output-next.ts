@@ -31,8 +31,10 @@ export default async function processOutput({
   dialogHistory.push(entry);
   onDialogHistoryChange();
   try {
+		const provider = outputProvider ?? thinkProvider;
     const { fullStream } = streamText({
-      model: getLanguageModel(outputProvider ?? thinkProvider),
+      model: getLanguageModel(provider),
+      providerOptions: provider.providerOptions,
       messages: [
         {
           role: "system",

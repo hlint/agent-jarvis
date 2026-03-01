@@ -35,10 +35,11 @@ const webSearchTool = defineJarvisTool({
     if (!ENABLE_SUB_AGENT) {
       return results;
     }
-
-    const model = getLanguageModel(jarvis.config.getAiProvider("CHAT")!);
+    const chatProvider = jarvis.config.getAiProvider("CHAT")!;
+    const model = getLanguageModel(chatProvider);
     const { text } = await generateText({
       model,
+      providerOptions: chatProvider.providerOptions,
       messages: [
         { role: "system", content: SearchResultsDistillerPrompt },
         {

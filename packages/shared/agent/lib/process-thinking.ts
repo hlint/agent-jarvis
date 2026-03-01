@@ -35,6 +35,7 @@ export default async function processThinking({
   try {
     const { fullStream, usage } = streamText({
       model: getLanguageModel(thinkProvider),
+      providerOptions: thinkProvider.providerOptions,
       messages: [
         {
           role: "system",

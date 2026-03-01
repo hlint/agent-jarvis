@@ -52,6 +52,7 @@ export default async function processToolCalling({
       );
       const { fullStream } = streamText({
         model: getLanguageModel(thinkProvider),
+        providerOptions: thinkProvider.providerOptions,
         messages: [
           {
             role: "system",

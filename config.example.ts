@@ -24,6 +24,8 @@ interface Config {
     apiKey: string;
     /** Base URL for API (optional, for custom endpoints) */
     baseURL?: string;
+    /** Provider-specific options */
+    providerOptions?: any;
     /** Duties this provider handles */
     duties: ProviderDuties[];
   }>;

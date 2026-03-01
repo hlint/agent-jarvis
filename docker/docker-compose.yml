@@ -14,9 +14,8 @@ services:
     volumes:
       - ./volumes/jarvis-runtime:/jarvis/runtime
       - ./volumes/webtop-config:/config
+      - ./volumes/config.ts:/jarvis/config.ts
     environment:
       - TZ=US/Pacific
       - PUID=1002
       - PGID=1002
-    env_file:
-      - ../.env

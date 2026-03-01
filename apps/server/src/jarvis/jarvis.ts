@@ -37,7 +37,7 @@ export default class Jarvis {
   public clientManager = new JarvisClientManager(this);
   public state = new JarvisStateManager(this);
   public cron = new JarvisCron(this);
-  public config = new JarvisConfig(this);
+  public config = new JarvisConfig();
   public retryCount = 0;
   public websiteUrl: string = "";
   private pushInactiveEvent = debounce(() => {
