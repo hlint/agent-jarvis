@@ -8,7 +8,7 @@ export default async function processOutputDirectly({
   lastThinkAction,
   onDialogHistoryChange,
 }: AgentContext) {
-  /** 直接输出内容 */
+  /** Output content directly */
   const outputContent = lastThinkAction?.outputDirectly;
   if (!outputContent) return;
   const entry: HistoryEntry = {

@@ -26,23 +26,23 @@ export default function VoiceMode() {
 
   const refStart = useRef(startRecording);
 
-  // 组件加载时自动开始录音
+  // Auto-start recording when component mounts
   useEffect(() => {
     refStart.current();
   }, []);
 
-  // 错误处理
+  // Error handling
   useEffect(() => {
     if (error) {
       console.error("[VoiceMode] Recording error:", error);
     }
   }, [error]);
 
-  // 监听录音数据生成
+  // Listen for recorded data
   useEffect(() => {
     if (recordedBlob && isAvailableRecordedAudio) {
       setInputMode("text");
-      // 'audio/webm' or 'audio/webm;codecs=opus' — 分号及之后可选
+      // 'audio/webm' or 'audio/webm;codecs=opus' — semicolon and after is optional
       const ext = recordedBlob.type.match(/^[^/]+\/([^;/]+)/)?.[1] ?? "webm";
       const file = new File([recordedBlob], `voice.${ext}`, {
         type: recordedBlob.type,
@@ -63,7 +63,7 @@ export default function VoiceMode() {
 
   return (
     <>
-      {/* 波形图 */}
+      {/* Waveform */}
       <div className="flex-1 min-h-0 p-2">
         <VoiceVisualizer
           controls={recorderControls}
@@ -78,15 +78,15 @@ export default function VoiceMode() {
         />
       </div>
 
-      {/* 控制区 */}
+      {/* Control area */}
       <div className="flex flex-row gap-1.5 items-center justify-center p-2 shrink-0">
-        {/* 返回：放弃录音，回到文字模式 */}
+        {/* Back: discard recording, return to text mode */}
         <Button variant="secondary" onClick={handleBack}>
           <XIcon />
           Cancel
         </Button>
 
-        {/* 暂停/继续 */}
+        {/* Pause/Resume */}
         {isRecordingInProgress && (
           <Button
             variant={isPausedRecording ? "secondary" : "destructive"}
@@ -97,7 +97,7 @@ export default function VoiceMode() {
           </Button>
         )}
 
-        {/* 发送：打印到控制台，清空缓冲区，暂停录音 */}
+        {/* Send: stop recording and upload */}
         <ButtonSend onClick={handleSend} />
       </div>
     </>

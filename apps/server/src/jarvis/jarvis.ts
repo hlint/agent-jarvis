@@ -48,7 +48,7 @@ export default class Jarvis {
     const lastEntry = dialogHistory[dialogHistory.length - 1];
     const secondLastEntry = dialogHistory[dialogHistory.length - 2];
 
-    // 如果最后一条是错误信息，或者最后一条和倒数第二条都是静默状态，说明AI已经认为不需要做任何事了，此时不需要唤醒
+    // If last entry is error, or last and second-last are both silent (AI considers nothing to do), do not wake up
     if (
       !lastEntry ||
       !secondLastEntry ||
@@ -83,22 +83,22 @@ export default class Jarvis {
   }
 
   private init() {
-    // 创建运行时目录
+    // Create runtime directory
     fs.ensureDirSync(DIR_RUNTIME);
 
-    // 初始化
+    // Initialize
     if (!fs.existsSync(PATH_INITIALIZED)) {
-      // 从示例目录复制文件到运行时目录
+      // Copy files from example directory to runtime directory
       fs.copySync(DIR_RUNTIME_EXAMPLE, DIR_RUNTIME);
 
-      // 写入初始化标记文件
+      // Write initialization marker file
       fs.writeJSONSync(PATH_INITIALIZED, {
         initialized: true,
         time: timeFormat(),
       });
     }
 
-    // 读取网站URL
+    // Read website URL
     if (fs.existsSync(PATH_WEBSITE_URL)) {
       const websiteUrl = fs.readFileSync(PATH_WEBSITE_URL, "utf-8");
       this.setWebsiteUrl(websiteUrl);

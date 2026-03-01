@@ -1,101 +1,37 @@
-## turbo-forge - Full-stack Bun + React Boilerplate
+# Agent Jarvis
 
-Monorepo boilerplate for building a modern full‑stack app with a Bun/Elysia backend and a React/Vite frontend.
+An autonomous AI assistant that learns, remembers, and acts for you—with a persistent workspace and containerized deployment.
 
-### Project structure
+![preview](./docs/assets/preview.png)
 
-- **Root**
-  - `package.json` – workspace scripts and dev tooling
-  - `turbo.json` – Turborepo task pipeline
-- **apps**
-  - `apps/frontend` – React 19 + Vite 7 SPA
-  - `apps/server` – Bun + Elysia HTTP API and SPA host
-- **packages**
-  - `packages/shared` – shared utilities/types between frontend and server
+## What It Does
 
-### Tech stack
+Jarvis is self-learning and proactive: reflects after tasks, logs insights, and anticipates needs. Diaries, notes, skills, and cron tasks live in a persistent workspace, so context carries over. It runs web search, file ops, shell commands, and browser automation end-to-end. Chat via web UI or Telegram.
 
-- **Runtime & tooling**
-  - **Bun** (`bun@1.3.4`) as package manager and server runtime
-  - **TypeScript 5.9** for type checking
-  - **Turborepo** for orchestrating workspace tasks
-  - **Biome** + **sort-package-json** + **Prettier** for formatting
-- **Backend**
-  - **Elysia** as the HTTP framework
-  - **@elysiajs/static**, **@elysiajs/cors**
-  - **Zod** for validation
-- **Frontend**
-  - **React 19** + **React DOM**
-  - **Vite 7** as dev server and bundler
-  - **Tailwind CSS 4**, **@base-ui/react**, **shadcn/ui**, **lucide-react**, **sonner**
+## Differs from other Claws
 
-### Root commands
+- **Single session** — One linear conversation, one shared context. No lanes or per-sender routing. Closer to talking to one person: coherent, predictable, human-like.
 
-All commands are run from the repository root:
+- **Lightweight** — Fast startup, minimal config. Markdown-based storage only. Pure TypeScript/Bun stack, no external services required; runs fully local.
 
-- **Install dependencies**
+- **Desktop Docker** — Full Ubuntu XFCE desktop inside the container (Webtop). Access a real browser and terminal in your browser; the agent runs in isolation with everything preinstalled.
 
-  ```bash
-  bun ci
-  ```
+## Deploy
 
-- **Develop (frontend + server via Turborepo)**
+**Prerequisites:** [Bun](https://bun.sh) 1.3+
 
-  ```bash
-  bun dev
-  ```
+1. Copy `config.example.ts` to `config.ts` and add your AI provider API key.
+2. For Docker: copy `config.ts` to `docker/volumes/config.ts` (or adjust the compose volume path).
+3. Build and run:
 
-- **Build everything**
+```bash
+bun compile
+cd docker && docker compose up -d
+```
 
-  ```bash
-  bun compile
-  # runs: compile:frontend, then compile:server
-  ```
+- **4201** — Desktop (Webtop, browser-based)
+- **4202** — Chat UI
 
-- **Start production server** (after `bun compile`)
+All execution stays inside the container. Volumes persist runtime data, config, and desktop state.
 
-  ```bash
-  bun start
-  ```
-
-- **Type-check all packages**
-
-  ```bash
-  bun check-types
-  ```
-
-- **Format all packages**
-
-  ```bash
-  bun format
-  ```
-
-### App-level commands
-
-- **Frontend (`apps/frontend`)**
-  - `bun dev` – start Vite dev server (default port `3000`)
-  - `bun compile:frontend` – type-check and build the SPA
-  - `bun check-types` – TypeScript check only
-  - `bun format` – format code and sort `package.json`
-
-- **Server (`apps/server`)**
-  - `bun dev` – run Elysia server in watch mode from `src/index.ts`
-  - `bun compile:server` – build server code and copy frontend assets into `dist/html`
-  - `bun start` – run compiled Bun server from `dist/index.js`
-  - `bun check-types` – TypeScript check only
-  - `bun format` – format code and sort `package.json`
-
-### Development workflow
-
-- **Local development**
-  - Run `bun ci` once.
-  - In one terminal, run `bun dev` from the repo root.
-  - Frontend is served by Vite; backend runs via Elysia; the server also serves the built SPA in production.
-
-- **Before committing**
-  - Run `bun check-types` to ensure types are clean.
-  - Run `bun format` to apply formatting and keep `package.json` files sorted.
-
-- **Production build & run**
-  - `bun compile` – builds frontend and backend, wiring SPA assets into `apps/server/dist/html`.
-  - `bun start` – starts the compiled Bun server that serves both API and SPA.
+**Local development:** `bun ci` → `bun dev`

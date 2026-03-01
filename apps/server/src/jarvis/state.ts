@@ -47,7 +47,7 @@ export class JarvisStateManager {
     this.persist();
   }, 500);
 
-  // 同步WebSocket状态
+  // Sync WebSocket state
   private syncWsDialogHistory() {
     const previousSnapshotId = this.chatState.snapshotId;
     const newSnapshotId = nanoid(6);
@@ -65,7 +65,7 @@ export class JarvisStateManager {
     });
   }
 
-  // 同步Telegram状态
+  // Sync Telegram state
   private syncTelegramsyncDialogHistory() {
     const newCompletedDialogHistory = this.getNewCompletedDialogHistory();
     newCompletedDialogHistory.forEach((t) => {
@@ -73,7 +73,7 @@ export class JarvisStateManager {
     });
   }
 
-  // 从前后两个状态中，找出新增的已完成的聊天类消息（user和agent的message）
+  // From before/after state, find newly completed chat messages (user and agent)
   private getNewCompletedDialogHistory() {
     const newCompletedDialogHistory: DialogHistory = [];
     for (const item of this.chatState.dialogHistory) {
@@ -93,7 +93,7 @@ export class JarvisStateManager {
     return newCompletedDialogHistory;
   }
 
-  // 持久化
+  // Persist
   private persist = debounce(() => {
     fs.writeJSONSync(PATH_CHAT_STATE, this.getState(), { spaces: 2 });
   }, 1000);

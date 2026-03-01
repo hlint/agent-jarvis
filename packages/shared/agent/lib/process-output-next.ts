@@ -19,7 +19,7 @@ export default async function processOutput({
 }: AgentContext) {
   const outputNext = lastThinkAction?.outputNext;
   if (!outputNext) return;
-  // 调用输出节点
+  // Invoke output node
   const clonedDialogHistory = cloneDeep(dialogHistory);
   const entry: HistoryEntry = {
     id: shortId(),
@@ -31,7 +31,7 @@ export default async function processOutput({
   dialogHistory.push(entry);
   onDialogHistoryChange();
   try {
-		const provider = outputProvider ?? thinkProvider;
+    const provider = outputProvider ?? thinkProvider;
     const { fullStream } = streamText({
       model: getLanguageModel(provider),
       providerOptions: provider.providerOptions,

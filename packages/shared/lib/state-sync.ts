@@ -2,8 +2,9 @@ import { cloneDeep } from "es-toolkit";
 import * as jsonpatch from "fast-json-patch";
 import lz from "lz-string";
 
-/* 是否启用压缩
-启用后，大消息的体积明显减小，利于网络传输，但是不利于debug，且略微影响客户端性能
+/* Whether to enable compression.
+   When enabled, large messages are significantly smaller for network transfer,
+   but harder to debug and slightly impacts client performance.
 */
 const ENABLE_COMPRESS = true;
 

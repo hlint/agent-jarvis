@@ -9,13 +9,13 @@ import { builtInTools, createAiTools } from "./tool";
 const MAX_RETRY_COUNT = 3;
 
 /**
- * Runner 负责执行 AI 对话的核心循环逻辑
- * 处理消息流、工具调用和状态管理
+ * Runner executes the core loop of AI conversation:
+ * message flow, tool calls, and state management.
  */
 export default class Runner {
   private jarvis: Jarvis;
-  private busy: boolean = false; // 是否正在执行中
-  private needRunNext: boolean = false; // 是否需要继续执行下一轮
+  private busy: boolean = false; // Whether currently executing
+  private needRunNext: boolean = false; // Whether to continue next round
   private abortSignal: { signal: boolean } = { signal: false };
 
   constructor(jarvis: Jarvis) {
@@ -23,11 +23,11 @@ export default class Runner {
   }
 
   /**
-   * 执行一轮 AI 对话
-   * 包括：发送消息、接收响应、处理工具调用、更新状态
+   * Run one round of AI conversation:
+   * send messages, receive response, handle tool calls, update state.
    */
   private async run() {
-    // 防止重复执行
+    // Prevent duplicate execution
     if (this.busy) return;
     this.busy = true;
     this.jarvis.updateChatStatus("running");
@@ -37,7 +37,7 @@ export default class Runner {
     if (!chatProvider) {
       throw new Error("No think provider found");
     }
-    // 调用 AI Agent
+    // Call AI Agent
     const abortSignal = {
       signal: false,
     };
@@ -108,10 +108,10 @@ export default class Runner {
         break;
     }
 
-    // 释放锁
+    // Release lock
     this.busy = false;
     this.jarvis.updateChatStatus("idle");
-    // 如果需要，继续执行下一轮
+    // If needed, continue to next round
     if (this.needRunNext) {
       this.run();
     }
@@ -122,8 +122,8 @@ export default class Runner {
   }
 
   /**
-   * 触发下一轮执行
-   * 用于外部（如用户新消息进来后）触发新的对话轮次
+   * Trigger next round of execution.
+   * Used externally (e.g. when a new user message arrives) to start a new conversation turn.
    */
   runNext() {
     this.needRunNext = true;

@@ -108,7 +108,7 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
       const isCompleted =
         historyEntry.role !== "agent-reply" &&
         historyEntry.role !== "attachment" &&
-        historyEntry?.status === "completed";
+        historyEntry?.status !== "pending";
       if (isCompleted) {
         const setMark = (hidden: boolean) => {
           set({

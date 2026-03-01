@@ -16,7 +16,7 @@ export default function jarvisMiddleware() {
         }
         return jarvis.state.getState();
       })
-      // 用于获取本地文件
+      // For fetching local files
       .get(
         "/jarvis/file",
         ({ set, query }) => {

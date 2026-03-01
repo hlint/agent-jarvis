@@ -1,9 +1,9 @@
 import type { DialogHistory } from "../agent/defines/history";
 
-// WebSocket 消息体
+// WebSocket message body
 export type WsMessage = WsMessageDialogHistoryPatch | JarvisChatStatusUpdate;
 
-// 聊天事件补丁
+// Chat event patch
 export type WsMessageDialogHistoryPatch = {
   type: "dialog-history-patch";
   fromId: string;
@@ -11,10 +11,10 @@ export type WsMessageDialogHistoryPatch = {
   diff: any;
 };
 
-// 聊天状态
+// Chat status
 export type JarvisChatStatus = "running" | "idle" | "stopping";
 
-// 聊天状态补丁
+// Chat status patch
 export type JarvisChatStatusUpdate = {
   type: "chat-status-update";
   status: JarvisChatStatus;

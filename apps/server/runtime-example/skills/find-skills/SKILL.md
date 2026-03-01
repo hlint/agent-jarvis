@@ -1,6 +1,6 @@
 ---
 name: find-skills
-description: 帮助用户从在线技能库（skills.sh）发现并安装技能。当用户询问「如何做 X」「找技能做 X」或想扩展能力时使用。
+description: Help users discover and install skills from the online skills library (skills.sh). Use when users ask "how do I do X", "find a skill for X", or want to extend capabilities.
 ---
 
 # Find Skills

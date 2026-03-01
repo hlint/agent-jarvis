@@ -1,15 +1,16 @@
-- [ ] 预装FFMPEG
-- [ ] UI 更好的ws重连和状态提醒
-- [ ] 临时文件清理
-- [x] 更好的自动滚动机制
-- [x] 常驻定时任务列表
-- [x] ~~新工具，直接显示文件内容~~ 优化附件显示，支持文本直接显示内容
-- [x] 完全定制覆盖的系统提示词
-- [ ] 子Agent模式？
-- [ ] 多session？
-- [ ] ~~前端支持渲染 frontmatter 格式的 markdown~~
-- [ ] 集成终端
-- [ ] 集成文件查看/编辑器
-- [ ] 带执行二进制的build
-- [x] /stop 命令
-- [x] 将工具和思考参数分开（要不然思考的输出token太多，json格式容易错误）
+- [ ] Pre-install FFMPEG
+- [ ] UI: Better WebSocket reconnect and status indication
+- [ ] Temp file cleanup
+- [ ] UI: Shrink the input box
+- [x] Better auto-scroll mechanism
+- [x] Persistent cron task list
+- [x] ~~New tool: display file content directly~~ Improved attachment display with inline text content
+- [x] Fully customizable system prompt override
+- [ ] Sub-agent mode?
+- [ ] Multi-session?
+- [ ] ~~Frontend support for rendering frontmatter markdown~~
+- [ ] Integrated terminal
+- [ ] Integrated file viewer/editor
+- [ ] Build with binary execution support
+- [x] /stop command
+- [x] Separate tool and thinking params (otherwise thinking output tokens too large, JSON format prone to errors)

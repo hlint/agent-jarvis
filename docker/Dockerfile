@@ -42,6 +42,8 @@ RUN mkdir -p /etc/services.d/jarvis
 COPY ./docker/build/jarvis-run.sh /etc/services.d/jarvis/run
 RUN chmod +x /etc/services.d/jarvis/run
 
+# Expose ports
+EXPOSE 4201 4202
 
 # Application
 RUN mkdir -p /jarvis

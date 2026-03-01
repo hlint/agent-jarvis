@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // 代理所有 API 请求到后端服务器
+      // Proxy all API requests to backend server
       "/jarvis/ws": {
         target: "ws://localhost:4000",
         ws: true,

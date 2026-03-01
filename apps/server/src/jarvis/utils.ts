@@ -11,7 +11,7 @@ export function stringifyFrontmatterMd(
   return `---\n${lines.join("\n")}\n---\n\n${body}`;
 }
 
-/** 日记路径：DIR_DIARIES/YYYY/MM/DD.md */
+/** Diary path: DIR_DIARIES/YYYY/MM/DD.md */
 export function getDiaryPath(date = new Date()): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
