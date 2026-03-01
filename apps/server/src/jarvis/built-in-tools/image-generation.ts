@@ -7,16 +7,11 @@ import { generateImage } from "ai";
 import fs from "fs-extra";
 import mime from "mime-types";
 import { z } from "zod";
-import { aiImageGenerationProvider } from "../ai-providers";
 import { DIR_RUNTIME } from "../defines";
 import { defineJarvisTool } from "../tool";
 
 const MAX_REF_IMAGES = 5;
 const MAX_REF_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB
-
-const toolDisabled = !aiImageGenerationProvider;
-const toolDisabledMessage =
-  "Tool disabled due to missing IMAGE_GENERATION provider.";
 
 function resolvePath(inputPath: string): string {
   return path.isAbsolute(inputPath)
@@ -64,11 +59,11 @@ async function loadReferenceImage(
 
 const imageGenerationTool = defineJarvisTool({
   name: "image-generation",
-  description:
+  description: (jarvis) =>
     "Generate images using a sub-AI with image generation capability. Supports text-to-image and image-to-image (use reference images for style transfer, edits, or variations). " +
-    (toolDisabled
-      ? `(${toolDisabledMessage})`
-      : `(Image model: ${aiImageGenerationProvider!.model})`),
+    (jarvis.config.getAiProvider("IMAGE_GENERATION")?.model
+      ? `(Image model: ${jarvis.config.getAiProvider("IMAGE_GENERATION")!.model})`
+      : "DISABLED due to missing image generation provider"),
   inputSchema: z.object({
     prompt: z
       .string()
@@ -102,8 +97,11 @@ const imageGenerationTool = defineJarvisTool({
       ),
   }),
   execute: async (input, jarvis) => {
-    if (toolDisabled) {
-      throw new Error(toolDisabledMessage);
+    const provider = jarvis.config.getAiProvider("IMAGE_GENERATION");
+    if (!provider) {
+      throw new Error(
+        "Image generation tool disabled due to missing provider.",
+      );
     }
 
     const {
@@ -114,7 +112,7 @@ const imageGenerationTool = defineJarvisTool({
       autoAttach = true,
     } = input;
 
-    const model = getImageModel(aiImageGenerationProvider!);
+    const model = getImageModel(provider);
 
     const promptArg =
       referenceImages.length > 0

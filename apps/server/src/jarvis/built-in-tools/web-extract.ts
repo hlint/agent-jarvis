@@ -1,29 +1,28 @@
 import { getLanguageModel } from "@repo/shared/llm/get-model";
 import { tavily } from "@tavily/core";
 import { generateText } from "ai";
-import { env } from "bun";
 import { z } from "zod";
-import { aiChatProvider } from "../ai-providers";
 import { defineJarvisTool } from "../tool";
 
 const ENABLE_SUB_AGENT = false;
-const toolDisabled = !env.TAVILY_API_KEY;
-const toolDisabledMessage = "Tool disabled due to missing env.TAVILY_API_KEY.";
 
 const webExtractTool = defineJarvisTool({
   name: "web-extract",
-  description:
+  description: (jarvis) =>
     "Fetch and extract content from public internet URL(s). NOT for intranet/internal URLs (localhost, 192.168.x.x, 10.x.x.x, internal domains). " +
-    (toolDisabled ? `(${toolDisabledMessage})` : ""),
+    (jarvis.config.getConfig().tavilyApiKey
+      ? ""
+      : "DISABLED due to missing Tavily API key"),
   inputSchema: z.object({
     urls: z.array(z.string()).min(1).max(8),
   }),
-  execute: async (input) => {
-    if (toolDisabled) {
-      throw new Error(toolDisabledMessage);
-    }
+  execute: async (input, jarvis) => {
     const { urls } = input;
-    const client = tavily({ apiKey: env.TAVILY_API_KEY! });
+    const tavilyApiKey = jarvis.config.getConfig().tavilyApiKey;
+    if (!tavilyApiKey) {
+      throw new Error("DISABLED due to missing Tavily API key");
+    }
+    const client = tavily({ apiKey: tavilyApiKey });
     const { results } = await client.extract(urls, {
       extractDepth: "advanced",
     });
@@ -35,7 +34,7 @@ const webExtractTool = defineJarvisTool({
       return results;
     }
     const { text } = await generateText({
-      model: getLanguageModel(aiChatProvider!),
+      model: getLanguageModel(jarvis.config.getAiProvider("CHAT")!),
       messages: [
         {
           role: "system",

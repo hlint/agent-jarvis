@@ -1,17 +1,14 @@
-import { env } from "bun";
 import { createClient } from "pexels";
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
 
-const apiKey = env.PEXELS_API_KEY;
-const toolDisabled = !apiKey;
-const toolDisabledMessage = "Tool disabled due to missing env.PEXELS_API_KEY.";
-
 const imageSearchTool = defineJarvisTool({
   name: "image-search",
-  description:
+  description: (jarvis) =>
     "Search for stock images (nature, cities, business, lifestyle...). Use English keywords. Not suitable for precise searches (specific person, product model, logo). " +
-    (toolDisabled ? `(${toolDisabledMessage})` : ""),
+    (jarvis.config.getConfig().pexelsApiKey
+      ? ""
+      : "DISABLED due to missing Pexels API key"),
   inputSchema: z.object({
     keywords: z
       .string()
@@ -21,12 +18,13 @@ const imageSearchTool = defineJarvisTool({
         "Search keywords, English only (e.g. 'Akita Inu', 'sunset beach')",
       ),
   }),
-  execute: async (input) => {
-    if (toolDisabled) {
-      throw new Error(toolDisabledMessage);
-    }
+  execute: async (input, jarvis) => {
     const { keywords } = input;
-    const client = createClient(apiKey!);
+    const pexelsApiKey = jarvis.config.getConfig().pexelsApiKey;
+    if (!pexelsApiKey) {
+      throw new Error("DISABLED due to missing Pexels API key");
+    }
+    const client = createClient(pexelsApiKey);
     const results = await client.photos.search({
       query: keywords,
       per_page: 16,

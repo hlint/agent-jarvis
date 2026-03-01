@@ -1,3 +1,4 @@
+import { createAlibaba } from "@ai-sdk/alibaba";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createAzure } from "@ai-sdk/azure";
 import { createBlackForestLabs } from "@ai-sdk/black-forest-labs";
@@ -40,6 +41,7 @@ export function getLanguageModel({
     "byte-dance": createByteDance(providerOptions),
     deepseek: createDeepSeek(providerOptions),
     "hugging-face": createHuggingFace(providerOptions),
+    alibaba: createAlibaba(providerOptions),
   });
 
   return registry.languageModel(model as any);

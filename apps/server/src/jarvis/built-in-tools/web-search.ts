@@ -1,31 +1,29 @@
 import { getLanguageModel } from "@repo/shared/llm/get-model";
 import { tavily } from "@tavily/core";
 import { generateText } from "ai";
-import { env } from "bun";
 import { z } from "zod";
-import { aiChatProvider } from "../ai-providers";
 import { defineJarvisTool } from "../tool";
 
 const ENABLE_SUB_AGENT = false;
 
-const toolDisabled = !env.TAVILY_API_KEY;
-const toolDisabledMessage = "Tool disabled due to missing env.TAVILY_API_KEY.";
-
 const webSearchTool = defineJarvisTool({
   name: "web-search",
-  description:
+  description: (jarvis) =>
     "Search the public internet. Use when you need to find info without a specific URL. For known URL content, use web-extract. NOT for intranet/internal resources." +
-    (toolDisabled ? `(${toolDisabledMessage})` : ""),
+    (jarvis.config.getConfig().tavilyApiKey
+      ? ""
+      : "DISABLED due to missing Tavily API key"),
   inputSchema: z.object({
     query: z.string().describe("Query"),
     topic: z.enum(["general", "news", "finance"]).describe("Topic"),
   }),
-  execute: async (input) => {
-    if (toolDisabled) {
-      throw new Error(toolDisabledMessage);
-    }
+  execute: async (input, jarvis) => {
     const { query, topic } = input;
-    const client = tavily({ apiKey: env.TAVILY_API_KEY! });
+    const tavilyApiKey = jarvis.config.getConfig().tavilyApiKey;
+    if (!tavilyApiKey) {
+      throw new Error("DISABLED due to missing Tavily API key");
+    }
+    const client = tavily({ apiKey: tavilyApiKey });
     const { results } = await client.search(query, {
       topic: topic,
       searchDepth: "basic",
@@ -38,7 +36,7 @@ const webSearchTool = defineJarvisTool({
       return results;
     }
 
-    const model = getLanguageModel(aiChatProvider!);
+    const model = getLanguageModel(jarvis.config.getAiProvider("CHAT")!);
     const { text } = await generateText({
       model,
       messages: [

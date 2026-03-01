@@ -4,16 +4,18 @@ import { generateText } from "ai";
 import fs from "fs-extra";
 import mime from "mime-types";
 import { z } from "zod";
-import { aiMultimodalityProvider } from "../ai-providers";
 import { DIR_RUNTIME } from "../defines";
 import { defineJarvisTool } from "../tool";
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 const MAX_FILES = 3;
 
-const toolDisabled = !aiMultimodalityProvider;
-const toolDisabledMessage =
-  "Tool disabled due to missing MULTIMODALITY provider.";
+const FILETYPE_TO_DUTY = {
+  audio: "VOICE_RECOGNITION",
+  video: "VIDEO_RECOGNITION",
+  image: "IMAGE_RECOGNITION",
+  other: "OTHER_RECOGNITION",
+} as const;
 
 function resolvePath(inputPath: string): string {
   return path.isAbsolute(inputPath)
@@ -47,8 +49,7 @@ function isImageMediaType(mediaType: string): boolean {
 const multimodalSubagentTool = defineJarvisTool({
   name: "multimodal-subagent",
   description:
-    "Delegate file understanding to a multimodal sub-AI. Use when you need to process files the main AI cannot read: transcribe audio, read PDF, analyze images, summarize documents. The sub-AI understands images, audio, video, and PDFs. " +
-    (toolDisabled ? `(${toolDisabledMessage})` : ""),
+    "Delegate file understanding to a multimodal sub-AI. Use when you need to process files the main AI cannot read: transcribe audio, read PDF, analyze images, summarize documents. The sub-AI understands these files. ",
   inputSchema: z.object({
     instruction: z
       .string()
@@ -56,6 +57,7 @@ const multimodalSubagentTool = defineJarvisTool({
       .describe(
         "Instruction for the sub-AI (e.g. 'Transcribe this audio', 'Summarize this PDF', 'Describe what you see in these images')",
       ),
+    fileType: z.enum(["audio", "video", "image", "other"]),
     files: z
       .array(z.string().min(1))
       .min(1)
@@ -64,12 +66,15 @@ const multimodalSubagentTool = defineJarvisTool({
         "File paths (absolute or relative to runtime) or http(s) URLs. Examples: /path/to/audio.mp3, https://example.com/doc.pdf",
       ),
   }),
-  execute: async (input) => {
-    if (toolDisabled) {
-      throw new Error(toolDisabledMessage);
+  execute: async (input, jarvis) => {
+    const { instruction, files, fileType } = input;
+    const duty = FILETYPE_TO_DUTY[fileType];
+    const provider = jarvis.config.getAiProvider(duty);
+    if (!provider) {
+      throw new Error(
+        `No provider configured for ${fileType} (duty: ${duty}). Add a provider with duties including "${duty}" in config.`,
+      );
     }
-
-    const { instruction, files } = input;
     type ContentPart =
       | { type: "text"; text: string }
       | { type: "image"; image: ArrayBuffer | URL; mediaType?: string }
@@ -112,7 +117,11 @@ const multimodalSubagentTool = defineJarvisTool({
     }
 
     const { text } = await generateText({
-      model: getLanguageModel(aiMultimodalityProvider!),
+      model: getLanguageModel({
+        model: provider.model,
+        apiKey: provider.apiKey,
+        baseURL: provider.baseURL,
+      }),
       messages: [
         {
           role: "user",

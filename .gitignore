@@ -45,3 +45,4 @@ output/dist
 
 # Docker
 docker/volumes
+config.ts

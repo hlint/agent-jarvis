@@ -3,7 +3,6 @@ import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
 import buildAgentPrompt from "./agent-prompt";
 import { thinkingRequirements } from "./agent-prompt/thinking-requirements";
-import { aiChatProvider } from "./ai-providers";
 import type Jarvis from "./jarvis";
 import { builtInTools, createAiTools } from "./tool";
 
@@ -34,7 +33,8 @@ export default class Runner {
     this.jarvis.updateChatStatus("running");
     this.needRunNext = false;
     const dialogHistory = this.jarvis.state.getState().dialogHistory;
-    if (!aiChatProvider) {
+    const chatProvider = this.jarvis.config.getAiProvider("CHAT");
+    if (!chatProvider) {
       throw new Error("No think provider found");
     }
     // 调用 AI Agent
@@ -43,8 +43,8 @@ export default class Runner {
     };
     this.abortSignal = abortSignal;
     const { stoppedReason, stoppedBy } = await callAgent({
-      thinkProvider: aiChatProvider,
-      outputProvider: aiChatProvider,
+      thinkProvider: chatProvider,
+      outputProvider: chatProvider,
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
       additionalAgentInformation: buildAgentPrompt(this.jarvis),

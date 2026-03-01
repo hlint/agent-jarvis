@@ -15,8 +15,8 @@ import { generateText } from "ai";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
-import { aiMultimodalityProvider } from "./ai-providers";
 import JarvisClientManager from "./client";
+import JarvisConfig from "./config";
 import JarvisCron from "./cron";
 import {
   DIR_RUNTIME,
@@ -37,6 +37,7 @@ export default class Jarvis {
   public clientManager = new JarvisClientManager(this);
   public state = new JarvisStateManager(this);
   public cron = new JarvisCron(this);
+  public config = new JarvisConfig(this);
   public retryCount = 0;
   public websiteUrl: string = "";
   private pushInactiveEvent = debounce(() => {
@@ -105,6 +106,7 @@ export default class Jarvis {
 
     this.state.init();
     this.cron.init();
+    this.config.init();
     this.clientManager.init();
   }
 
@@ -143,10 +145,15 @@ export default class Jarvis {
         filePath: destPath,
       },
     } satisfies AttachmentEntry);
-    if (aiMultimodalityProvider && file.name.startsWith("voice.")) {
+    if (
+      this.config.getAiProvider("VOICE_RECOGNITION") &&
+      file.name.startsWith("voice.")
+    ) {
       try {
         const response = await generateText({
-          model: getLanguageModel(aiMultimodalityProvider),
+          model: getLanguageModel(
+            this.config.getAiProvider("VOICE_RECOGNITION")!,
+          ),
           messages: [
             {
               role: "user",

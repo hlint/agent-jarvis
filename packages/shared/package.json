@@ -21,6 +21,7 @@
     "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json"
   },
   "dependencies": {
+    "@ai-sdk/alibaba": "^1.0.6",
     "@ai-sdk/anthropic": "^3.0.46",
     "@ai-sdk/azure": "^3.0.31",
     "@ai-sdk/black-forest-labs": "^1.0.20",

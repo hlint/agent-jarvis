@@ -17,16 +17,5 @@ Generate the main reply content for the user (supports markdown, avoid H1/H2 hea
 - Use the user's language to generate the content, unless there is a specific reason to usez other languages
 - Provide reference website links(if any)
 
-[About Image and Link Paths]
-- Keep the original path unchanged, especially do not modify or add prefixes to the path
-- Correct example:
-  - Input: ![alt text](/upload/image.png)
-  - Output: ![alt text](/upload/image.png)
-- Incorrect examples:
-  - Input: ![alt text](/upload/image.png)
-  - Output: ![alt text](./upload/image.png)
-  - Output: ![alt text](image.png)
-  - Output: ![alt text](https://example.com/image.png)
-
 [Output Example]
 Hello, I am an AI assistant and can answer your questions.`;

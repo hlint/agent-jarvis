@@ -1,15 +1,13 @@
-import { env } from "bun";
 import { z } from "zod";
 import { defineJarvisTool } from "../tool";
 
-const toolDisabled = !env.NTFY_TOPIC;
-const toolDisabledMessage = "Tool disabled due to missing env.NTFY_TOPIC.";
-
 const notifyTool = defineJarvisTool({
   name: "notify",
-  description:
+  description: (jarvis) =>
     "Push notification to user's cell phone. Suitable for sending short and important messages." +
-    (toolDisabled ? `(${toolDisabledMessage})` : ""),
+    (jarvis.config.getConfig().ntfyTopic
+      ? ""
+      : "DISABLED due to missing NTFY topic"),
   inputSchema: z.object({
     message: z.string().describe("Message"),
     withWebNavigation: z
@@ -17,11 +15,11 @@ const notifyTool = defineJarvisTool({
       .optional()
       .describe("If true, click opens web Chat UI"),
   }),
-  execute: async ({ message, withWebNavigation }) => {
-    const topic = process.env.NTFY_TOPIC;
-    const websiteUrl = process.env.WEBSITE_URL;
+  execute: async ({ message, withWebNavigation }, jarvis) => {
+    const topic = jarvis.config.getConfig().ntfyTopic;
+    const websiteUrl = jarvis.websiteUrl;
     if (!topic) {
-      throw new Error(toolDisabledMessage);
+      throw new Error("DISABLED due to missing NTFY topic");
     }
     fetch(`https://ntfy.sh/${topic}`, {
       method: "POST",

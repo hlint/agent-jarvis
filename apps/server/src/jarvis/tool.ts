@@ -27,7 +27,7 @@ export const builtInTools = [
 
 export type JarvisTool<INPUT extends {}> = {
   name: string;
-  description: string;
+  description: string | ((jarvis: Jarvis) => string);
   inputSchema: z.ZodSchema<INPUT>;
   execute: (input: INPUT, jarvis: Jarvis) => Promise<any>;
 };
@@ -44,7 +44,10 @@ export function createAiTools(
 ): AgentTool[] {
   return jarvisTools.map((jarvisTool) => ({
     name: jarvisTool.name,
-    description: jarvisTool.description,
+    description:
+      typeof jarvisTool.description === "function"
+        ? jarvisTool.description(jarvis)
+        : jarvisTool.description,
     inputSchema: jarvisTool.inputSchema,
     execute: async (input) => {
       return jarvisTool.execute(input, jarvis);
