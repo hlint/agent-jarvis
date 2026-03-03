@@ -39,8 +39,8 @@ RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
     && install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg \
     && echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list
 RUN apt-get update && apt-get install -y code
-RUN sed -i 's|Exec=/usr/share/code/code|Exec=/usr/share/code/code --no-sandbox --user-data-dir=/config/.vscode-root|g' /usr/share/applications/code.desktop \
-    && echo "alias code='code --no-sandbox --user-data-dir=/config/.vscode-root'" > /etc/profile.d/code-alias.sh
+RUN sed -i 's|Exec=/usr/share/code/code|Exec=/usr/share/code/code --no-sandbox --user-data-dir=/config/.vscode-root|g' /usr/share/applications/code.desktop
+RUN echo '#!/bin/bash\n/usr/bin/code --no-sandbox --user-data-dir=/config/.vscode-root "$@"' > /usr/local/bin/code-proxy && chmod +x /usr/local/bin/code-proxy && ln -sf /usr/local/bin/code-proxy /usr/local/bin/code
 
 # ------------------------------------------
 
@@ -48,6 +48,7 @@ RUN sed -i 's|Exec=/usr/share/code/code|Exec=/usr/share/code/code --no-sandbox -
 FROM computer AS runner
 
 # Environment Variables
+ENV CUSTOM_HTTPS_PORT=4200
 ENV CUSTOM_PORT=4201
 ENV JARVIS_SERVER_PORT=4202
 ENV TITLE="Jarvis Computer"
@@ -63,9 +64,9 @@ COPY ./docker/build/desktop /usr/local/share/default-desktop
 COPY ./apps/frontend/public/favicon.png /usr/share/selkies/www/icon.png
 
 # S6 service startup configuration
-RUN mkdir -p /etc/services.d/jarvis
-COPY ./docker/build/jarvis-run.sh /etc/services.d/jarvis/run
-RUN chmod +x /etc/services.d/jarvis/run
+RUN mkdir -p /etc/services.d/agent-jarvis
+COPY ./docker/build/agent-jarvis-run.sh /etc/services.d/agent-jarvis/run
+RUN chmod +x /etc/services.d/agent-jarvis/run
 
 # Copy the built application
-COPY --from=builder /app/output/dist /jarvis
+COPY --from=builder /app/output/dist /agent-jarvis

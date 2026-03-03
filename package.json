@@ -1,5 +1,6 @@
 {
-  "name": "turbo-forge",
+  "name": "agent-jarvis",
+  "version": "0.1.0",
   "private": true,
   "workspaces": [
     "apps/*",

@@ -3,7 +3,7 @@ Version=1.0
 Type=Application
 Name=VS Code
 Comment=
-Exec=code --no-sandbox --user-data-dir=/config/.vscode-root /jarvis/
+Exec=code /agent-jarvis/
 Icon=vscode
 Path=
 Terminal=false

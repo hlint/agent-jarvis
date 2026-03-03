@@ -9,13 +9,15 @@ services:
     # image: hlint/agent-jarvis:latest
     restart: unless-stopped
     ports:
+      - "4200:4200" # VNC (HTTPS)
       - "4201:4201" # VNC
       - "4202:4202" # Chat UI
     volumes:
-      - ./volumes/jarvis-runtime:/jarvis/runtime
+      - ./volumes/jarvis-runtime:/agent-jarvis/runtime
       - ./volumes/webtop-config:/config
-      - ./volumes/config.ts:/jarvis/config.ts
+      - ./volumes/config.ts:/agent-jarvis/config.ts
     environment:
       - TZ=US/Pacific
       - PUID=1002
       - PGID=1002
+      # - PASSWORD=abc
