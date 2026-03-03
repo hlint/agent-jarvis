@@ -37,7 +37,7 @@ export default function Jarvis() {
   }, [setHandleScrollToBottom]);
   return (
     <div ref={containerRef} className="h-screen overflow-auto">
-      <div className="max-w-4xl mx-auto relative flex flex-col gap-6">
+      <div className="max-w-3xl min-h-screen mx-auto relative flex flex-col gap-6">
         <JarvisTop />
         <div className="flex-1 lg:flex-none lg:min-h-[350px]">
           {isEmpty ? <JarvisWelcome /> : <JarvisMessages />}

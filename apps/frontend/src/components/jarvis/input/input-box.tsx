@@ -52,7 +52,7 @@ export default function InputBox({ children }: { children: React.ReactNode }) {
       role="region"
       aria-label="Upload area"
       className={cn(
-        "relative h-[180px] border flex flex-col border-foreground/10 rounded-xl overflow-hiddentransition-colors focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 bg-neutral-900",
+        "relative p-2 space-y-1 border flex flex-col border-foreground/10 rounded-xl overflow-hiddentransition-colors focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 bg-neutral-900 min-h-8",
         isDragging &&
           "border-primary ring-2 ring-primary/20 bg-sidebar-primary-foreground",
       )}

@@ -64,7 +64,7 @@ export default function VoiceMode() {
   return (
     <>
       {/* Waveform */}
-      <div className="flex-1 min-h-0 p-2">
+      <div className="min-h-0 p-2">
         <VoiceVisualizer
           controls={recorderControls}
           isControlPanelShown={false}
@@ -72,14 +72,14 @@ export default function VoiceMode() {
           isDownloadAudioButtonShown={false}
           mainBarColor="#bbbbbb"
           secondaryBarColor="#666666"
-          height={120}
+          height={60}
           barWidth={2}
           gap={1}
         />
       </div>
 
       {/* Control area */}
-      <div className="flex flex-row gap-1.5 items-center justify-center p-2 shrink-0">
+      <div className="flex flex-row gap-1.5 items-center justify-center p-1 shrink-0">
         {/* Back: discard recording, return to text mode */}
         <Button variant="secondary" onClick={handleBack}>
           <XIcon />

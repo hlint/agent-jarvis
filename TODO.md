@@ -1,16 +1,9 @@
 - [ ] Pre-install FFMPEG
 - [ ] UI: Better WebSocket reconnect and status indication
 - [ ] Temp file cleanup
-- [ ] UI: Shrink the input box
-- [x] Better auto-scroll mechanism
-- [x] Persistent cron task list
-- [x] ~~New tool: display file content directly~~ Improved attachment display with inline text content
-- [x] Fully customizable system prompt override
 - [ ] Sub-agent mode?
-- [ ] Multi-session?
-- [ ] ~~Frontend support for rendering frontmatter markdown~~
 - [ ] Integrated terminal
 - [ ] Integrated file viewer/editor
 - [ ] Build with binary execution support
-- [x] /stop command
-- [x] Separate tool and thinking params (otherwise thinking output tokens too large, JSON format prone to errors)
+- [ ] Production ready docker build
+- [ ] Browser ability test

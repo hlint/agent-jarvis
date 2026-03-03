@@ -106,6 +106,7 @@ const useJarvisStore = create<State & Actions>((set, get) => ({
     const { dialogHistory, isFirstPull } = get();
     for (const historyEntry of dialogHistory) {
       const isCompleted =
+        historyEntry.role !== "user" &&
         historyEntry.role !== "agent-reply" &&
         historyEntry.role !== "attachment" &&
         historyEntry?.status !== "pending";
