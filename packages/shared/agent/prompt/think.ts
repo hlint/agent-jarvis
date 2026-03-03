@@ -47,6 +47,7 @@ Output a single action object. **done** is required: false = continue loop (you 
 
 **toolCalls** (when need to execute tools)
 - Each item: **toolName**, **brief**, and optionally **order**. Do NOT include input parameters; system generates them via a dedicated LLM.
+- **toolName** must be one of {tool-names}
 - **order** (default 1): Sequential batch. Same order → run in parallel; different order → run sequentially (higher waits for lower). Use order=1 for independent tools (e.g. web-search + image-search); use order=2 for tools that depend on order=1 results (e.g. read-file after exec created a file).
 - Do not create duplicate tool calls.
 

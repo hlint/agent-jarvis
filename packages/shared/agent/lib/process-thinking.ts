@@ -41,6 +41,7 @@ export default async function processThinking({
           role: "system",
           content: parsePrompt(thinkPrompt, {
             "tool-descriptions": getToolsInfo(tools),
+            "tool-names": JSON.stringify(tools.map((tool) => tool.name)),
             "thinking-requirements":
               thinkingRequirements || defeaultThinkingRequirements,
           }),
