@@ -1,8 +1,8 @@
 import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import useJarvisStore from "../use-jarvis-store";
-import { api } from "@/lib/api";
 
 export default function ButtonSend({
   onClick,

@@ -14,7 +14,6 @@
     "start": "cd dist && bun index.js"
   },
   "dependencies": {
-    "pexels": "^1.4.0",
     "@elysiajs/cors": "^1.4.0",
     "@elysiajs/static": "latest",
     "@repo/shared": "workspace:*",
@@ -27,6 +26,7 @@
     "front-matter": "^4.0.2",
     "fs-extra": "^11.3.3",
     "grammy": "^1.40.0",
+    "pexels": "^1.4.0",
     "zod": "^4.2.0"
   },
   "devDependencies": {
