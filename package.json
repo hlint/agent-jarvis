@@ -9,7 +9,7 @@
   "scripts": {
     "check-types": "turbo run check-types",
     "ci": "bun install --frozen-lockfile",
-    "compile": "turbo run compile:frontend compile:server",
+    "compile": "turbo run compile:frontend compile:server --concurrency=1",
     "dev": "turbo run dev",
     "dev:reset": "rm -rf ./runtime && bun dev",
     "format": "NODE_NO_WARNINGS=1 sort-package-json && turbo run format",

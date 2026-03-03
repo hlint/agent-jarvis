@@ -6,4 +6,5 @@
 - [ ] Integrated file viewer/editor
 - [ ] Build with binary execution support
 - [ ] Production ready docker build
-- [ ] Browser ability test
+- [ ] Better deployment documentation
+- [ ] Lite version pre-install git, tmux and other tools

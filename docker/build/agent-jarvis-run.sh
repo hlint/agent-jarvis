@@ -15,4 +15,4 @@ echo "Current Directory: ${PWD}"
 echo "Current PUID: ${PUID}"
 echo "Current PGID: ${PGID}"
 echo "--- Starting Jarvis ---"
-exec s6-setuidgid abc /agent-jarvis/jarvis
+exec s6-setuidgid abc bun jarvis.js
