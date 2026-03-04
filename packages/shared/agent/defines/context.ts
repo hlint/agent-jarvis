@@ -10,6 +10,7 @@ export type AgentContext = {
   dialogHistory: DialogHistory;
   additionalAgentInformation: string;
   thinkingRequirements?: string;
+  thinkingExample?: string;
   lastThinkAction?: ThinkAction;
   abortSignal?: {
     signal?: boolean;

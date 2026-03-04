@@ -4,7 +4,7 @@
 - [ ] Sub-agent mode?
 - [ ] Integrated terminal
 - [ ] Integrated file viewer/editor
-- [ ] Build with binary execution support
 - [ ] Production ready docker build
 - [ ] Better deployment documentation
-- [ ] Lite version pre-install git, tmux and other tools
+- [ ] Find skills -> notes? (skills add does not support --path yet)
+- [x] Lite version pre-install git, tmux and other tools

@@ -58,14 +58,14 @@ EXPOSE 4201 4202
 
 # Desktop Icon
 RUN mkdir -p /usr/local/share/default-desktop
-COPY ./docker/build/desktop /usr/local/share/default-desktop
+COPY ./docker/assets/desktop /usr/local/share/default-desktop
 
 # Webtop Icon
 COPY ./apps/frontend/public/favicon.png /usr/share/selkies/www/icon.png
 
 # S6 service startup configuration
 RUN mkdir -p /etc/services.d/agent-jarvis
-COPY ./docker/build/agent-jarvis-run.sh /etc/services.d/agent-jarvis/run
+COPY ./docker/assets/agent-jarvis-run.sh /etc/services.d/agent-jarvis/run
 RUN chmod +x /etc/services.d/agent-jarvis/run
 
 # Copy the built application

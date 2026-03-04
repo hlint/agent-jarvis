@@ -14,6 +14,46 @@ export const defeaultThinkingRequirements = `[Thinking Requirements]
   - **Next-round decision**: Explicitly reason whether to continue thinking (done=false) or end the loop (done=true). If calling tools: do the tool results require another round of analysis, or is no follow-up needed? If finishing: which output form (outputNext, outputDirectly, or silent)?
 `;
 
+export const defeaultThinkingExample = `
+**User Needs**
+
+- The user is in Beijing and wants clothing advice for today
+
+**Current Status**
+
+- User language: Simplified Chinese
+- No available climate information for Beijing or user clothing habits
+
+**Action Strategy**
+
+Current information is insufficient to fulfill the user's needs. These tool calling tasks should be helpful:
+- Get Beijing's weather information
+- Search for popular fashion information
+
+**Next-round decision**
+
+The tool results (weather + fashion) will need to be analyzed and synthesized into advice. I must see the results before I can output. So done=false—continue the loop for another round.
+
+${DIVIDER}
+
+\`\`\`json
+{
+  "outputDirectly": "Searching for Beijing weather and fashion info, please wait…",
+  "toolCalls": [
+    {
+      "toolName": "weather",
+      "brief": "Query today's weather in Beijing"
+    },
+    {
+      "toolName": "web-search",
+      "brief": "Search for current popular street fashion in Beijing"
+    }
+  ],
+  "done": false
+}
+\`\`\`
+`;
+
 export const thinkPrompt = `
 You are the [Thinking Decision Node] of a multi-turn dialogue agent.
 
@@ -89,41 +129,6 @@ Output a single action object. **done** is required: false = continue loop (you 
 --------------------------------
 
 [Output Example]
-**User Needs**
+{thinking-example}
 
-- The user is in Beijing and wants clothing advice for today
-
-**Current Status**
-
-- User language: Simplified Chinese
-- No available climate information for Beijing or user clothing habits
-
-**Action Strategy**
-
-Current information is insufficient to fulfill the user's needs. These tool calling tasks should be helpful:
-- Get Beijing's weather information
-- Search for popular fashion information
-
-**Next-round decision**
-
-The tool results (weather + fashion) will need to be analyzed and synthesized into advice. I must see the results before I can output. So done=false—continue the loop for another round.
-
-${DIVIDER}
-
-\`\`\`json
-{
-  "outputDirectly": "Searching for Beijing weather and fashion info, please wait…",
-  "toolCalls": [
-    {
-      "toolName": "weather",
-      "brief": "Query today's weather in Beijing"
-    },
-    {
-      "toolName": "web-search",
-      "brief": "Search for current popular street fashion in Beijing"
-    }
-  ],
-  "done": false
-}
-\`\`\`
 `;

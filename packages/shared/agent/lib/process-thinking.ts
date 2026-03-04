@@ -6,7 +6,11 @@ import { getLanguageModel } from "../../llm/get-model";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { ThinkActionSchema } from "../defines/think-action";
-import { defeaultThinkingRequirements, thinkPrompt } from "../prompt/think";
+import {
+  defeaultThinkingExample,
+  defeaultThinkingRequirements,
+  thinkPrompt,
+} from "../prompt/think";
 import {
   getToolsInfo,
   parseLlmResultBeforeDivider,
@@ -21,6 +25,7 @@ export default async function processThinking({
   additionalAgentInformation,
   thinkingRequirements,
   onDialogHistoryChange,
+  thinkingExample,
 }: AgentContext) {
   const clonedDialogHistory = cloneDeep(dialogHistory);
   const entry: HistoryEntry = {
@@ -44,6 +49,7 @@ export default async function processThinking({
             "tool-names": JSON.stringify(tools.map((tool) => tool.name)),
             "thinking-requirements":
               thinkingRequirements || defeaultThinkingRequirements,
+            "thinking-example": thinkingExample || defeaultThinkingExample,
           }),
         },
         {

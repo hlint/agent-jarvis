@@ -90,10 +90,10 @@ If the user wants to proceed, you can install the skill for them:
 
 ```bash
 # cwd should be the runtime directory
-npx skills add <owner/repo@skill> -a openclaw -y
+npx skills add <owner/repo@skill> -a openclaw -y --copy
 ```
 
-The `-a openclaw` installs the skill files to `runtime/skills/<skill-name>` and `-y` skips confirmation prompts.
+The `-a openclaw` installs the skill files to `runtime/skills/<skill-name>`, the `--copy` option copies the skill files instead of linking them, and `-y` skips confirmation prompts.
 
 ## Common Skill Categories
 
