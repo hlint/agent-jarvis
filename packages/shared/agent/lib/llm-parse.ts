@@ -20,6 +20,7 @@ export function parseLlmResultWithDivider<T>(
 ) {
   const parts = result.split(DIVIDER);
   if (parts.length < 2) {
+    console.log(result);
     throw new Error(
       `Expected exactly 2 parts separated by ${DIVIDER}, but got ${parts.length} parts`,
     );
