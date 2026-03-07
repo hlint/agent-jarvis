@@ -27,6 +27,8 @@ export const execTool = defineJarvisTool({
 
 /** Default timeout (ms) for runBun. */
 const RUN_BUN_DEFAULT_TIMEOUT_MS = 20_000;
+/** Max ms to wait for stdout/stderr to drain after process exit. */
+const RUN_BUN_STREAM_DRAIN_TIMEOUT_MS = 5_000;
 /** Default max bytes for runBun stdout/stderr before truncation. */
 const RUN_BUN_DEFAULT_MAX_OUTPUT_BYTES = 1 * 1024 * 1024;
 
@@ -92,8 +94,15 @@ async function runBun(
       ),
     ]).catch(() => 137);
   }
-  const stdout = await stdoutPromise;
-  const stderr = await stderrPromise;
+  const drainTimeout = () =>
+    new Promise<string>((resolve) =>
+      setTimeout(
+        () => resolve("[stream drain timeout]"),
+        RUN_BUN_STREAM_DRAIN_TIMEOUT_MS,
+      ),
+    );
+  const stdout = await Promise.race([stdoutPromise, drainTimeout()]);
+  const stderr = await Promise.race([stderrPromise, drainTimeout()]);
   const truncate = (s: string) =>
     s.length > maxOutputBytes
       ? `${s.slice(0, maxOutputBytes)}\n...[truncated]`

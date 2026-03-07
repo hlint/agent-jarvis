@@ -164,14 +164,18 @@ agent-browser session list
 
 ### Connect to Existing Chrome
 
+When `systemEnvironment.chromiumWithRemoteDebuggingPortOpened` is `true`, a Chromium with remote debugging (port 9222) is already running. **Prefer `--auto-connect`** for all agent-browser commands in that case: it reuses the existing browser, avoids spawning a second instance, and preserves the current session (e.g. cookies, localStorage, login state).
+
 ```bash
 # Auto-discover running Chrome with remote debugging enabled
 agent-browser --auto-connect open https://example.com
 agent-browser --auto-connect snapshot
 
-# Or with explicit CDP port
+# Or with explicit CDP port (when auto-discovery fails)
 agent-browser --cdp 9222 snapshot
 ```
+
+**Rule:** If `chromiumWithRemoteDebuggingPortOpened === true`, prefix commands with `--auto-connect` (e.g. `agent-browser --auto-connect open <url>`). Omit `--auto-connect` only when the flag is `false` and you need to launch a fresh browser.
 
 ### Visual Browser (Debugging, requires human verification, requires user login, requires user interaction)
 

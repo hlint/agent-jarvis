@@ -48,7 +48,7 @@ export default class Runner {
       outputProvider: chatProvider,
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
-      additionalAgentInformation: buildAgentPrompt(this.jarvis),
+      additionalAgentInformation: await buildAgentPrompt(this.jarvis),
       thinkingRequirements,
       thinkingExample,
       abortSignal,
