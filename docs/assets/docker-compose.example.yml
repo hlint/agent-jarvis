@@ -1,0 +1,21 @@
+services:
+  agent-jarvis:
+    container_name: agent-jarvis
+    # Use pre-built image
+    image: hlint/agent-jarvis:latest
+    restart: unless-stopped
+    ports:
+      - "4200:4200" # VNC (self-signed HTTPS)
+      # - "4201:4201" # VNC
+      # - "4202:4202" # Chat UI
+    volumes:
+      - ./volumes/jarvis-runtime:/agent-jarvis/runtime
+      - ./volumes/webtop-config:/config
+      - ./volumes/config.ts:/agent-jarvis/config.ts
+    environment:
+		  # Timezone: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+      - TZ=Etc/UTC
+			# Use `id` to find your user and group IDs
+      - PUID=1000
+      - PGID=1000
+      # - PASSWORD=abc

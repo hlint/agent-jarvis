@@ -1,10 +1,6 @@
-- [ ] Pre-install FFMPEG
 - [ ] UI: Better WebSocket reconnect and status indication
-- [ ] Temp file cleanup
-- [ ] Sub-agent mode?
-- [ ] Integrated terminal
-- [ ] Integrated file viewer/editor
-- [ ] Production ready docker build
+- [ ] Sub-agent?
+- [x] Production ready docker build
 - [ ] Better deployment documentation
 - [ ] Find skills -> notes? (skills add does not support --path yet)
 - [x] Lite version pre-install git, tmux and other tools

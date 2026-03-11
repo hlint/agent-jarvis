@@ -21,7 +21,7 @@ export default function ButtonSend({
         onClick={() => api.jarvis["abort-execution"].post()}
       >
         <Loader2Icon className="size-4 animate-spin" />
-        <span>Abort Execution</span>
+        <span>Abort</span>
       </Button>
     );
   if (status === "stopping")

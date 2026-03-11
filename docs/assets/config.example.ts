@@ -1,10 +1,25 @@
+const config: Config = {
+  providers: [
+    {
+      model: "",
+      apiKey: "",
+      duties: ["CHAT"],
+    },
+  ],
+  tavilyApiKey: "",
+  pexelsApiKey: "",
+  ntfyTopic: "",
+};
+
+export default config;
+
 /** AI provider roles. A provider can have multiple duties. */
 type ProviderDuties =
   | "CHAT" // Main conversation, thinking, and text output
   | "VOICE_RECOGNITION" // Transcribe audio
   | "IMAGE_RECOGNITION" // Understand images
   | "VIDEO_RECOGNITION" // Understand video
-  | "OTHER_RECOGNITION" // PDF, documents, and other file types
+  | "OTHER_RECOGNITION" // Understand PDF, documents, and other file types
   | "VOICE_GENERATION" // Generate speech
   | "IMAGE_GENERATION" // Generate images
   | "VIDEO_GENERATION"; // Generate video
@@ -30,18 +45,3 @@ interface Config {
     duties: ProviderDuties[];
   }>;
 }
-
-const config: Config = {
-  providers: [
-    {
-      model: "",
-      apiKey: "",
-      duties: ["CHAT"],
-    },
-  ],
-  tavilyApiKey: "",
-  pexelsApiKey: "",
-  ntfyTopic: "",
-};
-
-export default config;

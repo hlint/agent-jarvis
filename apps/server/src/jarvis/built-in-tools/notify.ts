@@ -10,22 +10,14 @@ const notifyTool = defineJarvisTool({
       : "DISABLED due to missing NTFY topic"),
   inputSchema: z.object({
     message: z.string().describe("Message"),
-    withWebNavigation: z
-      .boolean()
-      .optional()
-      .describe("If true, click opens web Chat UI"),
   }),
-  execute: async ({ message, withWebNavigation }, jarvis) => {
+  execute: async ({ message }, jarvis) => {
     const topic = jarvis.config.getConfig().ntfyTopic;
-    const websiteUrl = jarvis.websiteUrl;
     if (!topic) {
       throw new Error("DISABLED due to missing NTFY topic");
     }
     fetch(`https://ntfy.sh/${topic}`, {
       method: "POST",
-      headers: {
-        Click: withWebNavigation ? websiteUrl || "" : "",
-      },
       body: message,
     });
   },
