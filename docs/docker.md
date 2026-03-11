@@ -20,8 +20,8 @@ Includes a full desktop environment for browser automation and visual tools.
 
 ### Quick setup
 
-1. Create a deploy directory. Copy `docs/assets/docker-compose.example.yml` as `docker-compose.yml`.
-2. Create `volumes/`, copy `config.example.ts` from `docs/assets/` to `volumes/config.ts`, add API keys. See [Configuration](config.md).
+1. Create a deploy directory. Copy `docker-compose.example.yml` as `docker-compose.yml`.
+2. Create `volumes/`, copy `config.example.ts` to `volumes/config.ts`, add API keys. See [Configuration](config.md).
 3. Set `PUID` and `PGID` to your user/group IDs (`id`). Uncomment port `4202` for Chat UI.
 4. Run `docker compose up -d`.
 5. Access: Chat UI at `http://localhost:4202`, desktop at `https://localhost:4200`.
@@ -59,8 +59,8 @@ Minimal image: Chat UI only. No desktop, no browser automation.
 
 ### Quick setup
 
-1. Create a deploy directory. Copy `docs/assets/docker-compose-lite.example.yml` as `docker-compose.yml`.
-2. Create `volumes/`, copy `config.example.ts` from `docs/assets/` to `volumes/config.ts`, add API keys. See [Configuration](config.md).
+1. Create a deploy directory. Copy `docker-compose-lite.example.yml` as `docker-compose.yml`.
+2. Create `volumes/`, copy `config.example.ts` to `volumes/config.ts`, add API keys. See [Configuration](config.md).
 3. Run `docker compose up -d`.
 4. Access Chat UI at `http://localhost:4202`.
 
@@ -100,7 +100,7 @@ docker build -t agent-jarvis:latest -f docker/Dockerfile .
 docker build -t agent-jarvis-lite:latest -f docker/Dockerfile-lite .
 ```
 
-Then use the corresponding `docs/assets/docker-compose.example.yml` or `docs/assets/docker-compose-lite.example.yml` as `docker-compose.yml` (the image names match).
+Then use the corresponding `docker-compose.example.yml` or `docker-compose-lite.example.yml` as `docker-compose.yml` (the image names match).
 
 ---
 

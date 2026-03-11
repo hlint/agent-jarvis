@@ -1,6 +1,6 @@
 # Configuration
 
-Agent Jarvis uses `config.ts` for configuration. Copy `docs/assets/config.example.ts` to `config.ts` and fill in your API keys to get started.
+Agent Jarvis uses `config.ts` for configuration. Copy `config.example.ts` to `config.ts` and fill in your API keys to get started.
 
 - **Local development**: Config file path is `config.ts` at project root
 - **Docker**: Mount via `./volumes/config.ts:/agent-jarvis/config.ts`
