@@ -1,0 +1,15 @@
+services:
+  agent-jarvis:
+    container_name: agent-jarvis
+    image: hlint/agent-jarvis-lite:latest
+    restart: unless-stopped
+    ports:
+      - "4202:4202" # Chat UI
+    volumes:
+      - ./volumes/jarvis-runtime:/agent-jarvis/runtime
+      - ./volumes/config.ts:/agent-jarvis/config.ts
+    environment:
+		  # Timezone: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+      - TZ=Etc/UTC
+      # Enable HTTP Basic Auth (username: abc)
+      # - PASSWORD=abc

@@ -1,101 +1,40 @@
-## turbo-forge - Full-stack Bun + React Boilerplate
+# Agent Jarvis
 
-Monorepo boilerplate for building a modern full‑stack app with a Bun/Elysia backend and a React/Vite frontend.
+An autonomous AI assistant that learns, remembers, and acts for you—with a persistent workspace and containerized deployment.
 
-### Project structure
+![preview](./docs/assets/preview.png)
 
-- **Root**
-  - `package.json` – workspace scripts and dev tooling
-  - `turbo.json` – Turborepo task pipeline
-- **apps**
-  - `apps/frontend` – React 19 + Vite 7 SPA
-  - `apps/server` – Bun + Elysia HTTP API and SPA host
-- **packages**
-  - `packages/shared` – shared utilities/types between frontend and server
+## What It Does
 
-### Tech stack
+Jarvis is self-learning and proactive: reflects after tasks, logs insights, and anticipates needs. Diaries, notes, skills, and cron tasks live in a persistent workspace, so context carries over. It runs web search, file ops, shell commands, and browser automation end-to-end. Chat via web UI or Telegram.
 
-- **Runtime & tooling**
-  - **Bun** (`bun@1.3.4`) as package manager and server runtime
-  - **TypeScript 5.9** for type checking
-  - **Turborepo** for orchestrating workspace tasks
-  - **Biome** + **sort-package-json** + **Prettier** for formatting
-- **Backend**
-  - **Elysia** as the HTTP framework
-  - **@elysiajs/static**, **@elysiajs/cors**
-  - **Zod** for validation
-- **Frontend**
-  - **React 19** + **React DOM**
-  - **Vite 7** as dev server and bundler
-  - **Tailwind CSS 4**, **@base-ui/react**, **shadcn/ui**, **lucide-react**, **sonner**
+## Differs from other “Claws”
 
-### Root commands
+- **Single session** — One linear conversation, one shared context. No lanes or per-sender routing. Closer to talking to one person: coherent, predictable, human-like.
 
-All commands are run from the repository root:
+- **Lightweight** — Fast startup, minimal config. Markdown-based storage only. Pure TypeScript/Bun stack, no external services required; runs fully local.
 
-- **Install dependencies**
+- **Flexible deployment** — **Full** image: Ubuntu XFCE desktop (Webtop), Chromium, VS Code for browser automation. **Lite** image: Chat UI only, lighter footprint.
 
-  ```bash
-  bun ci
-  ```
+## Deploy with Docker
 
-- **Develop (frontend + server via Turborepo)**
+- **Full** (desktop + browser automation, 4G RAM required): [`docker-compose.example.yml`](docker-compose.example.yml)
+- **Lite** (Chat UI only): [`docker-compose-lite.example.yml`](docker-compose-lite.example.yml)
 
-  ```bash
-  bun dev
-  ```
+Create a deploy directory, set up the compose file and `config.ts` (see [Configuration](docs/config.md)), then run `docker compose up -d`.
 
-- **Build everything**
+See [Docker deployment](docs/docker.md) for more details.
 
-  ```bash
-  bun compile
-  # runs: compile:frontend, then compile:server
-  ```
+## Access Control
 
-- **Start production server** (after `bun compile`)
+If the service is exposed to the internet, set up access control. Choose one approach—they cannot be used together:
 
-  ```bash
-  bun start
-  ```
+- **Built-in auth**: Set the `PASSWORD` environment variable in `docker-compose.yml` to enable **HTTP Basic Authentication** for the Jarvis web server (default username: `abc`). In the Full image, `PASSWORD` also protects Webtop.
+- **Reverse proxy** (recommended): Put the stack behind [Nginx Proxy Manager](https://nginxproxymanager.com/) or similar for SSL and access control. **Do not set `PASSWORD`** when using a proxy—configure auth at the proxy layer instead.
 
-- **Type-check all packages**
+## Local development
 
-  ```bash
-  bun check-types
-  ```
+1. `bun ci`
+2. `bun dev`
 
-- **Format all packages**
-
-  ```bash
-  bun format
-  ```
-
-### App-level commands
-
-- **Frontend (`apps/frontend`)**
-  - `bun dev` – start Vite dev server (default port `3000`)
-  - `bun compile:frontend` – type-check and build the SPA
-  - `bun check-types` – TypeScript check only
-  - `bun format` – format code and sort `package.json`
-
-- **Server (`apps/server`)**
-  - `bun dev` – run Elysia server in watch mode from `src/index.ts`
-  - `bun compile:server` – build server code and copy frontend assets into `dist/html`
-  - `bun start` – run compiled Bun server from `dist/index.js`
-  - `bun check-types` – TypeScript check only
-  - `bun format` – format code and sort `package.json`
-
-### Development workflow
-
-- **Local development**
-  - Run `bun ci` once.
-  - In one terminal, run `bun dev` from the repo root.
-  - Frontend is served by Vite; backend runs via Elysia; the server also serves the built SPA in production.
-
-- **Before committing**
-  - Run `bun check-types` to ensure types are clean.
-  - Run `bun format` to apply formatting and keep `package.json` files sorted.
-
-- **Production build & run**
-  - `bun compile` – builds frontend and backend, wiring SPA assets into `apps/server/dist/html`.
-  - `bun start` – starts the compiled Bun server that serves both API and SPA.
+Open `http://localhost:3000` in your browser to access the Jarvis web server.

@@ -1,0 +1,60 @@
+import { z } from "zod";
+
+export const ToolCallItemSchema = z.object({
+  toolName: z.string().describe("Name of the tool"),
+  brief: z
+    .string()
+    .describe(
+      "A short one-sentence summary of what this tool call should achieve. Provide the summary in the user's language. The tool's input parameters will be generated separately.",
+    ),
+  order: z
+    .number()
+    .int()
+    .min(1)
+    .max(10)
+    .optional()
+    .default(1)
+    .describe("The order of the tool call in the action flow."),
+});
+
+export const ThinkActionSchema = z.object({
+  reasoning: z
+    .string()
+    .optional()
+    .describe(
+      "Optional. Brief 1-2 sentence summary of why this action. Omit when thinking is provided separately before the JSON.",
+    ),
+  toolCalls: z
+    .array(ToolCallItemSchema)
+    .optional()
+    .describe("Optional. Tool call tasks to execute in parallel."),
+  outputNext: z
+    .string()
+    .optional()
+    .describe(
+      "Optional. Instructions for how the output node should present the content. Only provide guidance and requirements, not the complete output content.",
+    ),
+  outputDirectly: z
+    .string()
+    .optional()
+    .describe(
+      "Optional. Immediate output, runs before tools. Use for: (1) short status before tools e.g. 'Searching, please wait'; (2) simple brief reply when done. Same semantics—instant display—different timing.",
+    ),
+  done: z
+    .boolean()
+    .describe(
+      "True: after this round's actions (toolCalls/outputNext/outputDirectly/silent) complete, the execution loop ends. False: after tools run, control returns to the think node for another round.",
+    ),
+});
+
+export type ThinkAction = z.infer<typeof ThinkActionSchema>;
+export type ToolCallItem = z.infer<typeof ToolCallItemSchema>;
+
+export function isNothingToDo(thinkAction: ThinkAction) {
+  return (
+    thinkAction.done &&
+    !thinkAction.toolCalls &&
+    !thinkAction.outputNext &&
+    !thinkAction.outputDirectly
+  );
+}

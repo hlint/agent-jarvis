@@ -1,5 +1,6 @@
 {
-  "name": "turbo-forge",
+  "name": "agent-jarvis",
+  "version": "0.1.0",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -8,13 +9,24 @@
   "scripts": {
     "check-types": "turbo run check-types",
     "ci": "bun install --frozen-lockfile",
-    "compile": "turbo run compile:frontend compile:server",
+    "compile": "turbo run compile:frontend compile:server --concurrency=1",
     "dev": "turbo run dev",
+    "dev:reset": "rm -rf ./runtime && bun dev",
     "format": "NODE_NO_WARNINGS=1 sort-package-json && turbo run format",
     "start": "turbo run start"
   },
+  "dependencies": {
+    "@types/mime-types": "^3.0.1",
+    "dayjs": "^1.11.19",
+    "es-toolkit": "^1.44.0",
+    "mime-types": "^3.0.2",
+    "nanoid": "^5.1.6",
+    "zod": "^4.3.6"
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
+    "@total-typescript/ts-reset": "^0.6.1",
+    "bestzip": "^2.2.1",
     "prettier": "^3.7.4",
     "sort-package-json": "^3.6.0",
     "turbo": "^2.6.3",

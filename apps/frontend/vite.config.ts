@@ -11,4 +11,18 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    port: 3000,
+    proxy: {
+      // Proxy all API requests to backend server
+      "/jarvis/ws": {
+        target: "ws://localhost:4000",
+        ws: true,
+      },
+      "/jarvis": {
+        target: "http://localhost:4000",
+        changeOrigin: true,
+      },
+    },
+  },
 });

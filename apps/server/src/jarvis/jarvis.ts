@@ -1,0 +1,255 @@
+import { join } from "node:path";
+import type { HistoryEntry } from "@repo/shared/agent/defines/history";
+import {
+  isNothingToDo,
+  type ThinkAction,
+} from "@repo/shared/agent/defines/think-action";
+import type {
+  AttachmentEntry,
+  JarvisChatStatus,
+} from "@repo/shared/defines/jarvis";
+import { timeFormat } from "@repo/shared/lib/time";
+import { shortId } from "@repo/shared/lib/utils";
+import { getLanguageModel } from "@repo/shared/llm/get-model";
+import { generateText } from "ai";
+import { debounce } from "es-toolkit";
+import fs from "fs-extra";
+import { nanoid } from "nanoid";
+import JarvisClientManager from "./client";
+import JarvisConfig from "./config";
+import JarvisCron from "./cron";
+import {
+  DIR_RUNTIME,
+  DIR_RUNTIME_EXAMPLE,
+  DIR_TMP,
+  PATH_INITIALIZED,
+  PATH_WEBSITE_URL,
+} from "./defines";
+import Runner from "./runner";
+import { JarvisStateManager } from "./state";
+
+// If the system is inactive for N minutes, it will push a system-inactive event.
+const SYSTEM_INACTIVE_INTERVAL = 5 * 60 * 1000;
+const SYSTEM_INACTIVE_ENABLED = false;
+
+export default class Jarvis {
+  public runner = new Runner(this);
+  public clientManager = new JarvisClientManager(this);
+  public state = new JarvisStateManager(this);
+  public cron = new JarvisCron(this);
+  public config = new JarvisConfig();
+  public retryCount = 0;
+  public websiteUrl: string = "";
+  private pushInactiveEvent = debounce(() => {
+    if (!SYSTEM_INACTIVE_ENABLED) {
+      return;
+    }
+    const dialogHistory = this.state.getState().dialogHistory;
+    const lastEntry = dialogHistory[dialogHistory.length - 1];
+    const secondLastEntry = dialogHistory[dialogHistory.length - 2];
+
+    // If last entry is error, or last and second-last are both silent (AI considers nothing to do), do not wake up
+    if (
+      !lastEntry ||
+      !secondLastEntry ||
+      lastEntry?.content?.startsWith(
+        "Runtime Error, Maximum retries reached",
+      ) ||
+      (lastEntry?.role === "agent-thinking" &&
+        isNothingToDo(lastEntry?.action as ThinkAction) &&
+        secondLastEntry?.role === "system-event" &&
+        secondLastEntry?.data?.type === "system-inactive")
+    ) {
+      return;
+    }
+
+    this.pushHistoryEntry({
+      id: nanoid(6),
+      role: "system-event",
+      createdAt: Date.now(),
+      createdTime: timeFormat(),
+      brief: "System Inactive",
+      content: "System inactive. User appears busy.",
+      status: "completed",
+      data: {
+        type: "system-inactive",
+      },
+    });
+    this.wakeUp();
+  }, SYSTEM_INACTIVE_INTERVAL);
+
+  constructor() {
+    this.init();
+  }
+
+  private init() {
+    // Create runtime directory
+    fs.ensureDirSync(DIR_RUNTIME);
+
+    // Initialize
+    if (!fs.existsSync(PATH_INITIALIZED)) {
+      // Copy files from example directory to runtime directory
+      fs.copySync(DIR_RUNTIME_EXAMPLE, DIR_RUNTIME);
+
+      // Write initialization marker file
+      fs.writeJSONSync(PATH_INITIALIZED, {
+        initialized: true,
+        time: timeFormat(),
+      });
+    }
+
+    // Read website URL
+    if (fs.existsSync(PATH_WEBSITE_URL)) {
+      const websiteUrl = fs.readFileSync(PATH_WEBSITE_URL, "utf-8");
+      this.setWebsiteUrl(websiteUrl);
+    }
+
+    this.state.init();
+    this.cron.init();
+    this.config.init();
+    this.clientManager.init();
+  }
+
+  incomingUserMessage(content: string, from: "web" | "telegram") {
+    this.pushHistoryEntry({
+      id: nanoid(6),
+      role: "user",
+      createdAt: Date.now(),
+      createdTime: timeFormat(),
+      content: content,
+      channel: from,
+    });
+    this.retryCount = 0;
+    this.wakeUp();
+  }
+
+  async incomingAttachment(file: File, from: "web" | "telegram") {
+    await fs.ensureDir(DIR_TMP);
+    const ext = file.name ? (/\.\w+$/.exec(file.name)?.[0] ?? "") : "";
+    const filename = `${shortId()}${ext}`;
+    const destPath = join(DIR_TMP, filename);
+    await Bun.write(destPath, file);
+    const attachmentId = shortId();
+    this.pushHistoryEntry({
+      id: attachmentId,
+      role: "attachment",
+      from: "user",
+      channel: from,
+      createdAt: Date.now(),
+      createdTime: timeFormat(),
+      data: {
+        type: "local-file",
+        originalName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        filePath: destPath,
+      },
+    } satisfies AttachmentEntry);
+    if (
+      this.config.getAiProvider("VOICE_RECOGNITION") &&
+      file.name.startsWith("voice.")
+    ) {
+      try {
+        const response = await generateText({
+          model: getLanguageModel(
+            this.config.getAiProvider("VOICE_RECOGNITION")!,
+          ),
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: "Transcribe the following audio file" },
+                {
+                  type: "file",
+                  data: await Bun.file(destPath).arrayBuffer(),
+                  mediaType:
+                    file.type === "video/webm" ? "audio/webm" : file.type, // "video/webm" => "audio/webm"
+                },
+              ],
+            },
+          ],
+        });
+        this.pushHistoryEntry({
+          id: shortId(),
+          role: "system-event",
+          createdAt: Date.now(),
+          createdTime: timeFormat(),
+          brief: "Automatic transcription of audio file from user",
+          content: response.text,
+          status: "completed",
+          data: {
+            type: "automatic-transcription",
+            attachmentId,
+            filePath: destPath,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        this.pushHistoryEntry({
+          id: shortId(),
+          role: "system-event",
+          createdAt: Date.now(),
+          createdTime: timeFormat(),
+          brief: "Automatic transcription of audio file from user",
+          error:
+            "Failed to transcribe audio file (file may be too large or format not supported)",
+          status: "failed",
+          data: {
+            type: "automatic-transcription",
+            attachmentId,
+            filePath: destPath,
+          },
+        });
+      }
+      this.wakeUp();
+    }
+  }
+
+  wakeUp() {
+    this.runner.runNext();
+  }
+
+  pushHistoryEntry(historyEntry: HistoryEntry) {
+    this.state.getState().dialogHistory.push(historyEntry);
+    this.notifyDialogHistoryChanged();
+  }
+
+  notifyDialogHistoryChanged() {
+    this.pushInactiveEvent();
+    this.state.pushDiff();
+  }
+
+  newConversation() {
+    this.state.setState({
+      snapshotId: nanoid(6),
+      dialogHistory: [],
+      status: "idle",
+    });
+    this.notifyDialogHistoryChanged();
+  }
+
+  abortAgentExecution() {
+    if (this.state.getState().status === "running") {
+      this.updateChatStatus("stopping");
+      this.runner.stop();
+    }
+  }
+
+  updateChatStatus(status: JarvisChatStatus) {
+    this.state.setState({
+      status,
+    });
+    this.clientManager.pushWebSocketMessage({
+      type: "chat-status-update",
+      status,
+    });
+  }
+
+  setWebsiteUrl(websiteUrl: string) {
+    try {
+      const origin = new URL(websiteUrl).origin;
+      this.websiteUrl = origin;
+      fs.outputFileSync(PATH_WEBSITE_URL, origin);
+    } catch (_error) {}
+  }
+}

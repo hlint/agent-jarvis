@@ -1,0 +1,6 @@
+- [ ] UI: Better WebSocket reconnect and status indication
+- [ ] Sub-agent?
+- [x] Production ready docker build
+- [ ] Better deployment documentation
+- [ ] Find skills -> notes? (skills add does not support --path yet)
+- [x] Lite version pre-install git, tmux and other tools

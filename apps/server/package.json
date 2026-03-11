@@ -4,18 +4,30 @@
   "module": "src/index.js",
   "scripts": {
     "check-types": "tsc --noEmit",
-    "compile:server": "rm -rf dist && bun compile:server:code && bun compile:server:assets",
+    "compile:server": "rm -rf dist && bun compile:server:code && bun compile:server:assets && bun compile:server:copy && bun compile:server:output",
     "compile:server:assets": "cp -r ../frontend/dist/ dist/html",
-    "compile:server:code": "bun build src/index.ts --outfile dist/index.js --minify --target bun --production",
-    "dev": "bun run --watch src/index.ts",
+    "compile:server:code": "bun build src/index.ts --outfile dist/jarvis.js --minify --target bun --production",
+    "compile:server:copy": "cp -r ./runtime-example dist/runtime-example && cp ../../README.md dist/README.md && cp ../../config.example.ts dist/config.ts",
+    "compile:server:output": "bestzip ../../output/dist.zip dist && rm -rf ../../output/dist && cp -r dist ../../output/dist",
+    "dev": "IS_DEV=1 bun run --watch src/index.ts",
     "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json",
     "start": "cd dist && bun index.js"
   },
   "dependencies": {
+    "@eelkevdbos/elysia-basic-auth": "^2.0.1",
     "@elysiajs/cors": "^1.4.0",
     "@elysiajs/static": "latest",
     "@repo/shared": "workspace:*",
+    "@tavily/core": "^0.7.1",
+    "@types/fs-extra": "^11.0.4",
+    "ai": "^6.0.97",
+    "chokidar": "^5.0.0",
+    "cron": "^4.4.0",
     "elysia": "latest",
+    "front-matter": "^4.0.2",
+    "fs-extra": "^11.3.3",
+    "grammy": "^1.40.0",
+    "pexels": "^1.4.0",
     "zod": "^4.2.0"
   },
   "devDependencies": {

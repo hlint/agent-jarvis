@@ -24,7 +24,6 @@ coverage
 # Build Outputs
 .next/
 out/
-build
 dist
 
 
@@ -36,3 +35,16 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+runtime
+test.ts
+local-*
+
+# Output
+output/
+!output/.placeholder
+
+# Docker
+docker/volumes
+
+# Config
+config.ts
