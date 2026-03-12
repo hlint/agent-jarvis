@@ -46,5 +46,5 @@ output/
 # Docker
 docker/volumes
 
-# Config
-./config.ts
+# Config (root only)
+/config.ts
