@@ -53,4 +53,4 @@ docs/
 .vscode/
 
 # Config
-config.ts
+config.json

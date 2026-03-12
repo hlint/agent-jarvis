@@ -1,28 +1,32 @@
 # Configuration
 
-Agent Jarvis uses `config.ts` for configuration. Copy `config.example.ts` to `config.ts` and fill in your API keys to get started.
+Agent Jarvis uses `config.json` for configuration. Copy `config.example.json` to `config.json` and fill in your API keys to get started.
 
-- **Local development**: Config file path is `config.ts` at project root
-- **Docker**: Mount via `./volumes/config.ts:/agent-jarvis/config.ts`
-- **Hot reload**: Changes to `config.ts` are picked up automatically; no restart needed
+- **Local development**: Config file path is `config.json` at project root
+- **Docker**: Mount via `./volumes/config.json:/agent-jarvis/config.json`
+- **Hot reload**: Changes to `config.json` are picked up automatically; no restart needed
 
 ---
 
 ## Config structure
 
-```ts
-const config = {
-  providers: [
-    /* AI service providers */
+```json
+{
+  "providers": [
+    {
+      "model": "openai:gpt-4o",
+      "apiKey": "sk-...",
+      "duties": ["CHAT"]
+    }
   ],
-  tavilyApiKey: "", // optional
-  pexelsApiKey: "", // optional
-  ntfyTopic: "", // optional
-  telegram: {
-    token: "", // optional
-    userId: "", // optional
-  },
-};
+  "tavilyApiKey": "",
+  "pexelsApiKey": "",
+  "ntfyTopic": "",
+  "telegram": {
+    "token": "",
+    "userId": ""
+  }
+}
 ```
 
 ---
@@ -81,47 +85,55 @@ A provider can handle multiple duties. The system looks up a provider by duty ty
 
 ### Example: Single provider for chat
 
-```ts
-providers: [
-  {
-    model: "openai:gpt-4o",
-    apiKey: "sk-...",
-    duties: ["CHAT"],
-  },
-],
+```json
+{
+  "providers": [
+    {
+      "model": "openai:gpt-4o",
+      "apiKey": "sk-...",
+      "duties": ["CHAT"]
+    }
+  ]
+}
 ```
 
 ### Example: Multiple providers by duty
 
-```ts
-providers: [
-  {
-    model: "openai:gpt-4o",
-    apiKey: "sk-...",
-    duties: ["CHAT", "IMAGE_RECOGNITION", "OTHER_RECOGNITION"],
-  },
-  {
-    model: "openai:tts-1",
-    apiKey: "sk-...",
-    duties: ["VOICE_GENERATION"],
-  },
-  {
-    model: "openai:dall-e-3",
-    apiKey: "sk-...",
-    duties: ["IMAGE_GENERATION"],
-  },
-],
+```json
+{
+  "providers": [
+    {
+      "model": "openai:gpt-4o",
+      "apiKey": "sk-...",
+      "duties": ["CHAT", "IMAGE_RECOGNITION", "OTHER_RECOGNITION"]
+    },
+    {
+      "model": "openai:tts-1",
+      "apiKey": "sk-...",
+      "duties": ["VOICE_GENERATION"]
+    },
+    {
+      "model": "openai:dall-e-3",
+      "apiKey": "sk-...",
+      "duties": ["IMAGE_GENERATION"]
+    }
+  ]
+}
 ```
 
 ### Example: Custom API endpoint (baseURL)
 
-```ts
+```json
 {
-  model: "openai:gpt-4o",
-  apiKey: "sk-...",
-  baseURL: "https://your-proxy.com/v1",
-  duties: ["CHAT"],
-},
+  "providers": [
+    {
+      "model": "openai:gpt-4o",
+      "apiKey": "sk-...",
+      "baseURL": "https://your-proxy.com/v1",
+      "duties": ["CHAT"]
+    }
+  ]
+}
 ```
 
 ---
@@ -151,33 +163,31 @@ Telegram chat channel configuration. When set, Jarvis can send and receive messa
 
 ## Full example
 
-```ts
-const config = {
-  providers: [
+```json
+{
+  "providers": [
     {
-      model: "google:gemini-2.5-flash",
-      apiKey: "AIza...",
-      duties: [
+      "model": "google:gemini-2.5-flash",
+      "apiKey": "AIza...",
+      "duties": [
         "CHAT",
         "IMAGE_RECOGNITION",
         "VIDEO_RECOGNITION",
-        "OTHER_RECOGNITION",
-      ],
+        "OTHER_RECOGNITION"
+      ]
     },
     {
-      model: "openai:dall-e-3",
-      apiKey: "sk-...",
-      duties: ["IMAGE_GENERATION"],
-    },
+      "model": "openai:dall-e-3",
+      "apiKey": "sk-...",
+      "duties": ["IMAGE_GENERATION"]
+    }
   ],
-  tavilyApiKey: "tvly-...",
-  pexelsApiKey: "...",
-  ntfyTopic: "my-jarvis-alerts",
-  telegram: {
-    token: "123456:ABC-DEF...",
-    userId: "123456789",
-  },
-};
-
-export default config;
+  "tavilyApiKey": "tvly-...",
+  "pexelsApiKey": "...",
+  "ntfyTopic": "my-jarvis-alerts",
+  "telegram": {
+    "token": "123456:ABC-DEF...",
+    "userId": "123456789"
+  }
+}
 ```

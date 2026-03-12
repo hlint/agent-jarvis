@@ -13,6 +13,7 @@
     "dev": "turbo run dev",
     "dev:reset": "rm -rf ./runtime && bun dev",
     "format": "NODE_NO_WARNINGS=1 sort-package-json && turbo run format",
+    "docker:publish": "cd docker && sh ./build-images-lite.sh && sh ./build-images.sh",
     "start": "turbo run start"
   },
   "dependencies": {

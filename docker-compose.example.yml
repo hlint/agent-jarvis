@@ -11,7 +11,7 @@ services:
     volumes:
       - ./volumes/jarvis-runtime:/agent-jarvis/runtime
       - ./volumes/webtop-config:/config
-      - ./volumes/config.ts:/agent-jarvis/config.ts
+      - ./volumes/config.json:/agent-jarvis/config.json
     environment:
 		  # Timezone: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
       - TZ=Etc/UTC

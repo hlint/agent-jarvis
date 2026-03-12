@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import chokidar from "chokidar";
 import { debounce } from "es-toolkit";
 import z from "zod";
@@ -63,7 +64,21 @@ export default class JarvisConfig {
   }
 
   private async load() {
-    const { default: config } = await import(PATH_CONFIG);
+    let raw: string;
+    try {
+      raw = await readFile(PATH_CONFIG, "utf-8");
+    } catch (e) {
+      console.error(`Failed to read config: ${PATH_CONFIG}`, e);
+      return;
+    }
+
+    let config: unknown;
+    try {
+      config = JSON.parse(raw);
+    } catch (e) {
+      console.error(`Invalid JSON in config: ${PATH_CONFIG}`, e);
+      return;
+    }
     const result = configSchema.safeParse(config);
     if (!result.success) {
       console.error(result.error.message);

@@ -21,7 +21,7 @@ Jarvis is self-learning and proactive: reflects after tasks, logs insights, and 
 - **Full** (desktop + browser automation, 4G RAM required): [`docker-compose.example.yml`](docker-compose.example.yml)
 - **Lite** (Chat UI only): [`docker-compose-lite.example.yml`](docker-compose-lite.example.yml)
 
-Create a deploy directory, set up the compose file and `config.ts` (see [Configuration](docs/config.md)), then run `docker compose up -d`.
+Create a deploy directory, set up the compose file and `config.json` (see [Configuration](docs/config.md)), then run `docker compose up -d`.
 
 See [Docker deployment](docs/docker.md) for more details.
 

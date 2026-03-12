@@ -21,7 +21,7 @@ Includes a full desktop environment for browser automation and visual tools.
 ### Quick setup
 
 1. Create a deploy directory. Copy `docker-compose.example.yml` as `docker-compose.yml`.
-2. Create `volumes/`, copy `config.example.ts` to `volumes/config.ts`, add API keys. See [Configuration](config.md).
+2. Create `volumes/`, copy your `config.json` to `volumes/config.json`, add API keys. See [Configuration](config.md).
 3. Set `PUID` and `PGID` to your user/group IDs (`id`). Uncomment port `4202` for Chat UI.
 4. Run `docker compose up -d`.
 5. Access: Chat UI at `http://localhost:4202`, desktop at `https://localhost:4200`.
@@ -36,11 +36,11 @@ Includes a full desktop environment for browser automation and visual tools.
 
 ### Volumes
 
-| Host                       | Container                 | Purpose                                          |
-| -------------------------- | ------------------------- | ------------------------------------------------ |
-| `./volumes/jarvis-runtime` | `/agent-jarvis/runtime`   | Workspace: diaries, notes, skills, chat state    |
-| `./volumes/webtop-config`  | `/config`                 | Desktop: browser profile, VS Code, desktop files |
-| `./volumes/config.ts`      | `/agent-jarvis/config.ts` | Agent config (required)                          |
+| Host                       | Container                   | Purpose                                          |
+| -------------------------- | --------------------------- | ------------------------------------------------ |
+| `./volumes/jarvis-runtime` | `/agent-jarvis/runtime`     | Workspace: diaries, notes, skills, chat state    |
+| `./volumes/webtop-config`  | `/config`                   | Desktop: browser profile, VS Code, desktop files |
+| `./volumes/config.json`    | `/agent-jarvis/config.json` | Agent config (required)                          |
 
 ### Environment
 
@@ -60,7 +60,7 @@ Minimal image: Chat UI only. No desktop, no browser automation.
 ### Quick setup
 
 1. Create a deploy directory. Copy `docker-compose-lite.example.yml` as `docker-compose.yml`.
-2. Create `volumes/`, copy `config.example.ts` to `volumes/config.ts`, add API keys. See [Configuration](config.md).
+2. Create `volumes/`, copy your `config.json` to `volumes/config.json`, add API keys. See [Configuration](config.md).
 3. Run `docker compose up -d`.
 4. Access Chat UI at `http://localhost:4202`.
 
@@ -72,10 +72,10 @@ Minimal image: Chat UI only. No desktop, no browser automation.
 
 ### Volumes
 
-| Host                       | Container                 | Purpose                 |
-| -------------------------- | ------------------------- | ----------------------- |
-| `./volumes/jarvis-runtime` | `/agent-jarvis/runtime`   | Workspace               |
-| `./volumes/config.ts`      | `/agent-jarvis/config.ts` | Agent config (required) |
+| Host                       | Container                   | Purpose                 |
+| -------------------------- | --------------------------- | ----------------------- |
+| `./volumes/jarvis-runtime` | `/agent-jarvis/runtime`     | Workspace               |
+| `./volumes/config.json`    | `/agent-jarvis/config.json` | Agent config (required) |
 
 ### Environment
 
@@ -112,7 +112,7 @@ Then use the corresponding `docker-compose.example.yml` or `docker-compose-lite.
 deploy-dir/
 ├── docker-compose.yml
 └── volumes/
-    ├── config.ts
+    ├── config.json
     ├── jarvis-runtime/
     └── webtop-config/
 ```
@@ -123,7 +123,7 @@ deploy-dir/
 deploy-dir/
 ├── docker-compose.yml
 └── volumes/
-    ├── config.ts
+    ├── config.json
     └── jarvis-runtime/
 ```
 
@@ -133,7 +133,7 @@ deploy-dir/
 
 ### Container exits immediately
 
-- Ensure `volumes/config.ts` exists and has at least one provider with `CHAT` duty.
+- Ensure `volumes/config.json` exists and has at least one provider with `CHAT` duty.
 - Check logs: `docker compose logs agent-jarvis`.
 
 ### Permission errors (Full only)

@@ -1,0 +1,16 @@
+{
+  "providers": [
+    {
+      "model": "",
+      "apiKey": "",
+      "duties": ["CHAT"]
+    }
+  ],
+  "tavilyApiKey": "",
+  "pexelsApiKey": "",
+  "ntfyTopic": "",
+  "telegram": {
+    "token": "",
+    "userId": ""
+  }
+}

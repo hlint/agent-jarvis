@@ -15,8 +15,8 @@ export const PATH_TELEGRAM_CHAT_ID = join(
   "data/telegram-chat-id.txt",
 );
 export const PATH_CONFIG = IS_DEV
-  ? join(process.cwd(), "../../config.ts")
-  : join(process.cwd(), "config.ts");
+  ? join(process.cwd(), "../../config.json")
+  : join(process.cwd(), "config.json");
 export const PATH_SOUL = join(DIR_RUNTIME, "SOUL.md");
 export const DIR_NOTES = join(DIR_RUNTIME, "notes");
 export const DIR_CRON_TASKS = join(DIR_RUNTIME, "cron-tasks");

@@ -7,7 +7,7 @@ services:
       - "4202:4202" # Chat UI
     volumes:
       - ./volumes/jarvis-runtime:/agent-jarvis/runtime
-      - ./volumes/config.ts:/agent-jarvis/config.ts
+      - ./volumes/config.json:/agent-jarvis/config.json
     environment:
 		  # Timezone: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
       - TZ=Etc/UTC
