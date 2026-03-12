@@ -57,7 +57,7 @@ export class JarvisStateManager {
       this.chatState.dialogHistory,
     );
     this.previousDialogHistory = cloneDeep(this.chatState.dialogHistory);
-    this.jarvis.clientManager.pushWebSocketMessage({
+    this.jarvis.channelWeb.pushWebSocketMessage({
       type: "dialog-history-patch",
       fromId: previousSnapshotId,
       toId: newSnapshotId,
@@ -69,7 +69,7 @@ export class JarvisStateManager {
   private syncTelegramsyncDialogHistory() {
     const newCompletedDialogHistory = this.getNewCompletedDialogHistory();
     newCompletedDialogHistory.forEach((t) => {
-      this.jarvis.clientManager.pushTelegramMessage(t);
+      this.jarvis.channelTelegram.pushTelegramMessage(t);
     });
   }
 

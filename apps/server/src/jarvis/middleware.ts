@@ -53,9 +53,6 @@ export default function jarvisMiddleware() {
         "/jarvis/user-message",
         ({ body }: { body: { content: string } }) => {
           jarvis.incomingUserMessage(body.content, "web");
-          if (body.content.toLowerCase() === "/stop") {
-            jarvis.abortAgentExecution();
-          }
           return { success: true };
         },
         { body: z.object({ content: z.string() }) },
@@ -66,7 +63,7 @@ export default function jarvisMiddleware() {
       })
       .ws("/jarvis/ws", {
         open: (ws) => {
-          jarvis.clientManager.saveWsClient({
+          jarvis.channelWeb.saveWsClient({
             id: ws.id,
             type: "websocket",
             pushMessage: (message) => {
@@ -75,7 +72,7 @@ export default function jarvisMiddleware() {
           });
         },
         close: (ws) => {
-          jarvis.clientManager.removeWsClient(ws.id);
+          jarvis.channelWeb.removeWsClient(ws.id);
         },
       })
   );

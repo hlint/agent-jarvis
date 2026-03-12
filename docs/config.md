@@ -18,6 +18,10 @@ const config = {
   tavilyApiKey: "", // optional
   pexelsApiKey: "", // optional
   ntfyTopic: "", // optional
+  telegram: {
+    token: "", // optional
+    userId: "", // optional
+  },
 };
 ```
 
@@ -136,6 +140,13 @@ providers: [
 
 [ntfy.sh](https://ntfy.sh/) topic name. When set, enables the push notification tool to send messages to the given topic (subscribe via an ntfy client).
 
+### telegram
+
+Telegram chat channel configuration. When set, Jarvis can send and receive messages via a Telegram bot.
+
+- **token**: Bot token. Create a bot via [`@BotFather`](https://t.me/BotFather) and copy the token.
+- **userId**: Your Telegram user ID. Use [`@userinfobot`](https://t.me/userinfobot) to get it.
+
 ---
 
 ## Full example
@@ -162,6 +173,10 @@ const config = {
   tavilyApiKey: "tvly-...",
   pexelsApiKey: "...",
   ntfyTopic: "my-jarvis-alerts",
+  telegram: {
+    token: "123456:ABC-DEF...",
+    userId: "123456789",
+  },
 };
 
 export default config;

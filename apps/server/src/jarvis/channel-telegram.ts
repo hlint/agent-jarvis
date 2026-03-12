@@ -1,42 +1,85 @@
 import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
-import type { AttachmentEntry, WsMessage } from "@repo/shared/defines/jarvis";
-import { env } from "bun";
+import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
+import { getAttachmentEntryDisplayText } from "@repo/shared/lib/utils";
 import fs from "fs-extra";
 import { Bot, InputFile } from "grammy";
-import { DIR_RUNTIME } from "./defines";
+import { DIR_RUNTIME, PATH_TELEGRAM_CHAT_ID } from "./defines";
 import type Jarvis from "./jarvis";
 
-type Client = {
-  id: string;
-  type: "websocket";
-  pushMessage: (message: WsMessage) => void;
-};
-
-export default class JarvisClientManager {
+export default class JarvisChannelTelegram {
   private jarvis: Jarvis;
-  private wsClients: Map<string, Client> = new Map();
   private telegramBot?: Bot;
-  private telegramUserId?: number;
-  private telegramChatId?: number;
+  private telegramUserId = 0;
+  private telegramChatId = 0;
+  private telegramToken = "";
+  private itvTyping?: NodeJS.Timeout;
 
   constructor(jarvis: Jarvis) {
     this.jarvis = jarvis;
   }
 
   init() {
-    // Setup Telegram Bot
-    const { TELEGRAM_BOT_TOKEN, TELEGRAM_USER_ID } = env;
-    if (TELEGRAM_BOT_TOKEN && TELEGRAM_USER_ID) {
-      const telegramBot = new Bot(TELEGRAM_BOT_TOKEN);
+    if (fs.existsSync(PATH_TELEGRAM_CHAT_ID)) {
+      const telegramChatId = fs.readFileSync(PATH_TELEGRAM_CHAT_ID, "utf-8");
+      this.telegramChatId = Number(telegramChatId);
+    }
+  }
+
+  reload() {
+    this.loadConfig();
+    this.setup();
+  }
+
+  private loadConfig() {
+    const telegramConfig = this.jarvis.config.getConfig()?.telegram;
+    if (telegramConfig?.token && telegramConfig?.userId) {
+      this.telegramUserId = Number(telegramConfig.userId);
+      this.telegramToken = telegramConfig.token;
+    }
+  }
+
+  // Setup Telegram Bot
+  private setup() {
+    if (this.telegramBot) {
+      this.telegramBot.stop();
+      this.telegramBot = undefined;
+    }
+    if (this.telegramToken && this.telegramUserId) {
+      const telegramBot = new Bot(this.telegramToken);
       this.telegramBot = telegramBot;
-      this.telegramUserId = Number(TELEGRAM_USER_ID);
       telegramBot.start();
       telegramBot.command("start", (ctx) => {
         if (ctx.from?.id !== this.telegramUserId) {
           return ctx.reply("You are not authorized to use this bot.");
         }
-        ctx.reply("Welcome! Jarvis is running now.");
+        ctx.reply(
+          `✨ Hi there! Jarvis is ready to serve.
+
+**Ask me anything like:**
+- "What is the weather in Tokyo?"
+- "Show me the latest news about AI"
+- "Summarize the document I sent you"
+
+**Commands:**
+- Use "/new" to start a new conversation.
+- Use "/abort" to abort the current execution.`,
+          { parse_mode: "Markdown" },
+        );
+      });
+      telegramBot.command("new", (ctx) => {
+        if (ctx.from?.id !== this.telegramUserId) {
+          return ctx.reply("You are not authorized to use this bot.");
+        }
+        this.jarvis.newConversation();
+        return ctx.reply("New conversation started.");
+      });
+      telegramBot.command("abort", (ctx) => {
+        if (ctx.from?.id !== this.telegramUserId) {
+          return ctx.reply("You are not authorized to use this bot.");
+        }
+        this.jarvis.abortAgentExecution();
+        return ctx.reply("Aborting command received.");
       });
       telegramBot.on("message", async (ctx) => {
         if (ctx.from?.id !== this.telegramUserId) {
@@ -47,6 +90,7 @@ export default class JarvisClientManager {
           return;
         }
         this.telegramChatId = ctx.chat.id;
+        fs.outputFileSync(PATH_TELEGRAM_CHAT_ID, ctx.chat.id.toString());
         if (ctx.message.text) {
           this.jarvis.incomingUserMessage(ctx.message.text, "telegram");
           return;
@@ -61,7 +105,7 @@ export default class JarvisClientManager {
         }
         try {
           const file = await this.downloadTelegramFile(
-            TELEGRAM_BOT_TOKEN,
+            this.telegramToken,
             fileInfo.fileId,
           );
           const webFile = new File([file], fileInfo.filename, {
@@ -76,33 +120,6 @@ export default class JarvisClientManager {
           );
         }
       });
-      // Send a typing action to the Telegram chat every 4 seconds if the agent is busy
-      setInterval(() => {
-        if (
-          this.telegramBot &&
-          this.telegramUserId &&
-          this.telegramChatId &&
-          this.jarvis.state.getState().status !== "idle"
-        ) {
-          this.telegramBot.api.sendChatAction(this.telegramChatId, "typing");
-        }
-      }, 4000);
-    }
-  }
-
-  saveWsClient(client: Client) {
-    this.wsClients.set(client.id, client);
-  }
-
-  removeWsClient(id: string) {
-    this.wsClients.delete(id);
-  }
-
-  pushWebSocketMessage(message: WsMessage) {
-    for (const client of this.wsClients.values()) {
-      if (client.type === "websocket") {
-        client.pushMessage(message);
-      }
     }
   }
 
@@ -112,7 +129,7 @@ export default class JarvisClientManager {
         if (message.role === "user" && message.channel !== "telegram") {
           this.telegramBot.api.sendMessage(
             this.telegramUserId,
-            `[Channel: ${message.channel ?? "unknown"}] ${message.content ?? ""}`,
+            `[${message.channel ?? "unknown"}] ${message.content ?? ""}`,
           );
           return;
         }
@@ -124,9 +141,10 @@ export default class JarvisClientManager {
           );
         }
         if (message.role === "attachment" && message.channel !== "telegram") {
+          const entry = message as AttachmentEntry;
           const { data } = message as AttachmentEntry;
           const chatId = this.telegramChatId ?? this.telegramUserId;
-          const caption = `Channel: ${message.channel ?? "unknown"}`;
+          const caption = getAttachmentEntryDisplayText(entry);
 
           const isImage = (t: string) => t.startsWith("image/");
           const isVideo = (t: string) =>
@@ -251,5 +269,25 @@ export default class JarvisClientManager {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to download: ${res.status}`);
     return res.arrayBuffer();
+  }
+
+  public startTyping() {
+    const fnTyping = () => {
+      if (
+        this.telegramBot &&
+        this.telegramUserId &&
+        this.telegramChatId &&
+        this.jarvis.state.getState().status !== "idle"
+      ) {
+        this.telegramBot.api.sendChatAction(this.telegramChatId, "typing");
+      }
+    };
+    fnTyping();
+    this.itvTyping = setInterval(fnTyping, 4000);
+  }
+
+  public stopTyping() {
+    clearInterval(this.itvTyping);
+    this.itvTyping = undefined;
   }
 }

@@ -47,4 +47,4 @@ output/
 docker/volumes
 
 # Config
-config.ts
+./config.ts

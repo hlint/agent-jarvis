@@ -1,4 +1,5 @@
 import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
+import { getAttachmentEntryDisplayText } from "@repo/shared/lib/utils";
 import { DownloadIcon, FileIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -133,21 +134,7 @@ export default function JarvisAttachmentEntry(entry: AttachmentEntry) {
   const isVideo = fileType.startsWith("video/");
   const isRemoteUrl = "url" in data;
   const isUser = from === "user";
-  const displayName =
-    ("originalName" in data ? data.originalName : undefined) ??
-    (isRemoteUrl
-      ? (() => {
-          try {
-            return (
-              new URL((data as { url: string }).url).pathname
-                .split("/")
-                .pop() ?? "Link"
-            );
-          } catch {
-            return "Link";
-          }
-        })()
-      : "File");
+  const displayName = getAttachmentEntryDisplayText(entry);
   const fileSize =
     "fileSize" in data ? data.fileSize : (data as { size?: number }).size;
 

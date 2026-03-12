@@ -9,6 +9,10 @@ const config: Config = {
   tavilyApiKey: "",
   pexelsApiKey: "",
   ntfyTopic: "",
+  telegram: {
+    token: "",
+    userId: "",
+  },
 };
 
 export default config;
@@ -31,6 +35,11 @@ interface Config {
   pexelsApiKey?: string;
   /** ntfy.sh topic for push notifications (optional) */
   ntfyTopic?: string;
+  /** Chat channel: Telegram (optional) */
+  telegram?: {
+    token: string; // search @BotFather to create a new bot and get the token
+    userId: string; // search @userinfobot to get your user ID
+  };
   /** AI providers. Each provider handles one or more duties. */
   providers: Array<{
     /** Model ID, e.g. "openai:gpt-4o", "google:gemini-2.5-flash" */

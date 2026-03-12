@@ -15,7 +15,8 @@ import { generateText } from "ai";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
-import JarvisClientManager from "./client";
+import JarvisChannelTelegram from "./channel-telegram";
+import JarvisChannelWeb from "./channel-web";
 import JarvisConfig from "./config";
 import JarvisCron from "./cron";
 import {
@@ -34,10 +35,11 @@ const SYSTEM_INACTIVE_ENABLED = false;
 
 export default class Jarvis {
   public runner = new Runner(this);
-  public clientManager = new JarvisClientManager(this);
+  public channelWeb = new JarvisChannelWeb();
+  public channelTelegram = new JarvisChannelTelegram(this);
   public state = new JarvisStateManager(this);
   public cron = new JarvisCron(this);
-  public config = new JarvisConfig();
+  public config = new JarvisConfig(this);
   public retryCount = 0;
   public websiteUrl: string = "";
   private pushInactiveEvent = debounce(() => {
@@ -107,7 +109,7 @@ export default class Jarvis {
     this.state.init();
     this.cron.init();
     this.config.init();
-    this.clientManager.init();
+    this.channelTelegram.init();
   }
 
   incomingUserMessage(content: string, from: "web" | "telegram") {
@@ -150,6 +152,7 @@ export default class Jarvis {
       file.name.startsWith("voice.")
     ) {
       try {
+        this.updateChatStatus("running");
         const response = await generateText({
           model: getLanguageModel(
             this.config.getAiProvider("VOICE_RECOGNITION")!,
@@ -239,10 +242,16 @@ export default class Jarvis {
     this.state.setState({
       status,
     });
-    this.clientManager.pushWebSocketMessage({
+    this.channelWeb.pushWebSocketMessage({
       type: "chat-status-update",
       status,
     });
+    const isTyping = status !== "idle";
+    if (isTyping) {
+      this.channelTelegram.startTyping();
+    } else {
+      this.channelTelegram.stopTyping();
+    }
   }
 
   setWebsiteUrl(websiteUrl: string) {
