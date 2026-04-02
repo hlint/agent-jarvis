@@ -13,6 +13,7 @@ import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createVercel } from "@ai-sdk/vercel";
 import { createXai } from "@ai-sdk/xai";
 import { createProviderRegistry } from "ai";
+import { createMinimax, createMinimaxOpenAI } from "vercel-minimax-ai-provider";
 
 export function getLanguageModel({
   apiKey,
@@ -42,6 +43,8 @@ export function getLanguageModel({
     deepseek: createDeepSeek(providerOptions),
     "hugging-face": createHuggingFace(providerOptions),
     alibaba: createAlibaba(providerOptions),
+    "minimax-openai": createMinimaxOpenAI(providerOptions),
+    "minimax-anthropic": createMinimax(providerOptions),
   });
 
   return registry.languageModel(model as any);

@@ -49,22 +49,24 @@ Format: `provider:model-name`
 
 Common examples:
 
-| Provider          | Examples                                           |
-| ----------------- | -------------------------------------------------- |
-| OpenAI            | `openai:gpt-4o`, `openai:gpt-4o-mini`              |
-| Google            | `google:gemini-2.5-flash`, `google:gemini-2.5-pro` |
-| Anthropic         | `anthropic:claude-3-5-sonnet`                      |
-| DeepSeek          | `deepseek:deepseek-chat`                           |
-| xAI               | `xai:grok-beta`                                    |
-| Azure             | `azure:gpt-4o`                                     |
-| Vercel AI         | `vercel:...`                                       |
-| Together AI       | `together-ai:...`                                  |
-| Hugging Face      | `hugging-face:...`                                 |
-| Alibaba           | `alibaba:...`                                      |
-| ByteDance         | `byte-dance:...`                                   |
-| Fal               | `fal:...`                                          |
-| Black Forest Labs | `black-forest-labs:...`                            |
-| Google Vertex     | `vertex:...`                                       |
+| Provider            | Examples                                           |
+| ------------------- | -------------------------------------------------- |
+| OpenAI              | `openai:gpt-4o`, `openai:gpt-4o-mini`              |
+| Google              | `google:gemini-2.5-flash`, `google:gemini-2.5-pro` |
+| Anthropic           | `anthropic:claude-3-5-sonnet`                      |
+| DeepSeek            | `deepseek:deepseek-chat`                           |
+| xAI                 | `xai:grok-beta`                                    |
+| Azure               | `azure:gpt-4o`                                     |
+| Vercel AI           | `vercel:...`                                       |
+| Together AI         | `together-ai:...`                                  |
+| Hugging Face        | `hugging-face:...`                                 |
+| Alibaba             | `alibaba:...`                                      |
+| ByteDance           | `byte-dance:...`                                   |
+| Fal                 | `fal:...`                                          |
+| Black Forest Labs   | `black-forest-labs:...`                            |
+| Google Vertex       | `vertex:...`                                       |
+| Minimax (OpenAI)    | `minimax-openai:...`                               |
+| Minimax (Anthropic) | `minimax-anthropic:...`                            |
 
 ### Duties
 

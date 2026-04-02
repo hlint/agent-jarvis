@@ -1,6 +1,6 @@
 {
   "name": "agent-jarvis",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -12,8 +12,8 @@
     "compile": "turbo run compile:frontend compile:server --concurrency=1",
     "dev": "turbo run dev",
     "dev:reset": "rm -rf ./runtime && bun dev",
-    "format": "NODE_NO_WARNINGS=1 sort-package-json && turbo run format",
     "docker:publish": "cd docker && sh ./build-images-lite.sh && sh ./build-images.sh",
+    "format": "NODE_NO_WARNINGS=1 sort-package-json && turbo run format",
     "start": "turbo run start"
   },
   "dependencies": {

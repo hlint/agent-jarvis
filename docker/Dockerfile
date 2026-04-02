@@ -30,9 +30,10 @@ RUN npx -y playwright install-deps
 ENV BUN_INSTALL="/usr/local"
 RUN curl -fsSL https://bun.sh/install | bash
 
-# Pre-install tools and browsers required by the application
+# Pre-install tools required by the application.
+# Do not run `agent-browser install` here: Webtop already includes a browser.
 RUN mkdir -p $NPM_CONFIG_PREFIX $BUN_INSTALL_GLOBAL $PLAYWRIGHT_BROWSERS_PATH && \
-    npm install -g agent-browser && agent-browser install
+    npm install -g agent-browser
 
 # Install VSCode
 RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o packages.microsoft.gpg \

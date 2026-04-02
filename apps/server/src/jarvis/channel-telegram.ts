@@ -36,6 +36,9 @@ export default class JarvisChannelTelegram {
     if (telegramConfig?.token && telegramConfig?.userId) {
       this.telegramUserId = Number(telegramConfig.userId);
       this.telegramToken = telegramConfig.token;
+    } else {
+      this.telegramUserId = 0;
+      this.telegramToken = "";
     }
   }
 
