@@ -6,6 +6,12 @@ allowed-tools: Bash(npx agent-browser:*), Bash(agent-browser:*)
 
 # Browser Automation with agent-browser
 
+## Environment policy (agent)
+
+**Do not** proactively change or install browser-related software: package managers, system libraries, browser binaries, Playwright/Chromium/Puppeteer installs, `npm`/`pnpm`/`yarn` deps tied to browsing, or drivers (e.g. WebDriver). Do not edit lockfiles, `package.json`, or project config to add or bump browser automation stacks unless the user explicitly asks.
+
+If `agent-browser` or the browser fails (missing binary, wrong version, permission errors, Playwright bootstrap issues, etc.), **stop and report** to the user: what failed, the relevant error output, likely cause, and **actionable fix steps** they can run locally. Do not attempt silent repairs by installing or upgrading browser-related packages on your own initiative.
+
 ## Core Workflow
 
 Every browser automation follows this pattern:
@@ -195,32 +201,6 @@ agent-browser --allow-file-access open file:///path/to/document.pdf
 agent-browser --allow-file-access open file:///path/to/page.html
 agent-browser screenshot output.png
 ```
-
-### iOS Simulator (Mobile Safari)
-
-```bash
-# List available iOS simulators
-agent-browser device list
-
-# Launch Safari on a specific device
-agent-browser -p ios --device "iPhone 16 Pro" open https://example.com
-
-# Same workflow as desktop - snapshot, interact, re-snapshot
-agent-browser -p ios snapshot -i
-agent-browser -p ios tap @e1          # Tap (alias for click)
-agent-browser -p ios fill @e2 "text"
-agent-browser -p ios swipe up         # Mobile-specific gesture
-
-# Take screenshot
-agent-browser -p ios screenshot mobile.png
-
-# Close session (shuts down simulator)
-agent-browser -p ios close
-```
-
-**Requirements:** macOS with Xcode, Appium (`npm install -g appium && appium driver install xcuitest`)
-
-**Real devices:** Works with physical iOS devices if pre-configured. Use `--device "<UDID>"` where UDID is from `xcrun xctrace list devices`.
 
 ## Timeouts and Slow Pages
 

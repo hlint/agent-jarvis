@@ -1,7 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Type=Link
+Type=Application
 Name=Jarvis Chat UI
 Comment=
+Exec=chromium --remote-debugging-port=9222 --no-first-run --no-default-browser-check --disable-gpu http://localhost:4202
 Icon=/agent-jarvis/html/favicon.png
-URL=http://localhost:4202
+Path=
+Terminal=false
+StartupNotify=false
