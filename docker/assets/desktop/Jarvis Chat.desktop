@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Jarvis Chat
+Comment=
+Exec=chromium --user-data-dir=/config/chromium-data/jarvis --app=http://localhost:4202
+Icon=/agent-jarvis/html/favicon.png
+Path=
+Terminal=false
+StartupNotify=false

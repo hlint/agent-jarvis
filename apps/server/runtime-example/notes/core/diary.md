@@ -5,9 +5,8 @@ autoLoad: true
 
 ## Concept
 
-- Mid-term memory: what you did, learned, thought
-- Maintains it proactively — Append entries on your own initiative after significant tasks
-- Last 3 days auto-loaded. Append only; keep entries brief
+- Mid-term memory: what you did, learned, thought.
+- Last 3 days auto-loaded. Append only; keep entries brief.
 
 ## Path
 

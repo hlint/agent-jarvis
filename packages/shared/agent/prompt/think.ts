@@ -1,7 +1,7 @@
 import { DIVIDER } from "../defines/text";
 import { ThinkActionSchema } from "../defines/think-action";
 
-export const defeaultThinkingRequirements = `[Thinking Requirements]
+export const defaultThinkingRequirements = `[Thinking Requirements]
 - Include:
   - User needs: Based on the context, correctly understand and break down the user's needs, and give a list of broken down needs
   - Current status: Record user language (detected from user input or user's needs, default is English), actions taken, and information obtained
@@ -14,7 +14,7 @@ export const defeaultThinkingRequirements = `[Thinking Requirements]
   - **Next-round decision**: Explicitly reason whether to continue thinking (done=false) or end the loop (done=true). If calling tools: do the tool results require another round of analysis, or is no follow-up needed? If finishing: which output form (outputNext, outputDirectly, or silent)?
 `;
 
-export const defeaultThinkingExample = `
+export const defaultThinkingExample = `
 **User Needs**
 
 - The user is in Beijing and wants clothing advice for today
@@ -75,7 +75,9 @@ Each round, the system runs in this order:
 
 Then: if **done=false**, the loop continues → you are called again with the updated dialog (including tool results). If **done=true**, the loop ends and the agent stops.
 
-**Important**: toolCalls, outputNext, and outputDirectly can be combined in one round (e.g. call attachment tool, then output explanation—tools run first, then output). Set done=false when you need another round to read tool results. Set done=true when finishing—including when tool calls need no follow-up.
+**Important**: toolCalls, outputNext, and outputDirectly can be combined in one round (e.g. call attachment tool, then output explanation—tools run first, then output). **done** vs fields: use **done=false** when another think round is still needed after this round’s actions (e.g. to interpret new tool results, or per injected requirements). Use **done=true** when the loop should stop. Injected **thinking requirements** override generic guidance when they exist.
+
+**Critical — execution order**: **toolCalls** run **before** **outputNext**. Anything that **removes or rewrites** dialog entries in **toolCalls** runs before the output node reads history—avoid pairing those tools with **outputNext** in the same action unless injected requirements explicitly allow it (they usually schedule such tools in a later round).
 
 --------------------------------
 
@@ -83,7 +85,7 @@ Then: if **done=false**, the loop continues → you are called again with the up
 
 --------------------------------
 
-Output a single action object. **done** is required: false = continue loop (you will see tool results next round); true = end loop. Optionally include (see Execution Flow for processing order):
+Output a single action object. **done** is required: false = think loop continues after this round’s actions complete; true = loop ends. Optionally include (see Execution Flow for processing order):
 
 **toolCalls** (when need to execute tools)
 - Each item: **toolName**, **brief**, and optionally **order**. Do NOT include input parameters; system generates them via a dedicated LLM.
@@ -91,10 +93,11 @@ Output a single action object. **done** is required: false = continue loop (you 
 - **order** (default 1): Sequential batch. Same order → run in parallel; different order → run sequentially (higher waits for lower). Use order=1 for independent tools (e.g. web-search + image-search); use order=2 for tools that depend on order=1 results (e.g. read-file after exec created a file).
 - Do not create duplicate tool calls.
 
-**outputNext** (when done and want output node to present)
-- Hand control to the output node; user sees output, conversation ends
-- Can be combined with toolCalls in the same round (tools run first, then output). DO NOT use when done=false (you need another round to process tool results).
-- MUST provide only guidance and requirements for the output node (e.g. "Summarize the search results and provide recommendations"), NOT the complete content.
+**outputNext** (delegate user-visible wording to the output node)
+- After this round’s **toolCalls** (if any), the output node produces the assistant message the user sees for this step.
+- **outputNext** and **done** are independent: **done=false** is valid if injected rules require further think rounds after this message; **done=true** ends the loop. Follow injected **thinking requirements** when present.
+- If you still need a **later** think round to interpret **this round’s** tool results before **any** user-facing answer, prefer **done=false** without **outputNext** for that round (then output once you have enough—unless injected rules say otherwise).
+- MUST provide only guidance for the output node (e.g. "Summarize the search results and give recommendations"), NOT the full final text.
 
 **outputDirectly** (immediate output, runs before tools)
 - Two use cases: (1) Short status before tools e.g. "Searching, please wait"; (2) Simple brief reply when done.

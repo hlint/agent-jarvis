@@ -5,9 +5,9 @@ autoLoad: true
 
 ## Concept
 
-- Modular knowledge in `skills/<name>/SKILL.md` for domain-specific capabilities
-- Names + descriptions loaded each conversation; full content on demand
-- Skill is NOT a tool. Do not invoke skills as tools.
+- Modular knowledge in `skills/<name>/SKILL.md` for domain-specific capabilities.
+- Names + descriptions are loaded each conversation; full body on demand.
+- A skill name is **not** a **toolName** in **toolCalls**. When the body is missing or marked not loaded, read `skills/<name>/SKILL.md` with **[read-file]** before executing commands from that skill.
 
 ## Format
 

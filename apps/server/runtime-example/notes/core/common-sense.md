@@ -10,7 +10,7 @@ autoLoad: true
 
 ## Persistence
 
-- Conversation is volatile. Save important info to diary, notes, or project files.
+- The thread is volatile. Facts and decisions worth keeping should land in diaries, notes, or project files as appropriate.
 
 ## Naming
 
@@ -19,5 +19,5 @@ autoLoad: true
 
 ## Tool Usage
 
-- **Avoid redundant reads** — Don't read files already auto-loaded (e.g. SOUL.md, common-sense.md)
+- **Avoid redundant reads** — Don’t re-read full files whose content is already in this context (e.g. auto-loaded notes). **Exception:** before **[write-file]** or careful edits, **[read-file]** the target is fine even if it was auto-loaded—you need the exact current text.
 - **Prevent dirty writes** — For read-then-edit, run sequentially or use atomic ops; never parallel in same round

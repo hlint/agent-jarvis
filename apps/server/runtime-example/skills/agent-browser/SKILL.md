@@ -183,6 +183,8 @@ agent-browser --cdp 9222 snapshot
 
 **Rule:** If `chromiumWithRemoteDebuggingPortOpened === true`, prefix commands with `--auto-connect` (e.g. `agent-browser --auto-connect open <url>`). Omit `--auto-connect` only when the flag is `false` and you need to launch a fresh browser.
 
+**Do not proactively close the browser** when connected to existing Chrome (`chromiumWithRemoteDebuggingPortOpened === true` / `--auto-connect` or `--cdp`). That instance is the user’s; leave it running after your work unless they explicitly ask to close it.
+
 ### Visual Browser (Debugging, requires human verification, requires user login, requires user interaction)
 
 ```bash

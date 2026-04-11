@@ -21,8 +21,8 @@ ${DIVIDER}
   "outputDirectly": "Reading browser automation skill documentation…",
   "toolCalls": [
     {
-      "brief": "Read skills/agent-browser/SKILL.md for form workflow and commands"
-      "toolName": "read-file",
+      "brief": "Read skills/agent-browser/SKILL.md for form workflow and commands",
+      "toolName": "read-file"
     }
   ],
   "done": false

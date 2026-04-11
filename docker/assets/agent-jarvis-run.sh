@@ -16,14 +16,11 @@ echo "Current PUID: ${PUID}"
 echo "Current PGID: ${PGID}"
 echo "--- Starting Jarvis ---"
 
-# Start Chromium with remote debugging port opened
+# Start Jarvis Chat UI
 s6-setuidgid abc sh -c '
   sleep 2
 	rm -f /config/.config/chromium/Singleton*
-  chromium --remote-debugging-port=9222 \
-           --no-first-run \
-           --no-default-browser-check \
-           --disable-gpu \
-           http://localhost:4202/ > /dev/null 2>&1 &
+  chromium --user-data-dir=/config/chromium-data/jarvis \
+           --app=http://localhost:4202/ > /dev/null 2>&1 &
 '
 exec s6-setuidgid abc bun jarvis.js

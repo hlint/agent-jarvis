@@ -5,7 +5,7 @@ autoLoad: true
 
 ## Concept
 
-Notes are Markdown files under `notes/`. Your persistent memory for knowledge and experience.
+Notes are Markdown files under `notes/`. Your persistent memory for knowledge and experience—stable facts, conventions, and playbooks that should survive beyond one reply.
 
 ## Loading
 

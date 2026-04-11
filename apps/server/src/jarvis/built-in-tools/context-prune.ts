@@ -3,8 +3,7 @@ import { defineJarvisTool } from "../tool";
 
 export const contextPruneTool = defineJarvisTool({
   name: "context-prune",
-  description:
-    "Remove selected dialog entries by their IDs. Use when errors, redundancy, or obsolete content should be pruned. Never remove recent user input, long-lasting instructions, or content still needed for the current task.",
+  description: "Remove dialog entries by ID.",
   inputSchema: z.object({
     entryIds: z
       .array(z.string())

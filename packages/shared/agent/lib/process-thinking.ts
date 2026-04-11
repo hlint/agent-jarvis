@@ -7,8 +7,8 @@ import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { ThinkActionSchema } from "../defines/think-action";
 import {
-  defeaultThinkingExample,
-  defeaultThinkingRequirements,
+  defaultThinkingExample,
+  defaultThinkingRequirements,
   thinkPrompt,
 } from "../prompt/think";
 import {
@@ -48,8 +48,8 @@ export default async function processThinking({
             "tool-descriptions": getToolsInfo(tools),
             "tool-names": JSON.stringify(tools.map((tool) => tool.name)),
             "thinking-requirements":
-              thinkingRequirements || defeaultThinkingRequirements,
-            "thinking-example": thinkingExample || defeaultThinkingExample,
+              thinkingRequirements || defaultThinkingRequirements,
+            "thinking-example": thinkingExample || defaultThinkingExample,
           }),
         },
         {

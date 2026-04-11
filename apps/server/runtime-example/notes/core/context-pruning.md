@@ -1,20 +1,30 @@
 ---
-description: Principles for intelligent context pruning
+description: How to use the context-prune tool
 autoLoad: true
 ---
 
+## When
+
+- Run [context-prune] in a **tool-only** round **after** the user-visible answer for the task is already in the dialog—not while that answer still depends on entries you might delete.
+- **Never** put [context-prune] in the **same** thinking action as **outputNext**: in each round, **toolCalls** run first, then the output node reads history—pruning first would strip evidence the output still needs.
+
+Heuristic: dialog long (e.g. ≈4+ turns), topic shifted, or task delivered—then trim **clearly obsolete** noise from **earlier** attempts only.
+
 ## Preserve
 
-- **Recent dialogue** — Keep recent user-AI turns and intermediate process intact. Maintain coherence of the active sub-task.
-- **Reusable content** — Intermediate processes or conclusions that may still help; user instructions (e.g., reference docs to read); long-lasting rules.
-- **Chat content** — User questions and AI final replies. Prefer keeping these over intermediate process.
+- Recent **user** messages and lasting user instructions.
+- Your **latest user-visible reply** for the task.
+- Anything still needed to **justify** that reply (if unsure, do not remove).
+- Durable rules and references needed for follow-ups.
 
-## Prune Actively
+## Remove
 
-- **Errors** — Failed attempts, stack traces, dead ends with no useful outcome. Prune even if the failure occurred in a prior task; do not retain for traceability once the topic has shifted.
-- **Redundancy** — Duplicate info, repeated prompts, echoed content.
-- **Outdated intermediate process** — For completed or shifted topics: keep user-AI chat content; prune thinking steps, tool calls, and tool outputs. Once the result is delivered, the intermediate process is usually redundant.
+- Failed attempts / dead ends that no longer affect the delivered answer or active debugging.
+- Redundancy (duplicates, echoed prompts).
+- Stale intermediate scaffolding (old thinking blocks, superseded tool I/O) **after** outcomes are in the delivered answer or elsewhere (e.g. diary).
 
-## Principle
+## Principles
 
-Prune proactively. Do not wait for context bloat. For outdated topics: preserve chat content, prune intermediate process. When unsure about long-lasting value, prefer pruning intermediate process over keeping it.
+- Do not prune to “save space” while the answer still depends on those entries.
+- If unsure, keep the id.
+- Prefer dropping obsolete **intermediate** entries, not the user’s words or your final explanation.
