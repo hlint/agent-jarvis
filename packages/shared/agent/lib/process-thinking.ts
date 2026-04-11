@@ -3,6 +3,7 @@ import { cloneDeep } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
 import { getLanguageModel } from "../../llm/get-model";
+import { LLM_TIMEOUT_MS } from "../defines/constant";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { ThinkActionSchema } from "../defines/think-action";
@@ -12,10 +13,10 @@ import {
   thinkPrompt,
 } from "../prompt/think";
 import {
+  extractStreamingThinkMarkdown,
   getToolsInfo,
-  parseLlmResultBeforeDivider,
-  parseLlmResultWithDivider,
   parsePrompt,
+  parseThinkMarkdownAndAction,
 } from "./llm-parse";
 
 export default async function processThinking({
@@ -41,6 +42,7 @@ export default async function processThinking({
     const { fullStream, usage } = streamText({
       model: getLanguageModel(thinkProvider),
       providerOptions: thinkProvider.providerOptions,
+      timeout: LLM_TIMEOUT_MS,
       messages: [
         {
           role: "system",
@@ -69,11 +71,11 @@ export default async function processThinking({
     for await (const chunk of fullStream) {
       if (chunk.type === "text-delta") {
         content += chunk.text;
-        entry.content = parseLlmResultBeforeDivider(content);
+        entry.content = extractStreamingThinkMarkdown(content);
         onDialogHistoryChange();
       }
     }
-    const [reasoning, thinkAction] = parseLlmResultWithDivider(
+    const [reasoning, thinkAction] = parseThinkMarkdownAndAction(
       content,
       ThinkActionSchema,
     );

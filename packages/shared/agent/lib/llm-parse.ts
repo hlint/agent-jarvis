@@ -1,6 +1,15 @@
 import type z from "zod";
-import { DIVIDER } from "../defines/text";
 import type { AgentTool } from "../defines/tool";
+
+function lastOpenJsonFence(result: string): { index: number; matchLen: number } | null {
+  let best: { index: number; matchLen: number } | null = null;
+  for (const m of result.matchAll(/```\s*json\s*\n?/g)) {
+    if (m.index !== undefined) {
+      best = { index: m.index, matchLen: m[0].length };
+    }
+  }
+  return best;
+}
 
 /**
  * Parse a prompt string with parameters.
@@ -14,25 +23,44 @@ export function parsePrompt(prompt: string, params: Record<string, string>) {
   return prompt.replace(/\{([^{}]+)\}/g, (_, p1) => params[p1] ?? _);
 }
 
-export function parseLlmResultWithDivider<T>(
+export function parseThinkMarkdownAndAction<T>(
   result: string,
   jsonSchema: z.ZodSchema<T>,
 ) {
-  const parts = result.split(DIVIDER);
-  if (parts.length < 2) {
+  const fence = lastOpenJsonFence(result);
+  if (!fence) {
     console.log(result);
-    throw new Error(
-      `Expected exactly 2 parts separated by ${DIVIDER}, but got ${parts.length} parts`,
-    );
+    throw new Error("Expected a trailing ```json ... ``` code block");
   }
-  const [text, json] = parts;
-  return [text!.trim(), jsonSchema.parse(betterJsonParse(json!))] as const;
+  const afterOpen = result.slice(fence.index + fence.matchLen);
+  const closeIdx = afterOpen.indexOf("```");
+  if (closeIdx === -1) {
+    console.log(result);
+    throw new Error("Unclosed ```json code block");
+  }
+  const jsonRaw = afterOpen.slice(0, closeIdx).trim();
+  const text = result.slice(0, fence.index).trimEnd();
+  const afterClose = afterOpen.slice(closeIdx + 3).trim();
+  if (afterClose.length > 0) {
+    throw new Error("Unexpected content after JSON code block");
+  }
+  return [text, jsonSchema.parse(betterJsonParse(jsonRaw))] as const;
 }
 
-export function parseLlmResultBeforeDivider(result: string) {
-  const parts = result.split(DIVIDER);
-  const [text] = parts;
-  return text!.trim();
+/**
+ * Markdown to show while the think stream is still in progress. Aligns with
+ * {@link parseThinkMarkdownAndAction} when the reply ends with one trailing ```json block:
+ * earlier ```json fences (e.g. examples) stay visible once closed; only the last fence
+ * hides the following content until its closing ``` arrives.
+ */
+export function extractStreamingThinkMarkdown(result: string) {
+  const fence = lastOpenJsonFence(result);
+  if (!fence) return result.trimEnd();
+  const afterOpen = result.slice(fence.index + fence.matchLen);
+  if (!afterOpen.includes("```")) {
+    return result.slice(0, fence.index).trimEnd();
+  }
+  return result.trimEnd();
 }
 
 export function betterJsonParse(jsonStr: string) {

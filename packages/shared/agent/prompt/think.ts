@@ -1,4 +1,3 @@
-import { DIVIDER } from "../defines/text";
 import { ThinkActionSchema } from "../defines/think-action";
 
 export const defaultThinkingRequirements = `[Thinking Requirements]
@@ -33,8 +32,6 @@ Current information is insufficient to fulfill the user's needs. These tool call
 **Next-round decision**
 
 The tool results (weather + fashion) will need to be analyzed and synthesized into advice. I must see the results before I can output. So done=false—continue the loop for another round.
-
-${DIVIDER}
 
 \`\`\`json
 {
@@ -121,13 +118,12 @@ Output a single action object. **done** is required: false = think loop continue
 --------------------------------
 
 [CRITICAL OUTPUT REQUIREMENTS]
-- Your output MUST have EXACTLY two parts separated by ${DIVIDER}:
+- Your output MUST have EXACTLY two parts, in order:
 	1. Your thinking (markdown format)
-	2. Action to execute (VALID JSON wrapped in a \`\`\`json code block)
+	2. Action to execute: a single VALID JSON object inside a markdown fence — open with \`\`\`json, close with \`\`\`
 - The JSON part MUST be valid JSON and MUST follow the exact schema provided above
-- You MUST wrap the JSON in a markdown code block with the \`\`\`json ... \`\`\` syntax
-- DO NOT include any text after the code block
-- The code block must be the last thing in your response
+- DO NOT include any text after the closing \`\`\` of the JSON block
+- The \`\`\`json ... \`\`\` block MUST be the last thing in your response (nothing may follow the closing fence)
 
 --------------------------------
 

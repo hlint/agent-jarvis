@@ -20,7 +20,7 @@ echo "--- Starting Jarvis ---"
 s6-setuidgid abc sh -c '
   sleep 2
 	rm -f /config/.config/chromium/Singleton*
-  chromium --user-data-dir=/config/chromium-data/jarvis \
+  chromium --user-data-dir=/var/tmp/chromium-data-jarvis \
            --app=http://localhost:4202/ > /dev/null 2>&1 &
 '
 exec s6-setuidgid abc bun jarvis.js
