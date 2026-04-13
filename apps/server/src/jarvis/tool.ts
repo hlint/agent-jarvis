@@ -29,7 +29,17 @@ export type JarvisTool<INPUT extends {}> = {
   name: string;
   description: string | ((jarvis: Jarvis) => string);
   inputSchema: z.ZodSchema<INPUT>;
-  execute: (input: INPUT, jarvis: Jarvis) => Promise<any>;
+  execute: (
+    input: INPUT & { content?: string },
+    jarvis: Jarvis,
+  ) => Promise<any>;
+  /**
+   * When set, composite-encoded input is used: fenced json for short fields,
+   * then one newline after the fence, then plain text (merged into `content`).
+   * This string documents what that trailing segment means; prompts/parsers
+   * use it with the schema.
+   */
+  inputContentDescription?: string;
 };
 
 export function defineJarvisTool<INPUT extends {}>(
@@ -52,5 +62,8 @@ export function createAiTools(
     execute: async (input) => {
       return jarvisTool.execute(input, jarvis);
     },
+    ...(jarvisTool.inputContentDescription
+      ? { inputContentDescription: jarvisTool.inputContentDescription }
+      : {}),
   }));
 }

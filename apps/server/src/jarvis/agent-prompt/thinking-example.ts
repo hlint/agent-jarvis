@@ -13,7 +13,7 @@ export const thinkingExample = `
 
 **Next**
 
-- **done=false** — need SKILL content before any browser toolCalls; later: execute → **delivery** round → **housekeeping** (diary, etc.) if rules require.
+- **done=false** — **this run** must continue with more **toolCalls** (read SKILL, then automation)—not “waiting for user.” **Semantics of \`done\`**: only **done=true** after you have finished HK and have no more tools **in this run** (e.g. after asking the user something and HK is done).
 
 \`\`\`json
 {

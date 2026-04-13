@@ -46,10 +46,10 @@ const writeFileTool = defineJarvisTool({
   description: "Write file. Creates dirs if needed. Overwrites if exists.",
   inputSchema: z.object({
     path: z.string().describe(PATH_DESC),
-    content: z.string().describe("Content"),
   }),
+  inputContentDescription: "Content of the file",
   execute: async (input, _jarvis) => {
-    await fs.outputFile(resolvePath(input.path), input.content);
+    await fs.outputFile(resolvePath(input.path), input.content ?? "");
   },
 });
 
@@ -59,13 +59,13 @@ const editFileTool = defineJarvisTool({
   inputSchema: z.object({
     path: z.string().describe(PATH_DESC),
     oldText: z.string().describe("Exact text to find"),
-    newText: z.string().describe("Replacement"),
     globalReplace: z
       .boolean()
       .optional()
       .default(false)
       .describe("Replace all (default: first only)"),
   }),
+  inputContentDescription: "New content to replace",
   execute: async (input, _jarvis) => {
     const resolvedPath = resolvePath(input.path);
     if (!fs.existsSync(resolvedPath)) {
@@ -76,8 +76,8 @@ const editFileTool = defineJarvisTool({
       throw new Error(`File ${resolvedPath} does not contain the old text`);
     }
     const newContent = input.globalReplace
-      ? content.replaceAll(input.oldText, input.newText)
-      : content.replace(input.oldText, input.newText);
+      ? content.replaceAll(input.oldText, input.content ?? "")
+      : content.replace(input.oldText, input.content ?? "");
     await fs.outputFile(resolvedPath, newContent);
   },
 });
@@ -87,11 +87,11 @@ const appendToFileTool = defineJarvisTool({
   description: "Append to file. Creates dirs and file if not exists.",
   inputSchema: z.object({
     path: z.string().describe(PATH_DESC),
-    content: z.string().describe("Content to append"),
   }),
+  inputContentDescription: "Content to append",
   execute: async (input, _jarvis) => {
     await fs.ensureFile(resolvePath(input.path));
-    await fs.appendFile(resolvePath(input.path), input.content);
+    await fs.appendFile(resolvePath(input.path), input.content ?? "");
   },
 });
 

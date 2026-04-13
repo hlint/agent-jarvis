@@ -8,19 +8,19 @@ export const execTool = defineJarvisTool({
   description:
     "Execute a command and return the result. Result: stdout (string), stderr (string), exitCode (number), exitedDueToTimeout? (true if killed by timeout)",
   inputSchema: z.object({
-    command: z.string().describe("Command"),
     cwd: z
       .string()
       .optional()
       .describe("Working dir (relative to runtime if not absolute)"),
   }),
+  inputContentDescription: "Command to execute",
   execute: async (input, _jarvis) => {
     const cwd = input.cwd
       ? path.isAbsolute(input.cwd)
         ? input.cwd
         : path.join(path.resolve(DIR_RUNTIME), input.cwd)
       : path.resolve(DIR_RUNTIME);
-    const result = await runBun(input.command, cwd, {});
+    const result = await runBun(input.content ?? "", cwd, {});
     return result;
   },
 });

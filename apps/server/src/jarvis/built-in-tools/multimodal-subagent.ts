@@ -51,12 +51,6 @@ const multimodalSubagentTool = defineJarvisTool({
   description:
     "Delegate file understanding to a multimodal sub-AI. Use when you need to process files the main AI cannot read: transcribe audio, read PDF, analyze images, summarize documents. The sub-AI understands these files. ",
   inputSchema: z.object({
-    instruction: z
-      .string()
-      .min(1)
-      .describe(
-        "Instruction for the sub-AI (e.g. 'Transcribe this audio', 'Summarize this PDF', 'Describe what you see in these images')",
-      ),
     fileType: z.enum(["audio", "video", "image", "other"]),
     files: z
       .array(z.string().min(1))
@@ -66,8 +60,11 @@ const multimodalSubagentTool = defineJarvisTool({
         "File paths (absolute or relative to runtime) or http(s) URLs. Examples: /path/to/audio.mp3, https://example.com/doc.pdf",
       ),
   }),
+  inputContentDescription:
+    "Instruction for the sub-AI (e.g. 'Transcribe this audio', 'Summarize this PDF', 'Describe what you see in these images')",
+
   execute: async (input, jarvis) => {
-    const { instruction, files, fileType } = input;
+    const { content: instruction, files, fileType } = input;
     const duty = FILETYPE_TO_DUTY[fileType];
     const provider = jarvis.config.getAiProvider(duty);
     if (!provider) {
@@ -80,7 +77,9 @@ const multimodalSubagentTool = defineJarvisTool({
       | { type: "image"; image: ArrayBuffer | URL; mediaType?: string }
       | { type: "file"; data: ArrayBuffer | URL; mediaType: string };
 
-    const contentParts: ContentPart[] = [{ type: "text", text: instruction }];
+    const contentParts: ContentPart[] = [
+      { type: "text", text: instruction ?? "" },
+    ];
 
     for (const fileInput of files) {
       let mediaType: string;

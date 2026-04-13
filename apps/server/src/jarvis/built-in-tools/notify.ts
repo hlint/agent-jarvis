@@ -8,17 +8,16 @@ const notifyTool = defineJarvisTool({
     (jarvis.config.getConfig().ntfyTopic
       ? ""
       : "DISABLED due to missing NTFY topic"),
-  inputSchema: z.object({
-    message: z.string().describe("Message"),
-  }),
-  execute: async ({ message }, jarvis) => {
+  inputSchema: z.object({}),
+  inputContentDescription: "Message to send",
+  execute: async (input, jarvis) => {
     const topic = jarvis.config.getConfig().ntfyTopic;
     if (!topic) {
       throw new Error("DISABLED due to missing NTFY topic");
     }
     fetch(`https://ntfy.sh/${topic}`, {
       method: "POST",
-      body: message,
+      body: input.content ?? "",
     });
   },
 });

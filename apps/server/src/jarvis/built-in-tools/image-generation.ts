@@ -65,12 +65,6 @@ const imageGenerationTool = defineJarvisTool({
       ? `(Image model: ${jarvis.config.getAiProvider("IMAGE_GENERATION")!.model})`
       : "DISABLED due to missing image generation provider"),
   inputSchema: z.object({
-    prompt: z
-      .string()
-      .min(1)
-      .describe(
-        "Text description of the image to generate (e.g. 'A cat wearing a hat', 'Put a donut next to the flour')",
-      ),
     referenceImages: z
       .array(z.string().min(1))
       .max(MAX_REF_IMAGES)
@@ -96,6 +90,8 @@ const imageGenerationTool = defineJarvisTool({
         "Optional. Whether to automatically attach and display the generated image to the user. Defaults to true.",
       ),
   }),
+  inputContentDescription:
+    "Text description of the image to generate (e.g. 'A cat wearing a hat', 'Put a donut next to the flour')",
   execute: async (input, jarvis) => {
     const provider = jarvis.config.getAiProvider("IMAGE_GENERATION");
     if (!provider) {
@@ -105,12 +101,13 @@ const imageGenerationTool = defineJarvisTool({
     }
 
     const {
-      prompt,
+      content,
       referenceImages = [],
       aspectRatio,
       outputPath = path.join("tmp", `generated-${shortId()}`),
       autoAttach = true,
     } = input;
+    const prompt = content ?? "";
 
     const model = getImageModel(provider);
 

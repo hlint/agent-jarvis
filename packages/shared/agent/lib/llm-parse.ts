@@ -1,7 +1,17 @@
 import type z from "zod";
 import type { AgentTool } from "../defines/tool";
 
-function lastOpenJsonFence(result: string): { index: number; matchLen: number } | null {
+function firstOpenJsonFence(
+  result: string,
+): { index: number; matchLen: number } | null {
+  const m = result.match(/```\s*json\s*\n?/);
+  if (!m || m.index === undefined) return null;
+  return { index: m.index, matchLen: m[0].length };
+}
+
+function lastOpenJsonFence(
+  result: string,
+): { index: number; matchLen: number } | null {
   let best: { index: number; matchLen: number } | null = null;
   for (const m of result.matchAll(/```\s*json\s*\n?/g)) {
     if (m.index !== undefined) {
@@ -69,12 +79,51 @@ export function betterJsonParse(jsonStr: string) {
   return JSON.parse(match[0]);
 }
 
+/**
+ * Composite tool-parameter reply: ```json ... ``` then a newline, then raw long
+ * text as `content` (matches getToolParamsPrompt composite rules).
+ *
+ * Uses the **first** ```json fence so long text may contain its own fenced
+ * blocks (e.g. markdown docs) without being mistaken for the parameter JSON.
+ */
+export function parseCompositeToolParamsOutput<T>(
+  raw: string,
+  jsonSchema: z.ZodSchema<T>,
+): T & { content: string } {
+  const fence = firstOpenJsonFence(raw);
+  if (!fence) {
+    throw new Error("Expected a ```json ... ``` code block");
+  }
+  const afterOpen = raw.slice(fence.index + fence.matchLen);
+  const closeIdx = afterOpen.indexOf("```");
+  if (closeIdx === -1) {
+    throw new Error("Unclosed ```json code block");
+  }
+  const jsonRaw = afterOpen.slice(0, closeIdx).trim();
+  let afterClose = afterOpen.slice(closeIdx + 3);
+  if (afterClose.startsWith("\r\n")) {
+    afterClose = afterClose.slice(2);
+  } else if (afterClose.startsWith("\n")) {
+    afterClose = afterClose.slice(1);
+  } else if (afterClose.startsWith("\r")) {
+    afterClose = afterClose.slice(1);
+  }
+  const longText = afterClose;
+
+  const jsonValue = jsonSchema.parse(betterJsonParse(jsonRaw));
+  return { ...jsonValue, content: longText } as T & { content: string };
+}
+
 export function getToolsInfo(tools: AgentTool[]) {
   return JSON.stringify(
     tools.map((tool) => ({
       name: tool.name,
       description: tool.description,
       inputSchema: tool.inputSchema.toJSONSchema(),
+      ...(tool.inputContentDescription != null &&
+      tool.inputContentDescription !== ""
+        ? { inputContentDescription: tool.inputContentDescription }
+        : {}),
     })),
   );
 }

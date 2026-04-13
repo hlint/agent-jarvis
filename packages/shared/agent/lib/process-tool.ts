@@ -8,7 +8,7 @@ import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import type { ToolCallItem } from "../defines/think-action";
 import { getToolParamsPrompt } from "../prompt/tool-params";
-import { betterJsonParse } from "./llm-parse";
+import { betterJsonParse, parseCompositeToolParamsOutput } from "./llm-parse";
 
 export default async function processToolCalling({
   dialogHistory,
@@ -61,6 +61,7 @@ export default async function processToolCalling({
             content: getToolParamsPrompt({
               description: tool.description,
               inputSchemaJson,
+              inputContentDescription: tool.inputContentDescription,
             }),
           },
           {
@@ -75,7 +76,7 @@ ${JSON.stringify(clonedHistory)}
 Tool to call: ${toolCall.toolName}
 Brief (intended purpose): ${toolCall.brief}
 
-Generate the input parameters as JSON.`,
+Generate the Input Parameters as JSON and Input Content(if needed).`,
           },
         ],
       });
@@ -89,9 +90,15 @@ Generate the input parameters as JSON.`,
         }
       }
 
-      const toolInput = tool.inputSchema.parse(
-        betterJsonParse(content),
-      ) as unknown;
+      const useCompositeInput =
+        tool.inputContentDescription != null &&
+        tool.inputContentDescription.trim() !== "";
+
+      const toolInput = useCompositeInput
+        ? parseCompositeToolParamsOutput(content, tool.inputSchema)
+        : (tool.inputSchema.parse(betterJsonParse(content)) as {
+            content?: string;
+          });
       entry.content = undefined;
       entry.toolInput = toolInput;
       onDialogHistoryChange();

@@ -31,7 +31,7 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
           brief={brief}
           status={status}
           tag={historyEntry.toolInput.path}
-          content={`OLD TEXT >>>\n${historyEntry.toolInput.oldText}\n========================\nNEW TEXT >>>\n\n${historyEntry.toolInput.newText}`}
+          content={`OLD TEXT >>>\n${historyEntry.toolInput.oldText}\n========================\nNEW TEXT >>>\n\n${historyEntry.toolInput.content ?? ""}`}
           disableMarkdown
         />
       );
