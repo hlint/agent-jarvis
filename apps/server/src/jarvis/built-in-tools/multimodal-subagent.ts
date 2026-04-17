@@ -1,4 +1,5 @@
 import path from "node:path";
+import { streamTextOptions } from "@repo/shared/agent/defines/constant";
 import { getLanguageModel } from "@repo/shared/llm/get-model";
 import { generateText } from "ai";
 import fs from "fs-extra";
@@ -118,6 +119,7 @@ const multimodalSubagentTool = defineJarvisTool({
     const { text } = await generateText({
       model: getLanguageModel(provider),
       providerOptions: provider.providerOptions,
+      ...streamTextOptions,
       messages: [
         {
           role: "user",

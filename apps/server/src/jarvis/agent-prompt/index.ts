@@ -6,7 +6,7 @@ import { getNotes, getRecentDiaries, getSkills, getSOUL } from "./data-loaders";
 const CHROMIUM_CDP_VERSION_URL = "http://localhost:9222/json/version";
 const CDP_CHECK_TIMEOUT_MS = 500;
 
-async function isChromiumRemoteDebuggingAvailable(): Promise<boolean> {
+export async function isChromiumRemoteDebuggingAvailable(): Promise<boolean> {
   try {
     const ctrl = new AbortController();
     const timeout = setTimeout(() => ctrl.abort(), CDP_CHECK_TIMEOUT_MS);
@@ -28,8 +28,7 @@ async function isChromiumRemoteDebuggingAvailable(): Promise<boolean> {
 export default async function buildAgentPrompt(
   jarvis: Jarvis,
 ): Promise<string> {
-  const chromiumWithRemoteDebuggingPortOpened =
-    await isChromiumRemoteDebuggingAvailable();
+  // const chromiumWithRemoteDebuggingPortOpened = await isChromiumRemoteDebuggingAvailable();
   return JSON.stringify(
     {
       systemEnvironment: {
@@ -37,7 +36,7 @@ export default async function buildAgentPrompt(
         chatUiWebsiteUrl: jarvis.websiteUrl || "unknown",
         operationSystem: process.platform,
         defaultCwd: DIR_RUNTIME,
-        chromiumWithRemoteDebuggingPortOpened, // real-time check of port 9222
+        // chromiumWithRemoteDebuggingPortOpened, // real-time check of port 9222
       },
       MySoul: getSOUL(),
       MyCronTasks: jarvis.cron.listCronTasks(),

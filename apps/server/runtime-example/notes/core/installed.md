@@ -18,12 +18,12 @@ which bun && bun --version
 
 ## Common Tools
 
-| Category | Tools               |
-| -------- | ------------------- |
-| Runtime  | python, nodejs, bun |
-| Dev      | tmux                |
-| AI       | agent-browser       |
-| Other    |                     |
+| Category | Tools                   |
+| -------- | ----------------------- |
+| Runtime  | python, nodejs, bun     |
+| Dev      | tmux                    |
+| Browser  | agent-browser, chromium |
+| Other    |                         |
 
 ## Notes
 

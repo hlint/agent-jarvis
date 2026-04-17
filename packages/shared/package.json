@@ -7,6 +7,7 @@
     "./example": "./example.ts",
     "./defines/jarvis": "./defines/jarvis.ts",
     "./agent/defines/history": "./agent/defines/history.ts",
+    "./agent/defines/constant": "./agent/defines/constant.ts",
     "./lib/state-sync": "./lib/state-sync.ts",
     "./lib/time": "./lib/time.ts",
     "./llm/get-model": "./llm/get-model.ts",

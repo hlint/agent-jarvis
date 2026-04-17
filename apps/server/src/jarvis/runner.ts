@@ -7,7 +7,7 @@ import { thinkingRequirements } from "./agent-prompt/thinking-requirements";
 import type Jarvis from "./jarvis";
 import { builtInTools, createAiTools } from "./tool";
 
-const MAX_RETRY_COUNT = 3;
+const MAX_RETRY_COUNT = 2;
 
 /**
  * Runner executes the core loop of AI conversation:

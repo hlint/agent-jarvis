@@ -3,7 +3,7 @@ import { cloneDeep } from "es-toolkit";
 import { timeFormat } from "../../lib/time";
 import { shortId } from "../../lib/utils";
 import { getLanguageModel } from "../../llm/get-model";
-import { LLM_TIMEOUT_MS } from "../defines/constant";
+import { streamTextOptions } from "../defines/constant";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import type { ToolCallItem } from "../defines/think-action";
@@ -54,7 +54,7 @@ export default async function processToolCalling({
       const { fullStream } = streamText({
         model: getLanguageModel(thinkProvider),
         providerOptions: thinkProvider.providerOptions,
-        timeout: LLM_TIMEOUT_MS,
+        ...streamTextOptions,
         messages: [
           {
             role: "system",
