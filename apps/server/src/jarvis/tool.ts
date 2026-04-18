@@ -9,12 +9,14 @@ import imageSearchTool from "./built-in-tools/image-search";
 import multimodalSubagentTool from "./built-in-tools/multimodal-subagent";
 import notifyTool from "./built-in-tools/notify";
 import webExtractTool from "./built-in-tools/web-extract";
-import webSearchTool from "./built-in-tools/web-search";
+import webSearchSearxngTool from "./built-in-tools/web-search-searxng";
+import webSearchTavilyTool from "./built-in-tools/web-search-tavily";
 import type Jarvis from "./jarvis";
 
 export const builtInTools = [
   attachmentTool,
-  webSearchTool,
+  webSearchTavilyTool,
+  webSearchSearxngTool,
   webExtractTool,
   imageSearchTool,
   imageGenerationTool,

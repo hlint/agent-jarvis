@@ -6,13 +6,14 @@ import { defineJarvisTool } from "../tool";
 
 const ENABLE_SUB_AGENT = false;
 
-const webSearchTool = defineJarvisTool({
-  name: "web-search",
+const webSearchTavilyTool = defineJarvisTool({
+  name: "web-search-tavily",
   description: (jarvis) =>
-    "Search the public internet. Use when you need to find info without a specific URL. For known URL content, use web-extract. NOT for intranet/internal resources." +
+    "Tavily web search. Use for: finance, breaking and mainstream news, time-sensitive low-noise snippets for decisions. " +
+    "Use web-search-searxng for deep technical or long-form non-news research." +
     (jarvis.config.getConfig().tavilyApiKey
       ? ""
-      : "DISABLED due to missing Tavily API key"),
+      : " DISABLED: missing Tavily API key."),
   inputSchema: z.object({
     query: z.string().describe("Query"),
     topic: z.enum(["general", "news", "finance"]).describe("Topic"),
@@ -52,7 +53,7 @@ const webSearchTool = defineJarvisTool({
   },
 });
 
-export default webSearchTool;
+export default webSearchTavilyTool;
 
 const SearchResultsDistillerPrompt = `
 Role: You are a Search Results Distiller. Your task is to refine web search results into a compact, high-value summary for another AI Agent.
