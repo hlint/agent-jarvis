@@ -1,10 +1,14 @@
 import "katex/dist/katex.min.css";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
-import { math } from "@streamdown/math";
+import { createMathPlugin } from "@streamdown/math";
 import { mermaid } from "@streamdown/mermaid";
 import { Streamdown } from "streamdown";
 import { cn } from "@/lib/utils";
+
+const math = createMathPlugin({
+  singleDollarTextMath: true, // Enable $...$ syntax (default: false)
+});
 
 export default function JarvisMarkdown({
   text = "",
