@@ -1,5 +1,4 @@
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
-import { pick } from "es-toolkit";
 import { LightbulbIcon } from "lucide-react";
 import InfoCard from "../components/InfoCard";
 
@@ -17,16 +16,7 @@ export default function JarvisThinkingEntry(historyEntry: HistoryEntry) {
         historyEntry.content ||
         historyEntry.action?.reasoning
       }
-      data={
-        historyEntry.action
-          ? pick(historyEntry.action, [
-              "toolCalls",
-              "outputDirectly",
-              "outputNext",
-              "done",
-            ])
-          : {}
-      }
+      data={historyEntry.action || {}}
     />
   );
 }

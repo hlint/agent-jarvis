@@ -17,44 +17,33 @@ export const ToolCallItemSchema = z.object({
     .describe("The order of the tool call in the action flow."),
 });
 
-export const ThinkActionSchema = z.object({
-  reasoning: z
-    .string()
-    .optional()
-    .describe(
-      "Optional. Brief 1-2 sentence summary of why this action. Omit when thinking is provided separately before the JSON.",
-    ),
-  toolCalls: z
-    .array(ToolCallItemSchema)
-    .optional()
-    .describe("Optional. Tool call tasks to execute in parallel."),
-  outputNext: z
-    .string()
-    .optional()
-    .describe(
-      "Optional. Instructions for how the output node should present the content. Only provide guidance and requirements, not the complete output content.",
-    ),
-  outputDirectly: z
-    .string()
-    .optional()
-    .describe(
-      "Optional. Immediate output, runs before tools. Use for: (1) short status before tools e.g. 'Searching, please wait'; (2) simple brief reply when done. Same semantics—instant display—different timing.",
-    ),
-  done: z
-    .boolean()
-    .describe(
-      "True: after this round's actions (toolCalls/outputNext/outputDirectly/silent) complete, the execution loop ends. False: after tools run, control returns to the think node for another round.",
-    ),
-});
+export const ThinkActionSchema = z.discriminatedUnion("actionType", [
+  z.object({
+    actionType: z.literal("tool-call"),
+    statusInstruction: z
+      .string()
+      .optional()
+      .describe(
+        "Optional: instructions to immediately show a short user-visible status message before running toolCalls (e.g. 'Searching for information...').",
+      ),
+    toolCalls: z
+      .array(ToolCallItemSchema)
+      .optional()
+      .default([])
+      .describe("Tool call tasks to execute."),
+  }),
+  z.object({
+    actionType: z.literal("output"),
+    outputInstruction: z
+      .string()
+      .describe(
+        "Instructions for how the output node should present the content.",
+      ),
+  }),
+  z.object({
+    actionType: z.literal("done"),
+  }),
+]);
 
 export type ThinkAction = z.infer<typeof ThinkActionSchema>;
 export type ToolCallItem = z.infer<typeof ToolCallItemSchema>;
-
-export function isNothingToDo(thinkAction: ThinkAction) {
-  return (
-    thinkAction.done &&
-    !thinkAction.toolCalls &&
-    !thinkAction.outputNext &&
-    !thinkAction.outputDirectly
-  );
-}

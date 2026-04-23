@@ -13,8 +13,8 @@ ${description}
 ${inputSchemaJson}
 
 [Rules]
-- Output ONLY a valid JSON object. No other text, no markdown, no explanation.
-- You MUST wrap the JSON in a markdown code block with the \`\`\`json ... \`\`\` syntax
+- Output exactly one markdown \`\`\`json ... \`\`\` fenced block that contains exactly one JSON object.
+- Do not output any other text (no explanations, no extra markdown) before or after the fenced block.
 - The JSON MUST conform to the schema above (types, required fields, enums, etc.)
 - Infer parameter values from the user message (tool name, brief, dialog context)
 - Use the user's language for string values when appropriate

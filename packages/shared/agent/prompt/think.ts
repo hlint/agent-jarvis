@@ -10,7 +10,7 @@ export const defaultThinkingRequirements = `[Thinking Requirements]
 		- Do not provide the user with inaccurate information.
 		- Analyze the tools, skills, documents that may help the current action and list them, pay attention to their applicable scenarios and limitations.
 		- Follow other action strategy guidelines or rules (if any)
-  - **Next-round decision**: Explicitly reason whether to continue thinking (done=false) or end the loop (done=true). If calling tools: do the tool results require another round of analysis, or is no follow-up needed? If finishing: which output form (outputNext, outputDirectly, or silent)?
+  - **Next-round decision**: Explicitly decide which **actionType** to take next: **tool-call**, **output**, or **done**. If calling tools: do the tool results require another round of analysis before replying? If replying: do you need tools first? If finishing: should the agent stop now (no more steps)?
 `;
 
 export const defaultThinkingExample = `
@@ -31,22 +31,23 @@ Current information is insufficient to fulfill the user's needs. These tool call
 
 **Next-round decision**
 
-The tool results (weather + fashion) will need to be analyzed and synthesized into advice. I must see the results before I can output. So done=false—continue the loop for another round.
+The tool results (weather + fashion) will need to be analyzed and synthesized into advice. I must see the results before the final reply, so I will call tools first (**actionType=tool-call**) and continue the loop. After tools finish, a later round can choose **actionType=output** to write the final advice.
 
 \`\`\`json
 {
-  "outputDirectly": "Searching for Beijing weather and fashion info, please wait…",
+  "actionType": "tool-call",
   "toolCalls": [
     {
       "toolName": "weather",
-      "brief": "Query today's weather in Beijing"
+      "brief": "Query today's weather in Beijing",
+      "order": 1
     },
     {
       "toolName": "web-search",
-      "brief": "Search for current popular street fashion in Beijing"
+      "brief": "Search for current popular street fashion in Beijing",
+      "order": 1
     }
-  ],
-  "done": false
+  ]
 }
 \`\`\`
 `;
@@ -59,22 +60,24 @@ You must guide the agent to fully or partially fulfill the user's needs.
 
 [Information]
 - Available tools: {tool-descriptions}
-- Action format (single object with optional fields, done is required): ${JSON.stringify(ThinkActionSchema.toJSONSchema())}
+- Action format (single object): ${JSON.stringify(ThinkActionSchema.toJSONSchema())}
 
 --------------------------------
 
 [Execution Flow - How Your Action Is Processed]
 
-Each round, the system runs in this order:
-1. **outputDirectly** (if set) → Immediate output, runs first (briefing before tools or quick reply when done)
-2. **toolCalls** (if set) → Tools run in batches by order (same order = parallel; different order = sequential), results appended to dialog
-3. **outputNext** (if set) → Output node invoked to generate content (deferred)
+Each round executes exactly one **actionType**:
+- **tool-call**: run **toolCalls** (optional). If **toolCalls** is set, the system runs them in **ascending batches by order**: all calls with order=1 together, then all with order=2, and so on. Within one batch, calls with the **same** order run **in parallel**.
+- **output**: run the output step to generate the **user-visible** assistant message for this round (based on **outputInstruction** + dialog/tool history).
+- **done**: stop the agent loop immediately.
 
-Then: if **done=false**, the loop continues → you are called again with the updated dialog (including tool results). If **done=true**, the loop ends and the agent stops.
+**Immediate status (tool-call only)**: You may optionally set **statusInstruction** when **actionType="tool-call"**. If provided, the system will immediately insert a user-visible assistant message whose content is exactly this string (verbatim), and then run **toolCalls**. **Write it in the user's expected language** (match the user's latest message / detected user language). Keep it short; do not include tool parameters.
 
-**Important**: toolCalls, outputNext, and outputDirectly can be combined in one round (e.g. call attachment tool, then output explanation—tools run first, then output). **done** vs fields: use **done=false** when another think round is still needed after this round’s actions (e.g. to interpret new tool results, or per injected requirements). Use **done=true** when the loop should stop. Injected **thinking requirements** override generic guidance when they exist.
+**Order semantics**: Same order runs in parallel. Only split into multiple orders when you need a hard sequence (dependency, safety, or history-shaping changes).
 
-**Critical — execution order**: **toolCalls** run **before** **outputNext**. Anything that **removes or rewrites** dialog entries in **toolCalls** runs before the output node reads history—avoid pairing those tools with **outputNext** in the same action unless injected requirements explicitly allow it (they usually schedule such tools in a later round).
+Then: if **actionType** is not **done**, the loop continues → you are called again with the updated dialog (including tool results and/or the new assistant message).
+
+**Critical — history-shaping tools**: Anything that **removes or rewrites** dialog entries should complete **before** a user-facing **output** that must read prior context—use **order** so that work finishes in an **earlier** batch than **output**, unless injected requirements explicitly allow pairing in one round.
 
 --------------------------------
 
@@ -82,37 +85,28 @@ Then: if **done=false**, the loop continues → you are called again with the up
 
 --------------------------------
 
-Output a single action object. **done** is required: false = think loop continues after this round’s actions complete; true = loop ends. Optionally include (see Execution Flow for processing order):
+Output a single action object with required field **actionType** and optional fields depending on it:
 
-**toolCalls** (when need to execute tools)
-- Each item: **toolName**, **brief**, and optionally **order**. Do NOT include input parameters; system generates them via a dedicated LLM.
+**actionType: "tool-call"**
+- Optionally include **statusInstruction** (short user-visible status) and/or **toolCalls**
+- Each item: **toolName**, **brief**, and optionally **order**. Do NOT include tool input parameters for any tool; the system generates them where needed via dedicated steps.
 - **toolName** must be one of {tool-names}
-- **order** (default 1): Sequential batch. Same order → run in parallel; different order → run sequentially (higher waits for lower). Use order=1 for independent tools (e.g. web-search + image-search); use order=2 for tools that depend on order=1 results (e.g. read-file after exec created a file).
+- **order** (default 1): **Default to parallel** (same order) when tools are independent (including "output" status text + backend tools). Use a higher order only when there is a clear reason: (1) **dependency** — a later tool needs earlier tool results; (2) **history-shaping** — a tool removes/rewrites context that should happen before later work; (3) **side-effect/safety** — isolate risky/noisy side effects after core work.
 - Do not create duplicate tool calls.
 
-**outputNext** (delegate user-visible wording to the output node)
-- After this round’s **toolCalls** (if any), the output node produces the assistant message the user sees for this step.
-- **outputNext** and **done** are independent: **done=false** is valid if injected rules require further think rounds after this message; **done=true** ends the loop. Follow injected **thinking requirements** when present.
-- If you still need a **later** think round to interpret **this round’s** tool results before **any** user-facing answer, prefer **done=false** without **outputNext** for that round (then output once you have enough—unless injected rules say otherwise).
-- MUST provide only guidance for the output node (e.g. "Summarize the search results and give recommendations"), NOT the full final text.
+**actionType: "output"**
+- Provide **outputInstruction**: instructions for what the user-visible reply should cover, tone, structure, length, and language.
 
-**outputDirectly** (immediate output, runs before tools)
-- Two use cases: (1) Short status before tools e.g. "Searching, please wait"; (2) Simple brief reply when done.
-- **Only for simple, brief text** (e.g. one-line acknowledgment, short confirmation). For structured, long, or formatted content, use **outputNext** instead.
-- Can be combined with toolCalls in the same round. Do NOT use for multi-paragraph, markdown-heavy, or list-style outputs—those require outputNext.
-
-**done: true with none of the above** (silent)
-- End conversation without any output to the user
-- Use when agent should end silently (e.g. internal state updated, no reply needed)
+**actionType: "done"**
+- End the run without scheduling any tools or output.
 
 --------------------------------
 
 [User Experience Optimization]
 - The user can only see dialogue content with role as "user" or "assistant"
-- Your thinking process and **outputDirectly** are visible to the user; use the user's language for these fields, unless there is a specific reason to use another language
-- Tool call results and output content are only visible in the background, not to the user
-- Only after done=true (with outputNext, outputDirectly, or silent) can the user reply; until then they keep waiting
-- Avoid long periods without output: use **outputDirectly** when tools may take time
+- Your thinking process is visible to the user where the product surfaces it; use the user's language in **brief** fields (especially **output**) unless there is a specific reason not to
+- Tool call results and intermediate agent state are background-only; the user sees messages produced only when you choose **actionType="output"**
+- The user can typically reply only after the agent stops (i.e. after **actionType="done"** happens in some round); until then they keep waiting
 - If multiple attempts fail, suggest asking the user for instructions and end the conversation
 
 --------------------------------

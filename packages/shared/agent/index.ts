@@ -1,8 +1,7 @@
 import { delay } from "es-toolkit";
 import z from "zod";
 import type { AgentContext } from "./defines/context";
-import processOutputDirectly from "./lib/process-output-directly";
-import processOutputNext from "./lib/process-output-next";
+import processOutput from "./lib/process-output";
 import processThinking from "./lib/process-thinking";
 import processToolCalling from "./lib/process-tool";
 
@@ -22,7 +21,9 @@ export default async function callAgent({
   stoppedReason?: string;
   stoppedBy?: "completed" | "user" | "max-steps-reached" | "error";
 }> {
-  const context: AgentContext = { ...props };
+  const context: AgentContext = {
+    ...props,
+  };
   let steps = 0;
   while (steps < maxSteps) {
     steps++;
@@ -46,12 +47,13 @@ export default async function callAgent({
       const thinkAction = await processThinking(context);
       context.lastThinkAction = thinkAction;
       checkAbort();
-      await processOutputDirectly(context);
-      checkAbort();
-      await processToolCalling(context);
-      checkAbort();
-      await processOutputNext(context);
-      if (thinkAction.done) {
+      if (thinkAction.actionType === "tool-call") {
+        await processToolCalling(context);
+      }
+      if (thinkAction.actionType === "output") {
+        await processOutput(context);
+      }
+      if (thinkAction.actionType === "done") {
         break;
       }
       checkAbort();

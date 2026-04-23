@@ -10,16 +10,37 @@ import type { ToolCallItem } from "../defines/think-action";
 import { getToolParamsPrompt } from "../prompt/tool-params";
 import { betterJsonParse, parseCompositeToolParamsOutput } from "./llm-parse";
 
-export default async function processToolCalling({
-  dialogHistory,
-  tools,
-  thinkProvider,
-  additionalAgentInformation,
-  onDialogHistoryChange,
-  lastThinkAction,
-}: AgentContext) {
-  const toolCalls = lastThinkAction?.toolCalls;
-  if (!toolCalls) return;
+export default async function processToolCalling(context: AgentContext) {
+  const {
+    dialogHistory,
+    tools,
+    thinkProvider,
+    additionalAgentInformation,
+    onDialogHistoryChange,
+    lastThinkAction,
+  } = context;
+  if (!lastThinkAction || lastThinkAction.actionType !== "tool-call") {
+    throw new Error("processToolCalling called without a tool-call thinkAction");
+  }
+  if (
+    lastThinkAction.statusInstruction != null &&
+    lastThinkAction.statusInstruction.trim() !== ""
+  ) {
+    const entry: HistoryEntry = {
+      id: shortId(),
+      role: "agent-reply",
+      status: "completed",
+      createdTime: timeFormat(),
+      createdAt: Date.now(),
+      content: lastThinkAction.statusInstruction,
+    };
+    dialogHistory.push(entry);
+    onDialogHistoryChange();
+  }
+  const toolCalls = lastThinkAction.toolCalls;
+  if (!toolCalls || toolCalls.length === 0) {
+    return;
+  }
   const handleToolCall = async (toolCall: ToolCallItem) => {
     const clonedHistory = cloneDeep(dialogHistory);
     const entry: HistoryEntry = {
@@ -114,10 +135,10 @@ Generate the Input Parameters as JSON and Input Content(if needed).`,
     }
     onDialogHistoryChange();
   };
-  const maxOrder = Math.max(...toolCalls.map((t) => t.order));
+  const maxOrder = Math.max(...toolCalls.map((t) => t.order ?? 1));
   for (let i = 1; i <= maxOrder; i++) {
     const toolCallsWithOrder = toolCalls.filter((t) => t.order === i);
-    const tasks = toolCallsWithOrder.map((t) => handleToolCall(t));
+    const tasks = toolCallsWithOrder.map((t: ToolCallItem) => handleToolCall(t));
     await Promise.all(tasks);
   }
 }

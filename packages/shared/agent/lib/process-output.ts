@@ -9,18 +9,17 @@ import type { HistoryEntry } from "../defines/history";
 import { outputContentPrompt } from "../prompt/output";
 import { getToolsInfo, parsePrompt } from "./llm-parse";
 
-export default async function processOutput({
-  thinkProvider,
-  outputProvider,
-  tools,
-  dialogHistory,
-  additionalAgentInformation,
-  lastThinkAction,
-  onDialogHistoryChange,
-}: AgentContext) {
-  const outputNext = lastThinkAction?.outputNext;
-  if (!outputNext) return;
-  // Invoke output node
+export async function processOutputInstruction(
+  {
+    thinkProvider,
+    outputProvider,
+    tools,
+    dialogHistory,
+    additionalAgentInformation,
+    onDialogHistoryChange,
+  }: AgentContext,
+  outputInstruction: string,
+) {
   const clonedDialogHistory = cloneDeep(dialogHistory);
   const entry: HistoryEntry = {
     id: shortId(),
@@ -53,6 +52,8 @@ export default async function processOutput({
 	
 	Dialog History:
 	${JSON.stringify(clonedDialogHistory)}
+
+	Output Instruction: ${outputInstruction}
 	`,
         },
       ],
@@ -66,12 +67,38 @@ export default async function processOutput({
       }
     }
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     entry.status = "failed";
-    entry.content = `Something went wrong when outputting content.`;
-    entry.error = error instanceof Error ? error.message : String(error);
+    entry.content = `Something went wrong when outputting content: ${errorMessage}`;
+    entry.error = errorMessage;
     onDialogHistoryChange();
     throw error;
   }
   entry.status = "completed";
   onDialogHistoryChange();
+}
+
+export default async function processOutput({
+  thinkProvider,
+  outputProvider,
+  tools,
+  dialogHistory,
+  additionalAgentInformation,
+  lastThinkAction,
+  onDialogHistoryChange,
+}: AgentContext) {
+  if (!lastThinkAction || lastThinkAction.actionType !== "output") {
+    throw new Error("processOutput called without an output thinkAction");
+  }
+  return await processOutputInstruction(
+    {
+      thinkProvider,
+      outputProvider,
+      tools,
+      dialogHistory,
+      additionalAgentInformation,
+      onDialogHistoryChange,
+    } as AgentContext,
+    lastThinkAction.outputInstruction,
+  );
 }

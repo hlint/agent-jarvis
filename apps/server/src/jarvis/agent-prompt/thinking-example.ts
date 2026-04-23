@@ -1,3 +1,5 @@
+// Override the content in the package (packages/shared/agent/prompt/think.ts) to fit the Jarvis project.
+
 export const thinkingExample = `
 **Status**
 
@@ -13,18 +15,19 @@ export const thinkingExample = `
 
 **Next**
 
-- **done=false** — **this run** must continue with more **toolCalls** (read SKILL, then automation)—not “waiting for user.” **Semantics of \`done\`**: only **done=true** after you have finished HK and have no more tools **in this run** (e.g. after asking the user something and HK is done).
+- Choose **actionType="tool-call"** because this run must continue with more tool work (read SKILL, then automation)—not “waiting for user.” Only choose **actionType="done"** after you have finished all required work in this run.
 
 \`\`\`json
 {
-  "outputDirectly": "Reading browser automation skill documentation…",
+  "actionType": "tool-call",
+  "statusInstruction": "正在读取浏览器自动化技能文档，请稍等…",
   "toolCalls": [
     {
-      "brief": "Read skills/agent-browser/SKILL.md for form workflow and commands",
-      "toolName": "read-file"
+      "toolName": "read-file",
+      "brief": "Read runtime/skills/agent-browser/SKILL.md for form workflow and commands",
+      "order": 1
     }
-  ],
-  "done": false
+  ]
 }
 \`\`\`
 `;

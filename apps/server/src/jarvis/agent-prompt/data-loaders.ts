@@ -9,8 +9,16 @@ export function getSOUL(): string {
   return fs.readFileSync(PATH_SOUL, "utf-8");
 }
 
-export function getSkills(): Record<string, string> {
-  const result: Record<string, string> = {};
+export function getSkills(): Array<{
+  name: string;
+  description: string;
+  path: string;
+}> {
+  const result: Array<{
+    name: string;
+    description: string;
+    path: string;
+  }> = [];
   if (!fs.existsSync(DIR_SKILLS)) return result;
   const entries = fs.readdirSync(DIR_SKILLS, { withFileTypes: true });
   for (const ent of entries) {
@@ -22,7 +30,12 @@ export function getSkills(): Record<string, string> {
       const { attributes } = fm(raw);
       const metadata = attributes as { name?: string; description?: string };
       const name = metadata.name ?? ent.name;
-      result[name] = metadata.description ?? "";
+      const relativePath = relative(DIR_RUNTIME, skillPath).replace(/\\/g, "/");
+      result.push({
+        name,
+        description: metadata.description ?? "",
+        path: relativePath,
+      });
     } catch {
       // skip this skill
     }

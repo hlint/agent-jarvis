@@ -1,9 +1,6 @@
 import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
-import {
-  isNothingToDo,
-  type ThinkAction,
-} from "@repo/shared/agent/defines/think-action";
+import type { ThinkAction } from "@repo/shared/agent/defines/think-action";
 import type {
   AttachmentEntry,
   JarvisChatStatus,
@@ -28,6 +25,17 @@ import {
 } from "./defines";
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
+
+// TODO Verify this function.
+function isNothingToDo(action: ThinkAction | undefined) {
+  if (!action) return true;
+  if (action.actionType === "done") return true;
+  if (action.actionType === "output") return false;
+  const hasStatus =
+    action.statusInstruction != null && action.statusInstruction.trim() !== "";
+  const hasToolCalls = (action.toolCalls?.length ?? 0) > 0;
+  return !hasStatus && !hasToolCalls;
+}
 
 // If the system is inactive for N minutes, it will push a system-inactive event.
 const SYSTEM_INACTIVE_INTERVAL = 5 * 60 * 1000;

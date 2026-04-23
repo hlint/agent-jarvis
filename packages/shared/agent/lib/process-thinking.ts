@@ -69,6 +69,9 @@ export default async function processThinking({
     });
     let content = "";
     for await (const chunk of fullStream) {
+      if (chunk.type === "reasoning-delta") {
+        // console.log("reasoning-delta", chunk.text);
+      }
       if (chunk.type === "text-delta") {
         content += chunk.text;
         entry.content = extractStreamingThinkMarkdown(content);

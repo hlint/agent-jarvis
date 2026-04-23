@@ -21,3 +21,7 @@ One line: `**Weekday, Month DD, YYYY HH:MM:** content`. Blank line between entri
 1. **Factual first** — Concrete achievements, include project/file paths
 2. **Brief reflection** — Key takeaway or lesson
 3. **Strict format** — Single paragraph per entry
+
+## User experience
+
+- Diary writing is usually a fast **background** action. In general, do **not** emit a user-visible statusInstruction like “writing diary…” for it.
