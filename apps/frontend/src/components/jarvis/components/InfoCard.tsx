@@ -93,7 +93,7 @@ export default function InfoCard({
                 ref={preRef}
                 className="text-xs leading-relaxed whitespace-pre-wrap text-foreground/50 font-mono m-0 px-7"
                 style={{
-                  height: "2.8em", // Approximately 2 lines
+                  height: "4.2em", // Approximately 3 lines
                   lineHeight: "1.4em",
                   overflowY: "hidden",
                   overflowX: "hidden",

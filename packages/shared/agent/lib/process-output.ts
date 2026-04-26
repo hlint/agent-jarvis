@@ -59,7 +59,13 @@ export async function processOutputInstruction(
       ],
     });
     let content = "";
+    let reasoning = "";
     for await (const chunk of fullStream) {
+      if (chunk.type === "reasoning-delta") {
+        reasoning += chunk.text;
+        entry.reasoning = reasoning;
+        onDialogHistoryChange();
+      }
       if (chunk.type === "text-delta") {
         content += chunk.text;
         entry.content = content;

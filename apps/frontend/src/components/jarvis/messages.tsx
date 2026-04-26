@@ -51,6 +51,7 @@ export default function JarvisMessages() {
               entry = (
                 <JarvisAssistantEntry
                   text={historyEntry.content ?? ""}
+                  reasoning={historyEntry.reasoning ?? ""}
                   status={historyEntry.status ?? "pending"}
                   createdAt={historyEntry.createdAt}
                 />

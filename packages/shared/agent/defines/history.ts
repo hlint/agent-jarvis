@@ -10,6 +10,7 @@ export type HistoryEntry = {
   status?: "pending" | "completed" | "failed";
   createdAt: number;
   createdTime: string;
+  reasoning?: string;
   content?: string;
   error?: string;
   from?: "user" | "assistant" | "system";

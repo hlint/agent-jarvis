@@ -69,16 +69,22 @@ export default async function processThinking({
       ...streamTextOptions,
     });
     let content = "";
+    let reasoningRaw = "";
     for await (const chunk of fullStream) {
+      if (chunk.type === "reasoning-delta") {
+        reasoningRaw += chunk.text;
+        entry.reasoning = reasoningRaw;
+        onDialogHistoryChange();
+      }
       // Reasoning models may put the full markdown+JSON in the reasoning stream and leave the main text stream empty, so we must accumulate both to parse the action reliably.
-      if (chunk.type === "reasoning-delta" || chunk.type === "text-delta") {
+      if (chunk.type === "text-delta") {
         content += chunk.text;
         entry.content = extractStreamingThinkMarkdown(content);
         onDialogHistoryChange();
       }
     }
     const [reasoning, thinkAction] = parseThinkMarkdownAndAction(
-      content,
+      content || reasoningRaw,
       ThinkActionSchema,
     );
     const normalizedReasoning =

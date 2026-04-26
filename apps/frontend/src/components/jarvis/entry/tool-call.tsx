@@ -9,17 +9,25 @@ import {
 import InfoCard from "../components/InfoCard";
 
 export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
-  const { status, brief, toolName, toolInput } = historyEntry;
-  const hasToolInput = toolInput != null;
-  if (!historyEntry.error && hasToolInput) {
+  const {
+    status,
+    brief,
+    toolName,
+    toolInput,
+    reasoning,
+    content,
+    error,
+    toolOutput,
+  } = historyEntry;
+  if (!error) {
     if (toolName === "read-file") {
       return (
         <InfoCard
           icon={<FileTextIcon className="size-4" />}
           brief={brief}
           status={status}
-          tag={historyEntry.toolInput.path}
-          content={historyEntry.toolOutput}
+          tag={toolInput?.path}
+          content={toolOutput || reasoning}
           disableMarkdown
         />
       );
@@ -30,8 +38,12 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
           icon={<FilePenLineIcon className="size-4" />}
           brief={brief}
           status={status}
-          tag={historyEntry.toolInput.path}
-          content={`OLD TEXT >>>\n${historyEntry.toolInput.oldText}\n========================\nNEW TEXT >>>\n\n${historyEntry.toolInput.content ?? ""}`}
+          tag={toolInput?.path}
+          content={
+            toolInput
+              ? `OLD TEXT >>>\n${toolInput?.oldText ?? ""}\n========================\nNEW TEXT >>>\n\n${toolInput?.content ?? ""}`
+              : reasoning
+          }
           disableMarkdown
         />
       );
@@ -42,8 +54,8 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
           icon={<FilePenIcon className="size-4" />}
           brief={brief}
           status={status}
-          tag={historyEntry.toolInput.path}
-          content={historyEntry.toolInput.content}
+          tag={toolInput?.path}
+          content={toolInput?.content || reasoning}
           disableMarkdown
         />
       );
@@ -55,14 +67,8 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
       brief={brief}
       status={status}
       tag={toolName}
-      content={hasToolInput ? undefined : historyEntry.content}
-      data={
-        hasToolInput
-          ? pick(historyEntry, ["toolInput", "toolOutput", "data", "error"])
-          : historyEntry.error
-            ? { error: historyEntry.error }
-            : undefined
-      }
+      content={content || reasoning}
+      data={pick(historyEntry, ["toolInput", "toolOutput", "data", "error"])}
     />
   );
 }
