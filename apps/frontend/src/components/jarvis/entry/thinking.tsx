@@ -11,11 +11,9 @@ export default function JarvisThinkingEntry(historyEntry: HistoryEntry) {
       brief={"Reasoning"}
       tag={actionType}
       status={status}
-      content={
-        historyEntry.error ||
-        historyEntry.content ||
-        historyEntry.action?.reasoning
-      }
+      content={[historyEntry.content ?? "", historyEntry.error ?? ""].join(
+        "\n\n",
+      )}
       data={historyEntry.action || {}}
     />
   );

@@ -33,6 +33,7 @@ export default async function processThinking({
     id: shortId(),
     role: "agent-thinking",
     status: "pending",
+    content: "",
     createdTime: timeFormat(),
     createdAt: Date.now(),
   };
@@ -69,10 +70,8 @@ export default async function processThinking({
     });
     let content = "";
     for await (const chunk of fullStream) {
-      if (chunk.type === "reasoning-delta") {
-        // console.log("reasoning-delta", chunk.text);
-      }
-      if (chunk.type === "text-delta") {
+      // Reasoning models may put the full markdown+JSON in the reasoning stream and leave the main text stream empty, so we must accumulate both to parse the action reliably.
+      if (chunk.type === "reasoning-delta" || chunk.type === "text-delta") {
         content += chunk.text;
         entry.content = extractStreamingThinkMarkdown(content);
         onDialogHistoryChange();
@@ -82,15 +81,19 @@ export default async function processThinking({
       content,
       ThinkActionSchema,
     );
+    const normalizedReasoning =
+      reasoning.trim().length > 0
+        ? reasoning
+        : "*(No thinking text; model returned JSON-only action.)*";
     entry.status = "completed";
-    entry.content = reasoning;
+    entry.content = normalizedReasoning;
     entry.action = thinkAction;
     entry.inputTokens = (await usage).inputTokens;
     onDialogHistoryChange();
     return thinkAction;
   } catch (error) {
     entry.status = "failed";
-    entry.content = `Something went wrong during reasoning.`;
+    entry.content += `\n\nSomething went wrong during reasoning.`;
     entry.error = error instanceof Error ? error.message : String(error);
     onDialogHistoryChange();
     throw error;

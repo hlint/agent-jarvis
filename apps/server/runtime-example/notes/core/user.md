@@ -3,8 +3,10 @@ description: User profile placeholder
 autoLoad: true
 ---
 
+Update the user profile actively based on the conversation.
+
 - **Name**: Unknown (default: Boss)
-- **Language**: Unknown (infer from conversation)
-- **Location**: Unknown (infer from language)
-- **Timezone**: Unknown (infer from location)
-- **Units**: metric
+- **Language**: Unknown
+- **Location**: Unknown
+- **Timezone**: Unknown
+- **Units**: Unknown (default: metric)

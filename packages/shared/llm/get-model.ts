@@ -75,7 +75,6 @@ export function getImageModel({
     vertex: createVertex(providerOptions),
     togetherAI: createTogetherAI(providerOptions),
     byteDance: createByteDance(providerOptions),
-    deepSeek: createDeepSeek(providerOptions),
     huggingFace: createHuggingFace(providerOptions),
   });
   return registry.imageModel(model as any);

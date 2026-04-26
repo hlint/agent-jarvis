@@ -20,7 +20,9 @@ export default async function processToolCalling(context: AgentContext) {
     lastThinkAction,
   } = context;
   if (!lastThinkAction || lastThinkAction.actionType !== "tool-call") {
-    throw new Error("processToolCalling called without a tool-call thinkAction");
+    throw new Error(
+      "processToolCalling called without a tool-call thinkAction",
+    );
   }
   if (
     lastThinkAction.statusInstruction != null &&
@@ -129,6 +131,7 @@ Generate the Input Parameters as JSON and Input Content(if needed).`,
       entry.status = "completed";
     } catch (error) {
       entry.status = "failed";
+      entry.toolInput = entry.content;
       entry.content = undefined;
       entry.error = error instanceof Error ? error.message : String(error);
       entry.toolOutput = "Something went wrong when this tool was called.";
@@ -138,7 +141,9 @@ Generate the Input Parameters as JSON and Input Content(if needed).`,
   const maxOrder = Math.max(...toolCalls.map((t) => t.order ?? 1));
   for (let i = 1; i <= maxOrder; i++) {
     const toolCallsWithOrder = toolCalls.filter((t) => t.order === i);
-    const tasks = toolCallsWithOrder.map((t: ToolCallItem) => handleToolCall(t));
+    const tasks = toolCallsWithOrder.map((t: ToolCallItem) =>
+      handleToolCall(t),
+    );
     await Promise.all(tasks);
   }
 }

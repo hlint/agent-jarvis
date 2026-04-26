@@ -54,6 +54,8 @@ For **actionType="tool-call"**, you may also provide **statusInstruction** to im
 **Language rule (Jarvis-specific)**:
 - statusInstruction must be written in the user's expected language (match the user's latest message / detected user language), same as the final actionType="output" reply.
 
+For **actionType="done"**, you may also provide **finalMessage** to send one short user-visible closing line (verbatim) while ending the run. Use the user's expected language.
+
 ---
 
 ### Semantics of \`actionType\` (critical)

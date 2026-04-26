@@ -42,6 +42,12 @@ export const ThinkActionSchema = z.discriminatedUnion("actionType", [
   }),
   z.object({
     actionType: z.literal("done"),
+    finalMessage: z
+      .string()
+      .optional()
+      .describe(
+        "Optional: a short final user-visible message to send verbatim when ending the run (e.g. a brief goodbye). Must be in the user's expected language.",
+      ),
   }),
 ]);
 

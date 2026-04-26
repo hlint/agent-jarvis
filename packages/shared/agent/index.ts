@@ -1,6 +1,9 @@
 import { delay } from "es-toolkit";
 import z from "zod";
+import { timeFormat } from "../lib/time";
+import { shortId } from "../lib/utils";
 import type { AgentContext } from "./defines/context";
+import type { HistoryEntry } from "./defines/history";
 import processOutput from "./lib/process-output";
 import processThinking from "./lib/process-thinking";
 import processToolCalling from "./lib/process-tool";
@@ -54,6 +57,18 @@ export default async function callAgent({
         await processOutput(context);
       }
       if (thinkAction.actionType === "done") {
+        if (thinkAction.finalMessage != null && thinkAction.finalMessage !== "") {
+          const entry: HistoryEntry = {
+            id: shortId(),
+            role: "agent-reply",
+            status: "completed",
+            createdTime: timeFormat(),
+            createdAt: Date.now(),
+            content: thinkAction.finalMessage,
+          };
+          context.dialogHistory.push(entry);
+          context.onDialogHistoryChange();
+        }
         break;
       }
       checkAbort();
