@@ -14,5 +14,4 @@ export type AiProvider = {
   model: string;
   apiKey?: string;
   baseURL?: string;
-  providerOptions?: any;
 };

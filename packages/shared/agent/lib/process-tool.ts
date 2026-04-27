@@ -15,6 +15,7 @@ export default async function processToolCalling(context: AgentContext) {
     dialogHistory,
     tools,
     thinkProvider,
+    providerOptions,
     additionalAgentInformation,
     onDialogHistoryChange,
     lastThinkAction,
@@ -76,7 +77,7 @@ export default async function processToolCalling(context: AgentContext) {
       );
       const { fullStream } = streamText({
         model: getLanguageModel(thinkProvider),
-        providerOptions: thinkProvider.providerOptions,
+        providerOptions,
         ...streamTextOptions,
         messages: [
           {

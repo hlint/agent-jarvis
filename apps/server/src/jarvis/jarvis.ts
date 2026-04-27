@@ -165,6 +165,7 @@ export default class Jarvis {
           model: getLanguageModel(
             this.config.getAiProvider("VOICE_RECOGNITION")!,
           ),
+          providerOptions: this.config.getProviderOptions(),
           messages: [
             {
               role: "user",

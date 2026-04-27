@@ -38,6 +38,7 @@
     "@ai-sdk/xai": "^3.0.57",
     "ai": "^6.0.81",
     "fast-json-patch": "^3.1.1",
+    "jsonrepair": "^3.14.0",
     "lz-string": "^1.5.0",
     "vercel-minimax-ai-provider": "^0.0.2"
   },

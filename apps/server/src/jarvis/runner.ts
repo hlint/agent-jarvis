@@ -46,6 +46,7 @@ export default class Runner {
     const { stoppedReason, stoppedBy } = await callAgent({
       thinkProvider: chatProvider,
       outputProvider: chatProvider,
+      providerOptions: this.jarvis.config.getProviderOptions(),
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
       additionalAgentInformation: await buildAgentPrompt(this.jarvis),

@@ -1,3 +1,4 @@
+import { jsonrepair } from "jsonrepair";
 import type z from "zod";
 import type { AgentTool } from "../defines/tool";
 
@@ -102,9 +103,12 @@ export function extractStreamingThinkMarkdown(result: string) {
 }
 
 export function betterJsonParse(jsonStr: string) {
-  const match = jsonStr.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("No JSON object found in string");
-  return JSON.parse(match[0]);
+  // const match = jsonStr.match(/\{[\s\S]*\}/);
+  // if (!match) throw new Error("No JSON object found in string");
+  // return JSON.parse(match[0]);
+
+  // use jsonrepair to fix the json string
+  return JSON.parse(jsonrepair(jsonStr));
 }
 
 /** First ``` after JSON fence, same as existing composite long-text join rules. */

@@ -40,7 +40,7 @@ const webSearchTavilyTool = defineJarvisTool({
     const model = getLanguageModel(chatProvider);
     const { text } = await generateText({
       model,
-      providerOptions: chatProvider.providerOptions,
+      providerOptions: jarvis.config.getProviderOptions(),
       messages: [
         { role: "system", content: SearchResultsDistillerPrompt },
         {

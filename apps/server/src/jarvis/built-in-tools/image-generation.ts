@@ -123,7 +123,7 @@ const imageGenerationTool = defineJarvisTool({
 
     const result = await generateImage({
       model,
-      providerOptions: provider.providerOptions,
+      providerOptions: jarvis.config.getProviderOptions(),
       prompt: promptArg,
       n: 1,
       ...(aspectRatio && { aspectRatio }),

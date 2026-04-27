@@ -57,6 +57,7 @@ export function getImageModel({
 }: {
   apiKey?: string;
   baseURL?: string;
+  params?: any;
   model: string;
 }) {
   const providerOptions = {

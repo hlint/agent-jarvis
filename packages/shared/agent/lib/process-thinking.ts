@@ -23,6 +23,7 @@ export default async function processThinking({
   thinkProvider,
   tools,
   dialogHistory,
+  providerOptions,
   additionalAgentInformation,
   thinkingRequirements,
   onDialogHistoryChange,
@@ -42,7 +43,7 @@ export default async function processThinking({
   try {
     const { fullStream, usage } = streamText({
       model: getLanguageModel(thinkProvider),
-      providerOptions: thinkProvider.providerOptions,
+      providerOptions,
       messages: [
         {
           role: "system",

@@ -27,7 +27,7 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
           brief={brief}
           status={status}
           tag={toolInput?.path}
-          content={toolOutput || reasoning}
+          content={toolOutput || content || reasoning}
           disableMarkdown
         />
       );
@@ -42,7 +42,7 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
           content={
             toolInput
               ? `OLD TEXT >>>\n${toolInput?.oldText ?? ""}\n========================\nNEW TEXT >>>\n\n${toolInput?.content ?? ""}`
-              : reasoning
+              : content || reasoning
           }
           disableMarkdown
         />
@@ -55,7 +55,7 @@ export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
           brief={brief}
           status={status}
           tag={toolInput?.path}
-          content={toolInput?.content || reasoning}
+          content={toolInput?.content || content || reasoning}
           disableMarkdown
         />
       );

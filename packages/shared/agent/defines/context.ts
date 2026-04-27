@@ -6,6 +6,7 @@ import type { AgentTool } from "./tool";
 export type AgentContext = {
   thinkProvider: AiProvider;
   outputProvider?: AiProvider;
+  providerOptions?: Record<string, any>;
   tools: AgentTool[];
   dialogHistory: DialogHistory;
   additionalAgentInformation: string;

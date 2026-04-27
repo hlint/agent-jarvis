@@ -20,7 +20,6 @@ const configSchema = z.object({
       model: z.string(),
       apiKey: z.string(),
       baseURL: z.string().optional(),
-      providerOptions: z.any().optional(),
       duties: z.array(
         z.enum([
           "CHAT",
@@ -35,6 +34,7 @@ const configSchema = z.object({
       ),
     }),
   ),
+  providerOptions: z.record(z.string(), z.any()).optional(),
 });
 
 type Config = z.infer<typeof configSchema>;
@@ -61,6 +61,10 @@ export default class JarvisConfig {
 
   getAiProvider(dutyName: ProviderDuties) {
     return this.config.providers.find((t) => t.duties?.includes(dutyName));
+  }
+
+  getProviderOptions() {
+    return this.config.providerOptions;
   }
 
   private async load() {

@@ -16,6 +16,7 @@ export async function processOutputInstruction(
     tools,
     dialogHistory,
     additionalAgentInformation,
+    providerOptions,
     onDialogHistoryChange,
   }: AgentContext,
   outputInstruction: string,
@@ -34,7 +35,7 @@ export async function processOutputInstruction(
     const provider = outputProvider ?? thinkProvider;
     const { fullStream } = streamText({
       model: getLanguageModel(provider),
-      providerOptions: provider.providerOptions,
+      providerOptions,
       ...streamTextOptions,
       messages: [
         {

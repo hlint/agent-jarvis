@@ -5,8 +5,10 @@ autoLoad: true
 
 ## When
 
-- Run [context-prune] in a **tool-only** round **after** the user-visible answer for the task is already in the dialog—not while that answer still depends on entries you might delete.
-- **Never** put [context-prune] in the **same** thinking action as **outputNext**: in each round, **toolCalls** run first, then the output node reads history—pruning first would strip evidence the output still needs.
+- Default goal: keep effective context **< 50k tokens** so you have room for the next tool runs and a high-quality `output`.
+- Run `context-prune` in a **tool-call** step **after** the user-visible answer for the task is already in the dialog—not while that answer still depends on entries you might delete.
+- **Never** prune right before you still need to generate a user-visible answer from the current history. In Jarvis, each step is: **thinking** → either **tool-call** or **output** (or **done**). If the next step is going to be `actionType: "output"`, don’t delete anything the output might rely on.
+- If your estimated prompt context is **> 50k tokens** (or you’re nearing the model’s context limit), prune **obsolete early noise** first (dead ends, duplicates, superseded tool output). If you still need to retain something for continuity, prefer moving key facts into **durable/persistent storage** (e.g. diary/notes) and then pruning the raw transcript, instead of keeping long raw history in-context.
 
 Heuristic: dialog long (e.g. ≈4+ turns), topic shifted, or task delivered—then trim **clearly obsolete** noise from **earlier** attempts only.
 

@@ -118,7 +118,7 @@ const multimodalSubagentTool = defineJarvisTool({
 
     const { text } = await generateText({
       model: getLanguageModel(provider),
-      providerOptions: provider.providerOptions,
+      providerOptions: jarvis.config.getProviderOptions(),
       ...streamTextOptions,
       messages: [
         {

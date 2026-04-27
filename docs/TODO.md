@@ -1,4 +1,5 @@
 - [ ] UI: Better WebSocket reconnect and status indication
+- [ ] UI: Navigate between the entries
 - [ ] Sub-agent?
 - [x] Production ready docker build
 - [ ] Better deployment documentation

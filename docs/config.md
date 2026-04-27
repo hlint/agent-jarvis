@@ -19,6 +19,12 @@ Agent Jarvis uses `config.json` for configuration. Copy `config.example.json` to
       "duties": ["CHAT"]
     }
   ],
+  "providerOptions": {
+    "openai": {
+      "reasoningEffort": "low",
+      "textVerbosity": "low"
+    }
+  },
   "tavilyApiKey": "",
   "pexelsApiKey": "",
   "ntfyTopic": "",
@@ -40,7 +46,6 @@ Each provider corresponds to one AI service and can handle one or more duties.
 | `model`           | string   | ✓        | Model ID in `provider:model-id` format             |
 | `apiKey`          | string   | ✓        | API key for this provider                          |
 | `baseURL`         | string   |          | Custom API endpoint for proxy or self-hosted usage |
-| `providerOptions` | object   |          | Provider-specific options passed to the AI SDK     |
 | `duties`          | string[] | ✓        | List of duties this provider handles               |
 
 ### Model ID format
@@ -84,6 +89,38 @@ A provider can handle multiple duties. The system looks up a provider by duty ty
 | `VIDEO_GENERATION`  | Generate video                                              |
 
 **Minimum config**: At least one provider with the `CHAT` duty is required.
+
+---
+
+## Provider options
+
+`providerOptions` is an optional **top-level** object that is forwarded to the underlying AI SDK call.
+
+- **Shape**: keys are provider names (e.g. `openai`, `anthropic`), values are provider-specific option objects.
+- **Behavior**: only the active provider's options are used for a given request.
+
+Example:
+
+```json
+{
+  "providers": [
+    {
+      "model": "openai:gpt-5.2",
+      "apiKey": "sk-...",
+      "duties": ["CHAT"]
+    }
+  ],
+  "providerOptions": {
+    "openai": {
+      "reasoningEffort": "low",
+      "reasoningSummary": "auto",
+      "textVerbosity": "low"
+    }
+  }
+}
+```
+
+For the full list of supported options per provider, see [AI SDK Provider Options](https://ai-sdk.dev/docs/foundations/provider-options).
 
 ### Example: Single provider for chat
 

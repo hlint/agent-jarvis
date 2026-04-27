@@ -36,7 +36,7 @@ const webExtractTool = defineJarvisTool({
     const chatProvider = jarvis.config.getAiProvider("CHAT")!;
     const { text } = await generateText({
       model: getLanguageModel(chatProvider),
-      providerOptions: chatProvider.providerOptions,
+      providerOptions: jarvis.config.getProviderOptions(),
       messages: [
         {
           role: "system",
