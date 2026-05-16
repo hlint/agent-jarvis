@@ -1,6 +1,6 @@
 import { ThinkActionSchema } from "../defines/think-action";
 
-export const defaultThinkingRequirements = `[Thinking Requirements]
+export const defaultThinkingInstruction = `[Thinking Requirements]
 - Include:
   - User needs: Based on the context, correctly understand and break down the user's needs, and give a list of broken down needs
   - Current status: Record user language (detected from user input or user's needs, default is English), actions taken, and information obtained
@@ -11,9 +11,10 @@ export const defaultThinkingRequirements = `[Thinking Requirements]
 		- Analyze the tools, skills, documents that may help the current action and list them, pay attention to their applicable scenarios and limitations.
 		- Follow other action strategy guidelines or rules (if any)
   - **Next-round decision**: Explicitly decide which **actionType** to take next: **tool-call**, **output**, or **done**. If calling tools: do the tool results require another round of analysis before replying? If replying: do you need tools first? If finishing: should the agent stop now (no more steps)?
-`;
 
-export const defaultThinkingExample = `
+--------------------------------
+
+[Output Example]
 **User Needs**
 
 - The user is in Beijing and wants clothing advice for today
@@ -81,9 +82,7 @@ Then: if **actionType** is not **done**, the loop continues → you are called a
 
 --------------------------------
 
-{thinking-requirements}
-
---------------------------------
+[Action Format]
 
 Output a single action object with required field **actionType** and optional fields depending on it:
 
@@ -123,7 +122,6 @@ Output a single action object with required field **actionType** and optional fi
 
 --------------------------------
 
-[Output Example]
-{thinking-example}
+{thinking-instruction}
 
 `;

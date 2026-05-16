@@ -5,44 +5,37 @@ autoLoad: true
 
 ## When
 
-- Default goal: keep effective context **< 50k tokens** so you have room for the next tool runs and a high-quality `output`.
-- Run `context-prune` in a **tool-call** step **after** the user-visible answer for the task is already in the dialog—not while that answer still depends on entries you might delete.
-- **Never** prune right before you still need to generate a user-visible answer from the current history. In Jarvis, each step is: **thinking** → either **tool-call** or **output** (or **done**). If the next step is going to be `actionType: "output"`, don’t delete anything the output might rely on.
-- If your estimated prompt context is **> 50k tokens** (or you’re nearing the model’s context limit), prune **obsolete early noise** first (dead ends, duplicates, superseded tool output). If you still need to retain something for continuity, prefer moving key facts into **durable/persistent storage** (e.g. diary/notes) and then pruning the raw transcript, instead of keeping long raw history in-context.
+- **Delivery** = a discrete answer to a discrete question. That answer in the dialog is a safe **moment** to prune—not a signal that the whole thread is over.
+- **Timing:** run `context-prune` in a **tool-call** step **after** the user-visible answer is already in the dialog—not while that answer still depends on entries you might delete.
+- **Never** prune when the next step is `actionType: "output"` and the output still needs those entries. Jarvis steps: **thinking** → **tool-call** or **output** (or **done**).
+- **Goal:** keep effective context **< 30k tokens** for room to run tools and produce a high-quality `output`.
 
-Heuristic: dialog long (e.g. ≈4+ turns), topic shifted, or task delivered—then trim **clearly obsolete** noise from **earlier** attempts only.
+### How aggressively to prune
 
-**Not the same as “thread ended.”** “Task delivered” does **not** mean the user will stop asking **related** follow-ups. Do not use pruning to wipe **reusable** context you would otherwise **reload or re-derive** on the next turn.
+| Situation | Bias |
+| --- | --- |
+| User asks a **series of related** questions on the same thread/topic | **Keep** — loaded refs, session handles, prior conclusions, enough trace for “same for …”, “undo”, “fix step 3”. |
+| User asks **several unrelated** questions in a row (clear topic pivots) | **Prune** — drop prior topic’s obsolete scaffolding (dead ends, superseded tool I/O, intermediate thinking) once each sub-answer is delivered. |
+| Estimated context **≥ 30k** (or near model limit) | **Prune actively** regardless of related vs unrelated. Drop obsolete noise first; move must-keep facts to **durable storage** (diary/notes), then prune the raw transcript. |
 
-## Continuity (likely follow-ups on the same thread)
+Heuristic for “related”: same codebase/feature, same debugging session, explicit “also / what about / same for …”. Heuristic for “unrelated”: new subject, new repo area, or no reasonable expectation the next turn reuses prior tool output.
 
-Pruning should remove **obsolete noise**, not **assets** that are still **cheap for this thread but expensive to recreate**: loaded reference material, stable environmental facts, and minimal state for continuing the same kind of work.
+## Keep
 
-**Keep (until the topic clearly shifts or you must meet a hard context limit):**
-
-1. **Loaded references** — Text you explicitly pulled into the turn (notes, specs, skills, long doc excerpts, retrieved chunks). If the user may ask another question in the **same area**, dropping the full body forces a **repeat fetch** and duplicated setup. Prefer keeping the material or a **dense summary you would actually reuse**, not a vague one-liner that omits constraints.
-2. **Environment and session continuity** — Facts and handles the next instruction may need again: tool/session identifiers, ports or endpoints, cwd or branch, feature flags, “last X we touched,” remote/browser/MCP attachment context—unless the user asked to reset or start clean.
-3. **Trace depth vs. redundancy** — After conclusions are in your reply, you may still remove **duplicate** or **superseded** tool output. Keep **enough** raw detail that a follow-up (“same for …”, “undo that”, “fix step 3”) does not require replaying the entire history from zero **while** the conversation is still on that thread.
-
-**Examples (non-exhaustive):** a skill or project note you read for the task; browser/CDP/session flags and last relevant URL; MCP resource bodies you relied on; file paths and symbols central to the current edit.
-
-Reserve **aggressive** cuts of the categories above for **topic shift**, explicit archival/summary, or **hard** context limits—not routine “cleanup” after every sub-task.
-
-## Preserve
-
-- Recent **user** messages and lasting user instructions.
-- Your **latest user-visible reply** for the task.
-- Anything still needed to **justify** that reply (if unsure, do not remove).
-- Durable rules and references needed for follow-ups.
+- Recent **user** messages and lasting instructions.
+- Your **latest user-visible reply** and anything needed to **justify** it (if unsure, keep the id).
+- While the thread stays **on-topic:** loaded references, session continuity (ids, ports, cwd/branch, browser/MCP context), and enough raw detail that a related follow-up does not require replaying the full history.
+- Durable rules and facts needed across turns (or already written to diary/notes).
 
 ## Remove
 
 - Failed attempts / dead ends that no longer affect the delivered answer or active debugging.
 - Redundancy (duplicates, echoed prompts).
-- Stale intermediate scaffolding (old thinking blocks, superseded tool I/O) **after** outcomes are in the delivered answer or elsewhere (e.g. diary).
+- Stale scaffolding **after** outcomes are in the delivered answer or durable storage—especially from **prior unrelated** topics once a new one is underway.
+- Under **≥ 30k**, anything obsolete even if the thread is still related; re-fetch or reload from storage instead of hoarding raw transcript.
 
 ## Principles
 
-- Do not prune to “save space” while the answer still depends on those entries.
-- If unsure, keep the id.
+- Don’t prune for “space” while the answer still depends on those entries.
 - Prefer dropping obsolete **intermediate** entries, not the user’s words or your final explanation.
+- Related follow-ups → preserve assets; unrelated pivots → trim earlier noise; **always** enforce the 30k ceiling.

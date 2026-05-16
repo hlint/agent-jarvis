@@ -2,6 +2,7 @@ import { z } from "zod";
 import { defineJarvisTool } from "../tool";
 
 /** SearXNG tab / category names (pick at most one per request). */
+/*
 const SEARXNG_CATEGORIES = [
   "general",
   "videos",
@@ -35,6 +36,7 @@ const SEARXNG_CATEGORIES = [
   "wikimedia",
   "define",
 ] as const;
+ */
 
 /** Base URL without trailing slash; path `/search` is appended. */
 function searxngBaseUrl(): string {
@@ -52,12 +54,13 @@ const webSearchSearxngTool = defineJarvisTool({
     "Use web-search-tavily for finance and breaking mainstream news.",
   inputSchema: z.object({
     query: z.string().min(1).describe("Search query (SearXNG parameter q)"),
-    categories: z
-      .enum(SEARXNG_CATEGORIES)
-      .optional()
-      .describe(
-        "Optional: pick exactly one SearXNG category tab (omit for instance default / broad web).",
-      ),
+    // Disable categories for now, since it could be inferred from the query
+    // categories: z
+    //   .enum(SEARXNG_CATEGORIES)
+    //   .optional()
+    //   .describe(
+    //     "Optional: pick exactly one SearXNG category tab (omit for instance default / broad web).",
+    //   ),
     engines: z
       .string()
       .optional()
@@ -91,7 +94,7 @@ const webSearchSearxngTool = defineJarvisTool({
   execute: async (input) => {
     const {
       query,
-      categories,
+      // categories,
       engines,
       language,
       pageno,
@@ -103,7 +106,7 @@ const webSearchSearxngTool = defineJarvisTool({
     const params = new URLSearchParams();
     params.set("q", query);
     params.set("format", "json");
-    if (categories) params.set("categories", categories);
+    // if (categories) params.set("categories", categories);
     if (engines) params.set("engines", engines);
     if (language) params.set("language", language);
     if (pageno != null) params.set("pageno", String(pageno));

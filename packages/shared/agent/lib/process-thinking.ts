@@ -7,11 +7,7 @@ import { streamTextOptions } from "../defines/constant";
 import type { AgentContext } from "../defines/context";
 import type { HistoryEntry } from "../defines/history";
 import { ThinkActionSchema } from "../defines/think-action";
-import {
-  defaultThinkingExample,
-  defaultThinkingRequirements,
-  thinkPrompt,
-} from "../prompt/think";
+import { defaultThinkingInstruction, thinkPrompt } from "../prompt/think";
 import {
   extractStreamingThinkMarkdown,
   getToolsInfo,
@@ -25,9 +21,8 @@ export default async function processThinking({
   dialogHistory,
   providerOptions,
   additionalAgentInformation,
-  thinkingRequirements,
+  thinkingInstruction,
   onDialogHistoryChange,
-  thinkingExample,
 }: AgentContext) {
   const clonedDialogHistory = cloneDeep(dialogHistory);
   const entry: HistoryEntry = {
@@ -50,9 +45,8 @@ export default async function processThinking({
           content: parsePrompt(thinkPrompt, {
             "tool-descriptions": getToolsInfo(tools),
             "tool-names": JSON.stringify(tools.map((tool) => tool.name)),
-            "thinking-requirements":
-              thinkingRequirements || defaultThinkingRequirements,
-            "thinking-example": thinkingExample || defaultThinkingExample,
+            "thinking-instruction":
+              thinkingInstruction || defaultThinkingInstruction,
           }),
         },
         {

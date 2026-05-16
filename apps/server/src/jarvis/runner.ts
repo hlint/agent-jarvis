@@ -1,9 +1,10 @@
+import { join } from "node:path";
 import callAgent from "@repo/shared/agent/index";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
+import fs from "fs-extra";
 import buildAgentPrompt from "./agent-prompt";
-import { thinkingExample } from "./agent-prompt/thinking-example";
-import { thinkingRequirements } from "./agent-prompt/thinking-requirements";
+import { DIR_RUNTIME } from "./defines";
 import type Jarvis from "./jarvis";
 import { builtInTools, createAiTools } from "./tool";
 
@@ -50,8 +51,10 @@ export default class Runner {
       tools: createAiTools(builtInTools, this.jarvis),
       dialogHistory,
       additionalAgentInformation: await buildAgentPrompt(this.jarvis),
-      thinkingRequirements,
-      thinkingExample,
+      thinkingInstruction: await fs.readFile(
+        join(DIR_RUNTIME, "mindset", "thinking-instruction.md"),
+        "utf8",
+      ),
       abortSignal,
       onDialogHistoryChange: () => {
         this.jarvis.notifyDialogHistoryChanged();
