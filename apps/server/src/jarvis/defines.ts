@@ -10,10 +10,6 @@ export const DIR_RUNTIME_EXAMPLE = join(process.cwd(), "./runtime-example");
 export const PATH_INITIALIZED = join(DIR_RUNTIME, "initialized.json");
 export const PATH_CHAT_STATE = join(DIR_RUNTIME, "data/chat-state.json");
 export const PATH_WEBSITE_URL = join(DIR_RUNTIME, "data/website-url.txt");
-export const PATH_TELEGRAM_CHAT_ID = join(
-  DIR_RUNTIME,
-  "data/telegram-chat-id.txt",
-);
 export const PATH_CONFIG = IS_DEV
   ? join(process.cwd(), "../../config.json")
   : join(process.cwd(), "config.json");

@@ -5,4 +5,3 @@
 - [ ] Better deployment documentation
 - [ ] Find skills -> notes? (skills add does not support --path yet)
 - [x] Lite version pre-install git, tmux and other tools
-- [x] Telegram integration (Reactivate)

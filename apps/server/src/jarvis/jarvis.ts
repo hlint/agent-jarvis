@@ -12,8 +12,7 @@ import { generateText } from "ai";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
-import JarvisChannelTelegram from "./channel-telegram";
-import JarvisChannelWeb from "./channel-web";
+import JarvisWebSocket from "./web-socket";
 import JarvisConfig from "./config";
 import JarvisCron from "./cron";
 import {
@@ -43,8 +42,7 @@ const SYSTEM_INACTIVE_ENABLED = false;
 
 export default class Jarvis {
   public runner = new Runner(this);
-  public channelWeb = new JarvisChannelWeb();
-  public channelTelegram = new JarvisChannelTelegram(this);
+  public webSocket = new JarvisWebSocket();
   public state = new JarvisStateManager(this);
   public cron = new JarvisCron(this);
   public config = new JarvisConfig(this);
@@ -117,23 +115,21 @@ export default class Jarvis {
     this.state.init();
     this.cron.init();
     this.config.init();
-    this.channelTelegram.init();
   }
 
-  incomingUserMessage(content: string, from: "web" | "telegram") {
+  incomingUserMessage(content: string) {
     this.pushHistoryEntry({
       id: nanoid(6),
       role: "user",
       createdAt: Date.now(),
       createdTime: timeFormat(),
       content: content,
-      channel: from,
     });
     this.retryCount = 0;
     this.wakeUp();
   }
 
-  async incomingAttachment(file: File, from: "web" | "telegram") {
+  async incomingAttachment(file: File) {
     await fs.ensureDir(DIR_TMP);
     const ext = file.name ? (/\.\w+$/.exec(file.name)?.[0] ?? "") : "";
     const filename = `${shortId()}${ext}`;
@@ -144,7 +140,6 @@ export default class Jarvis {
       id: attachmentId,
       role: "attachment",
       from: "user",
-      channel: from,
       createdAt: Date.now(),
       createdTime: timeFormat(),
       data: {
@@ -251,16 +246,10 @@ export default class Jarvis {
     this.state.setState({
       status,
     });
-    this.channelWeb.pushWebSocketMessage({
+    this.webSocket.pushWebSocketMessage({
       type: "chat-status-update",
       status,
     });
-    const isTyping = status !== "idle";
-    if (isTyping) {
-      this.channelTelegram.startTyping();
-    } else {
-      this.channelTelegram.stopTyping();
-    }
   }
 
   setWebsiteUrl(websiteUrl: string) {

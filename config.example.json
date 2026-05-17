@@ -8,9 +8,5 @@
   ],
   "tavilyApiKey": "",
   "pexelsApiKey": "",
-  "ntfyTopic": "",
-  "telegram": {
-    "token": "",
-    "userId": ""
-  }
+  "ntfyTopic": ""
 }

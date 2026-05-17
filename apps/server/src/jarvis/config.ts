@@ -9,12 +9,6 @@ const configSchema = z.object({
   tavilyApiKey: z.string().optional(),
   pexelsApiKey: z.string().optional(),
   ntfyTopic: z.string().optional(),
-  telegram: z
-    .object({
-      token: z.string(),
-      userId: z.string(),
-    })
-    .optional(),
   providers: z.array(
     z.object({
       model: z.string(),
@@ -89,7 +83,6 @@ export default class JarvisConfig {
       return;
     }
     this.config = result.data;
-    this.jarvis.channelTelegram.reload();
   }
 
   private watchChanges() {

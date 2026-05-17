@@ -156,7 +156,6 @@ const imageGenerationTool = defineJarvisTool({
         id: shortId(),
         role: "attachment",
         from: "assistant",
-        channel: "tool-call",
         createdAt: Date.now(),
         createdTime: timeFormat(),
         data: {

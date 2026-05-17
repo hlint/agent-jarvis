@@ -46,13 +46,13 @@ export default function jarvisMiddleware() {
           ctx.set.status = 400;
           return { success: false, error: "No file provided" };
         }
-        await jarvis.incomingAttachment(uploadedFile, "web");
+        await jarvis.incomingAttachment(uploadedFile);
         return { success: true };
       })
       .post(
         "/jarvis/user-message",
         ({ body }: { body: { content: string } }) => {
-          jarvis.incomingUserMessage(body.content, "web");
+          jarvis.incomingUserMessage(body.content);
           return { success: true };
         },
         { body: z.object({ content: z.string() }) },
@@ -63,7 +63,7 @@ export default function jarvisMiddleware() {
       })
       .ws("/jarvis/ws", {
         open: (ws) => {
-          jarvis.channelWeb.saveWsClient({
+          jarvis.webSocket.saveWsClient({
             id: ws.id,
             type: "websocket",
             pushMessage: (message) => {
@@ -72,7 +72,7 @@ export default function jarvisMiddleware() {
           });
         },
         close: (ws) => {
-          jarvis.channelWeb.removeWsClient(ws.id);
+          jarvis.webSocket.removeWsClient(ws.id);
         },
       })
   );

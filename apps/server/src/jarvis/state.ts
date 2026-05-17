@@ -42,7 +42,6 @@ export class JarvisStateManager {
   }
 
   pushDiff = throttle(() => {
-    this.syncTelegramsyncDialogHistory();
     this.syncWsDialogHistory();
     this.persist();
   }, 500);
@@ -57,40 +56,12 @@ export class JarvisStateManager {
       this.chatState.dialogHistory,
     );
     this.previousDialogHistory = cloneDeep(this.chatState.dialogHistory);
-    this.jarvis.channelWeb.pushWebSocketMessage({
+    this.jarvis.webSocket.pushWebSocketMessage({
       type: "dialog-history-patch",
       fromId: previousSnapshotId,
       toId: newSnapshotId,
       diff,
     });
-  }
-
-  // Sync Telegram state
-  private syncTelegramsyncDialogHistory() {
-    const newCompletedDialogHistory = this.getNewCompletedDialogHistory();
-    newCompletedDialogHistory.forEach((t) => {
-      this.jarvis.channelTelegram.pushTelegramMessage(t);
-    });
-  }
-
-  // From before/after state, find newly completed chat messages (user and agent)
-  private getNewCompletedDialogHistory() {
-    const newCompletedDialogHistory: DialogHistory = [];
-    for (const item of this.chatState.dialogHistory) {
-      const previousItem = this.previousDialogHistory.find(
-        (pItem) => pItem.id === item.id,
-      );
-      const isNewUserMessage = item.role === "user" && !previousItem;
-      const isNewAgentMessage =
-        item.role === "agent-reply" &&
-        item.status !== "pending" &&
-        (!previousItem || previousItem.status === "pending");
-      const isNewAttachmentEntry = item.role === "attachment" && !previousItem;
-      if (isNewUserMessage || isNewAgentMessage || isNewAttachmentEntry) {
-        newCompletedDialogHistory.push(item);
-      }
-    }
-    return newCompletedDialogHistory;
   }
 
   // Persist

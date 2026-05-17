@@ -14,7 +14,6 @@ export type HistoryEntry = {
   content?: string;
   error?: string;
   from?: "user" | "assistant" | "system";
-  channel?: string;
   action?: any;
   inputTokens?: number;
   data?: any;

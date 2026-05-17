@@ -6,7 +6,7 @@ type Client = {
   pushMessage: (message: WsMessage) => void;
 };
 
-export default class JarvisChannelWeb {
+export default class JarvisWebSocket {
   private wsClients: Map<string, Client> = new Map();
 
   saveWsClient(client: Client) {

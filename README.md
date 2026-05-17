@@ -6,7 +6,7 @@ An autonomous AI assistant that learns, remembers, and acts for you—with a per
 
 ## What It Does
 
-Jarvis is self-learning and proactive: reflects after tasks, logs insights, and anticipates needs. Diaries, notes, skills, and cron tasks live in a persistent workspace, so context carries over. It runs web search, file ops, shell commands, and browser automation end-to-end. Chat via web UI or Telegram.
+Jarvis is self-learning and proactive: reflects after tasks, logs insights, and anticipates needs. Diaries, notes, skills, and cron tasks live in a persistent workspace, so context carries over. It runs web search, file ops, shell commands, and browser automation end-to-end. Chat via the web UI.
 
 ## Differs from other “Claws”
 

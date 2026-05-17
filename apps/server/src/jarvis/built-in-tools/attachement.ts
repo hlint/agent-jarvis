@@ -50,7 +50,6 @@ const attachmentTool = defineJarvisTool({
         id,
         role: "attachment",
         from: "assistant",
-        channel: "tool-call",
         createdAt: Date.now(),
         createdTime,
         data: {
@@ -70,7 +69,6 @@ const attachmentTool = defineJarvisTool({
       id,
       role: "attachment",
       from: "assistant",
-      channel: "tool-call",
       createdTime,
       createdAt: Date.now(),
       data: {
