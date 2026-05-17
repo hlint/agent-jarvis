@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import type { AttachmentEntry } from "../defines/jarvis";
+import type { AttachmentEntry, HtmlViewEntry } from "../defines/jarvis";
 
 export function shortId(): string {
   return nanoid(6);
@@ -24,4 +24,8 @@ export function getAttachmentEntryDisplayText(entry: AttachmentEntry): string {
         })()
       : "File");
   return displayName;
+}
+
+export function getHtmlViewEntryDisplayText(entry: HtmlViewEntry): string {
+  return entry.title?.trim() || "HTML view";
 }

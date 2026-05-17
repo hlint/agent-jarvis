@@ -4,7 +4,7 @@ import ReactJson from "react-json-view";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import JarvisMarkdown from "./markdown";
-import StatusIcon from "./StatusIcon";
+import StatusIcon from "./status-icon";
 
 export default function InfoCard({
   brief = "No Brief",
@@ -65,7 +65,7 @@ export default function InfoCard({
   return (
     <div
       className={cn(
-        "rounded-md text-sm text-muted-foreground overflow-hidden max-w-[90%]",
+        "rounded-md text-sm text-muted-foreground overflow-hidden",
         jsonExpanded && "border bg-background",
       )}
     >

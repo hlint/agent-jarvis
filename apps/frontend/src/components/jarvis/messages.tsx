@@ -1,9 +1,10 @@
-import type { AttachmentEntry } from "@repo/shared/defines/jarvis";
+import type { AttachmentEntry, HtmlViewEntry } from "@repo/shared/defines/jarvis";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import JarvisAssistantEntry from "./entry/assistant";
 import JarvisAttachmentEntry from "./entry/attachment";
+import JarvisHtmlViewEntry from "./entry/html-view";
 import JarvisSystemEventEntry from "./entry/system-event";
 import JarvisThinkingEntry from "./entry/thinking";
 import JarvisToolCallEntry from "./entry/tool-call";
@@ -72,6 +73,11 @@ export default function JarvisMessages() {
             case "attachment":
               entry = (
                 <JarvisAttachmentEntry {...(historyEntry as AttachmentEntry)} />
+              );
+              break;
+            case "html-view":
+              entry = (
+                <JarvisHtmlViewEntry {...(historyEntry as HtmlViewEntry)} />
               );
               break;
             default:

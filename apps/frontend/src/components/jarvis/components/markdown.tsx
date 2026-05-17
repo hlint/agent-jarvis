@@ -23,7 +23,7 @@ export default function JarvisMarkdown({
   return (
     <Streamdown
       className={cn(
-        "overflow-auto text-sm/relaxed [&_code]:whitespace-normal",
+        "overflow-auto text-sm/relaxed [&_code]:whitespace-pre-wrap",
         className,
       )}
       plugins={{ code, mermaid, math, cjk }}

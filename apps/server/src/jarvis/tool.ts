@@ -4,6 +4,7 @@ import attachmentTool from "./built-in-tools/attachement";
 import { contextPruneTool } from "./built-in-tools/context-prune";
 import { execTool } from "./built-in-tools/exec";
 import { fileTools } from "./built-in-tools/file";
+import htmlViewTool from "./built-in-tools/html-view";
 import imageGenerationTool from "./built-in-tools/image-generation";
 import imageSearchTool from "./built-in-tools/image-search";
 import multimodalSubagentTool from "./built-in-tools/multimodal-subagent";
@@ -15,6 +16,7 @@ import type Jarvis from "./jarvis";
 
 export const builtInTools = [
   attachmentTool,
+  htmlViewTool,
   webSearchTavilyTool,
   webSearchSearxngTool,
   webExtractTool,
@@ -32,7 +34,7 @@ export type JarvisTool<INPUT extends {}> = {
   description: string | ((jarvis: Jarvis) => string);
   inputSchema: z.ZodSchema<INPUT>;
   execute: (
-    input: INPUT & { content?: string },
+    input: INPUT & { content?: string; entryId?: string },
     jarvis: Jarvis,
   ) => Promise<any>;
   /**

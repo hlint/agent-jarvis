@@ -86,6 +86,7 @@ const imageGenerationTool = defineJarvisTool({
     autoAttach: z
       .boolean()
       .optional()
+      .default(true)
       .describe(
         "Optional. Whether to automatically attach and display the generated image to the user. Defaults to true.",
       ),
@@ -105,7 +106,7 @@ const imageGenerationTool = defineJarvisTool({
       referenceImages = [],
       aspectRatio,
       outputPath = path.join("tmp", `generated-${shortId()}`),
-      autoAttach = true,
+      autoAttach,
     } = input;
     const prompt = content ?? "";
 

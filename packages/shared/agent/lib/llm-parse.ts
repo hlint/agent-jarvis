@@ -218,7 +218,7 @@ function parseCompositeWhenClosingFenceMissing<T>(
 export function parseCompositeToolParamsOutput<T>(
   raw: string,
   jsonSchema: z.ZodSchema<T>,
-): T & { content: string } {
+): T & { content: string; entryId?: string } {
   const fence = firstOpenJsonFence(raw);
   if (!fence) {
     throw new Error("Expected a ```json ... ``` code block");

@@ -1,6 +1,6 @@
 import { smartTimeFormat } from "@repo/shared/lib/time";
 import { PencilIcon } from "lucide-react";
-import InfoCard from "../components/InfoCard";
+import InfoCard from "../components/Info-card";
 import JarvisMarkdown from "../components/markdown";
 
 export default function JarvisAssistantEntry({
@@ -26,7 +26,7 @@ export default function JarvisAssistantEntry({
   }
 
   return (
-    <div className="flex flex-col gap-3 max-w-[90%]">
+    <div className="flex flex-col gap-3 items-start">
       <div className="rounded-xl bg-neutral-900 border border-foreground/10 p-3">
         <JarvisMarkdown text={text} isAnimating={status === "pending"} />
       </div>

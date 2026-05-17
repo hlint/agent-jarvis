@@ -5,6 +5,7 @@ export type HistoryEntry = {
     | "agent-thinking"
     | "agent-reply"
     | "attachment"
+    | "html-view"
     | "agent-tool-call"
     | "system-event";
   status?: "pending" | "completed" | "failed";
@@ -18,6 +19,8 @@ export type HistoryEntry = {
   inputTokens?: number;
   data?: any;
   brief?: string;
+  title?: string;
+  referenceEntryId?: string;
   toolName?: string;
   toolInput?: any;
   toolOutput?: any;

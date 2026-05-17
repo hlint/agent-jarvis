@@ -1,6 +1,6 @@
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
 import { LightbulbIcon } from "lucide-react";
-import InfoCard from "../components/InfoCard";
+import InfoCard from "../components/Info-card";
 
 export default function JarvisThinkingEntry(historyEntry: HistoryEntry) {
   const { status, action } = historyEntry;

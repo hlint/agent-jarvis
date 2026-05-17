@@ -6,7 +6,7 @@ import {
   FileTextIcon,
   WrenchIcon,
 } from "lucide-react";
-import InfoCard from "../components/InfoCard";
+import InfoCard from "../components/Info-card";
 
 export default function JarvisToolCallEntry(historyEntry: HistoryEntry) {
   const {

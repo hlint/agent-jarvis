@@ -9,7 +9,7 @@ export default function JarvisUserEntry({
 }) {
   return (
     <div className="flex flex-col gap-3 items-end text-sm">
-      <p className="bg-primary/40 border border-foreground/10 p-3 rounded-xl whitespace-pre-wrap max-w-md overflow-auto">
+      <p className="bg-primary/40 border border-foreground/10 p-3 rounded-xl whitespace-pre-wrap max-w-xl overflow-auto">
         {text}
       </p>
       <span className="text-xs text-muted-foreground">

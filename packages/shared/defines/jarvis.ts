@@ -26,6 +26,16 @@ export type JarvisChatState = {
   status: JarvisChatStatus;
 };
 
+export type HtmlViewEntry = {
+  id: string;
+  role: "html-view";
+  from: "assistant";
+  createdAt: number;
+  createdTime: string;
+  title?: string;
+  referenceEntryId?: string;
+};
+
 export type AttachmentEntry = {
   id: string;
   role: "attachment";

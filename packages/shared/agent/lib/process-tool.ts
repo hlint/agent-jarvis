@@ -128,7 +128,9 @@ Generate the Input Parameters as JSON and Input Content(if needed).`,
         ? parseCompositeToolParamsOutput(content, tool.inputSchema)
         : (tool.inputSchema.parse(betterJsonParse(content)) as {
             content?: string;
+            entryId?: string;
           });
+      toolInput.entryId = entry.id;
       entry.content = undefined;
       entry.toolInput = toolInput;
       onDialogHistoryChange();

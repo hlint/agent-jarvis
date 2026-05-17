@@ -1,7 +1,7 @@
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
 import { pick } from "es-toolkit";
 import { InfoIcon } from "lucide-react";
-import InfoCard from "../components/InfoCard";
+import InfoCard from "../components/Info-card";
 
 export default function JarvisSystemEventEntry(historyEntry: HistoryEntry) {
   const { status, brief, content } = historyEntry;
