@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { highlightHtml } from "./highlight-html";
 
-const SOURCE_SCROLL_CLASS =
-  "h-full overflow-y-auto overflow-x-hidden p-4 font-mono text-xs whitespace-pre-wrap wrap-break-word";
+const SOURCE_CONTENT_CLASS =
+  "overflow-x-hidden p-4 font-mono text-xs whitespace-pre-wrap wrap-break-word";
 
 const SHIKI_WRAPPER_CLASS = cn(
   "html-source-shiki",
-  SOURCE_SCROLL_CLASS,
+  SOURCE_CONTENT_CLASS,
   "[&_pre]:m-0 [&_pre]:!bg-transparent [&_pre]:p-0",
   "[&_pre]:!whitespace-pre-wrap [&_pre]:wrap-break-word [&_pre]:overflow-x-hidden",
   "[&_code]:bg-transparent [&_code]:font-mono [&_code]:text-xs",
@@ -77,7 +77,7 @@ export default function JarvisHtmlSource({
   };
 
   return (
-    <>
+    <div className="relative flex h-full min-h-0 flex-col">
       <div className="absolute top-2 right-2 z-10 flex gap-1">
         <Button
           type="button"
@@ -106,26 +106,28 @@ export default function JarvisHtmlSource({
           )}
         </Button>
       </div>
-      {loading && !highlighted ? (
-        <pre
-          className={cn(
-            "m-0 bg-muted/20 text-muted-foreground",
-            SOURCE_SCROLL_CLASS,
-          )}
-        >
-          {source}
-        </pre>
-      ) : highlighted ? (
-        <div
-          className={SHIKI_WRAPPER_CLASS}
-          // Shiki output is trusted static markup from our highlighter, not user HTML.
-          dangerouslySetInnerHTML={{ __html: highlighted }}
-        />
-      ) : (
-        <pre className={cn("m-0 bg-muted/20", SOURCE_SCROLL_CLASS)}>
-          {source}
-        </pre>
-      )}
-    </>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {loading && !highlighted ? (
+          <pre
+            className={cn(
+              "m-0 bg-muted/20 text-muted-foreground",
+              SOURCE_CONTENT_CLASS,
+            )}
+          >
+            {source}
+          </pre>
+        ) : highlighted ? (
+          <div
+            className={SHIKI_WRAPPER_CLASS}
+            // Shiki output is trusted static markup from our highlighter, not user HTML.
+            dangerouslySetInnerHTML={{ __html: highlighted }}
+          />
+        ) : (
+          <pre className={cn("m-0 bg-muted/20", SOURCE_CONTENT_CLASS)}>
+            {source}
+          </pre>
+        )}
+      </div>
+    </div>
   );
 }

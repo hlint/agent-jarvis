@@ -3,7 +3,6 @@ import chokidar from "chokidar";
 import { debounce } from "es-toolkit";
 import z from "zod";
 import { PATH_CONFIG } from "./defines";
-import type Jarvis from "./jarvis";
 
 const configSchema = z.object({
   tavilyApiKey: z.string().optional(),
@@ -35,14 +34,9 @@ type Config = z.infer<typeof configSchema>;
 type ProviderDuties = Config["providers"][number]["duties"][number];
 
 export default class JarvisConfig {
-  private jarvis: Jarvis;
   private config: Config = {
     providers: [],
   };
-
-  constructor(jarvis: Jarvis) {
-    this.jarvis = jarvis;
-  }
 
   init() {
     this.load();

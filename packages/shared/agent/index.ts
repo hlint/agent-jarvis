@@ -57,7 +57,10 @@ export default async function callAgent({
         await processOutput(context);
       }
       if (thinkAction.actionType === "done") {
-        if (thinkAction.finalMessage != null && thinkAction.finalMessage !== "") {
+        if (
+          thinkAction.finalMessage != null &&
+          thinkAction.finalMessage !== ""
+        ) {
           const entry: HistoryEntry = {
             id: shortId(),
             role: "agent-reply",

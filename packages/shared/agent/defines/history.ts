@@ -20,7 +20,6 @@ export type HistoryEntry = {
   data?: any;
   brief?: string;
   title?: string;
-  referenceEntryId?: string;
   toolName?: string;
   toolInput?: any;
   toolOutput?: any;

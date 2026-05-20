@@ -19,16 +19,21 @@ export function normalizeHtmlSource(raw: string): string {
   return html.trim();
 }
 
-function persistNormalizedToolInput(
+const HTML_VIEW_TOOL_INPUT_PLACEHOLDER =
+  "[system] HTML omitted — see html-view entry below";
+
+function replaceToolInputContentWithPlaceholder(
   jarvis: Jarvis,
   entryId: string,
-  html: string,
 ) {
   const toolEntry = jarvis.state
     .getState()
     .dialogHistory.find((e) => e.id === entryId);
   if (toolEntry?.role === "agent-tool-call" && toolEntry.toolInput) {
-    toolEntry.toolInput = { ...toolEntry.toolInput, content: html };
+    toolEntry.toolInput = {
+      ...toolEntry.toolInput,
+      content: HTML_VIEW_TOOL_INPUT_PLACEHOLDER,
+    };
   }
 }
 
@@ -46,7 +51,7 @@ const htmlViewTool = defineJarvisTool({
       throw new Error("HTML content is required");
     }
     if (input.entryId) {
-      persistNormalizedToolInput(jarvis, input.entryId, normalized);
+      replaceToolInputContentWithPlaceholder(jarvis, input.entryId);
     }
     const byteLength = Buffer.byteLength(normalized, "utf8");
     if (byteLength > MAX_HTML_BYTES) {
@@ -62,7 +67,7 @@ const htmlViewTool = defineJarvisTool({
       createdAt: Date.now(),
       createdTime: timeFormat(),
       title: input.title?.trim() || undefined,
-      referenceEntryId: input.entryId,
+      content: normalized,
     };
     jarvis.pushHistoryEntry(entry);
     return { success: true, id: entry.id, bytes: byteLength };

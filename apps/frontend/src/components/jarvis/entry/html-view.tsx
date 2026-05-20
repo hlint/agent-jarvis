@@ -1,79 +1,32 @@
 "use client";
 
-import type { DialogHistory } from "@repo/shared/agent/defines/history";
 import type { HtmlViewEntry } from "@repo/shared/defines/jarvis";
 import { getHtmlViewEntryDisplayText } from "@repo/shared/lib/utils";
 import { CodeXml, EyeIcon, PanelsTopLeft } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import JarvisHtmlSource from "../components/html-source";
-import useJarvisStore from "../use-jarvis-store";
 
 const IFRAME_SANDBOX =
   "allow-scripts allow-same-origin allow-forms allow-popups allow-modals";
 
-/** Shared viewport height for preview, source, and placeholder states. */
-const HTML_VIEW_HEIGHT =
-  "h-[min(calc(100vh-250px),800px)] min-h-[320px] max-h-[800px]";
-
-function findHtmlByReferenceEntryId(
-  dialogHistory: DialogHistory,
-  referenceEntryId?: string,
-): { html: string | null; toolStatus?: "pending" | "completed" | "failed" } {
-  if (!referenceEntryId) {
-    return { html: null };
-  }
-  const refEntry = dialogHistory.find((e) => e.id === referenceEntryId);
-  if (!refEntry || refEntry.role !== "agent-tool-call") {
-    return { html: null };
-  }
-  const content = refEntry.toolInput?.content;
-  const html =
-    typeof content === "string" && content.length > 0 ? content : null;
-  return { html, toolStatus: refEntry.status };
-}
+/** Bounds for the html-view card; preview iframe sets height, source overlays the same box. */
+const HTML_VIEW_SHELL_CLASS =
+  "min-h-[320px] max-h-[calc(100vh-250px)] overflow-auto";
+/** iframe stays in flow (sizes the box); source overlays with absolute inset-0. */
+const HTML_VIEW_PANELS_CLASS = "relative min-h-[280px] w-full";
 
 export default function JarvisHtmlViewEntry(entry: HtmlViewEntry) {
-  const dialogHistory = useJarvisStore((state) => state.dialogHistory);
   const title = getHtmlViewEntryDisplayText(entry);
   const [tab, setTab] = useState("preview");
-
-  const { html, toolStatus } = useMemo(
-    () => findHtmlByReferenceEntryId(dialogHistory, entry.referenceEntryId),
-    [dialogHistory, entry.referenceEntryId],
-  );
-
-  if (toolStatus === "failed") {
-    return (
-      <HtmlViewShell title={title}>
-        <PlaceholderMessage className="text-destructive">
-          Failed to render HTML (tool call error).
-        </PlaceholderMessage>
-      </HtmlViewShell>
-    );
-  }
-
-  if (!html) {
-    return (
-      <HtmlViewShell title={title}>
-        <PlaceholderMessage>
-          {toolStatus === "pending"
-            ? "Loading HTML…"
-            : "HTML content unavailable."}
-        </PlaceholderMessage>
-      </HtmlViewShell>
-    );
-  }
+  const source = entry.content ?? "";
+  const previewHtml = useMemo(() => htmlInjection(source), [source]);
 
   return (
     <HtmlViewShell title={title}>
-      <Tabs
-        value={tab}
-        onValueChange={setTab}
-        className="flex h-full min-h-0 flex-col gap-0"
-      >
+      <Tabs value={tab} onValueChange={setTab} className="flex flex-col gap-0">
         <div className="flex shrink-0 items-center justify-between gap-2 border-b bg-muted/30 px-2 py-1.5">
           <TabsList variant="line" className="h-auto bg-transparent p-0">
             <TabsTrigger value="preview" className="gap-1.5 px-2 py-1">
@@ -86,48 +39,33 @@ export default function JarvisHtmlViewEntry(entry: HtmlViewEntry) {
             </TabsTrigger>
           </TabsList>
         </div>
-        <div className="relative min-h-0 flex-1">
-          <TabsContent
-            value="preview"
-            keepMounted
-            className="absolute inset-0 m-0 h-full data-hidden:hidden"
+        <div className={HTML_VIEW_PANELS_CLASS}>
+          <div
+            className={cn(
+              "w-full",
+              tab !== "preview" && "pointer-events-none invisible",
+            )}
+            aria-hidden={tab !== "preview"}
           >
             <iframe
               title={title}
-              srcDoc={html}
+              srcDoc={previewHtml}
               sandbox={IFRAME_SANDBOX}
-              className="block h-full w-full border-0 bg-transparent"
+              className="block w-full min-h-[280px] border-0 bg-transparent"
             />
-          </TabsContent>
-          <TabsContent
-            value="source"
-            keepMounted
-            className="absolute inset-0 m-0 h-full data-hidden:hidden"
+          </div>
+          <div
+            className={cn(
+              "absolute inset-0 z-10 flex min-h-0 flex-col overflow-hidden",
+              tab !== "source" && "pointer-events-none invisible",
+            )}
+            aria-hidden={tab !== "source"}
           >
-            <JarvisHtmlSource source={html} active={tab === "source"} />
-          </TabsContent>
+            <JarvisHtmlSource source={source} active={tab === "source"} />
+          </div>
         </div>
       </Tabs>
     </HtmlViewShell>
-  );
-}
-
-function PlaceholderMessage({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <p
-      className={cn(
-        "flex h-full items-center justify-center p-4 text-sm text-muted-foreground",
-        className,
-      )}
-    >
-      {children}
-    </p>
   );
 }
 
@@ -146,12 +84,109 @@ function HtmlViewShell({
       </div>
       <div
         className={cn(
-          "flex w-full flex-col overflow-hidden rounded-xl border bg-muted/20",
-          HTML_VIEW_HEIGHT,
+          "flex w-full flex-col rounded-xl border bg-muted/20",
+          HTML_VIEW_SHELL_CLASS,
         )}
       >
         {children}
       </div>
     </div>
   );
+}
+
+const HTML_VIEW_INJECTION = `<style>
+      html {
+        color-scheme: dark;
+				font-family: ui-sans-serif, system-ui, "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", "Noto Sans SC", sans-serif;
+        // height: auto !important;
+        // min-height: 0 !important;
+        // overflow: hidden;
+      }
+      body {
+        margin: 0;
+        // height: auto !important;
+        // min-height: 0 !important;
+        // overflow: hidden;
+      }
+      html,
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: oklch(1 0 0 / 20%) transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: oklch(0.5 0 0 / 20%);
+        border-radius: 999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: oklch(1 0 0 / 35%);
+      }
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+    <script>
+      (function () {
+        var scheduled = false;
+        function measureMainHeight() {
+          var main = document.querySelector("main");
+          if (!main) return 0;
+          var style = window.getComputedStyle(main);
+          var marginTop = parseFloat(style.marginTop) || 0;
+          var marginBottom = parseFloat(style.marginBottom) || 0;
+          return Math.ceil(main.scrollHeight + marginTop + marginBottom);
+        }
+        function reportHeight() {
+          var height = measureMainHeight();
+          if (height <= 0) return;
+          window.parent.postMessage(
+            { type: "RESIZE_HTML_VIEW", height: height },
+            "*",
+          );
+        }
+        function scheduleReportHeight() {
+          if (scheduled) return;
+          scheduled = true;
+          requestAnimationFrame(function () {
+            scheduled = false;
+            reportHeight();
+          });
+        }
+        function setupAutoResize() {
+          var main = document.querySelector("main");
+          if (!main) return;
+          reportHeight();
+          new MutationObserver(scheduleReportHeight).observe(main, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+          });
+          if (typeof ResizeObserver !== "undefined") {
+            new ResizeObserver(scheduleReportHeight).observe(main);
+          }
+          window.addEventListener("load", scheduleReportHeight);
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", setupAutoResize);
+        } else {
+          setupAutoResize();
+        }
+      })();
+    </script>`;
+
+function htmlInjection(rawHtml: string) {
+  if (rawHtml.includes("</head>")) {
+    return rawHtml.replace("</head>", `${HTML_VIEW_INJECTION}</head>`);
+  }
+  if (/<body[\s>]/i.test(rawHtml)) {
+    return rawHtml.replace(/<body([\s>])/i, `${HTML_VIEW_INJECTION}<body$1`);
+  }
+  return `${HTML_VIEW_INJECTION}${rawHtml}`;
 }

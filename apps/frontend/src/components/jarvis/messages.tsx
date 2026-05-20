@@ -1,4 +1,7 @@
-import type { AttachmentEntry, HtmlViewEntry } from "@repo/shared/defines/jarvis";
+import type {
+  AttachmentEntry,
+  HtmlViewEntry,
+} from "@repo/shared/defines/jarvis";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -9,6 +12,7 @@ import JarvisSystemEventEntry from "./entry/system-event";
 import JarvisThinkingEntry from "./entry/thinking";
 import JarvisToolCallEntry from "./entry/tool-call";
 import JarvisUserEntry from "./entry/user";
+import useAdjustIframeHeight from "./use-adjust-iframe-height";
 import useJarvisStore from "./use-jarvis-store";
 
 const messageVariants = {
@@ -29,6 +33,7 @@ export default function JarvisMessages() {
   const dialogHistory = useJarvisStore((state) => state.dialogHistory);
   const entryHiddenMarks = useJarvisStore((state) => state.entryHiddenMarks);
   const debugMode = useJarvisStore((state) => state.debugMode);
+  useAdjustIframeHeight();
   return (
     <div className="flex flex-col gap-0 flex-1 px-3">
       <AnimatePresence initial>

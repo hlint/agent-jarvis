@@ -12,7 +12,6 @@ import { generateText } from "ai";
 import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
-import JarvisWebSocket from "./web-socket";
 import JarvisConfig from "./config";
 import JarvisCron from "./cron";
 import {
@@ -24,6 +23,7 @@ import {
 } from "./defines";
 import Runner from "./runner";
 import { JarvisStateManager } from "./state";
+import JarvisWebSocket from "./web-socket";
 
 // TODO Verify this function.
 function isNothingToDo(action: ThinkAction | undefined) {
@@ -45,7 +45,7 @@ export default class Jarvis {
   public webSocket = new JarvisWebSocket();
   public state = new JarvisStateManager(this);
   public cron = new JarvisCron(this);
-  public config = new JarvisConfig(this);
+  public config = new JarvisConfig();
   public retryCount = 0;
   public websiteUrl: string = "";
   private pushInactiveEvent = debounce(() => {

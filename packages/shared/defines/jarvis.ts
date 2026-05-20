@@ -33,7 +33,7 @@ export type HtmlViewEntry = {
   createdAt: number;
   createdTime: string;
   title?: string;
-  referenceEntryId?: string;
+  content?: string;
 };
 
 export type AttachmentEntry = {
