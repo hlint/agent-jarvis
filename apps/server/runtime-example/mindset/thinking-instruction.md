@@ -47,7 +47,7 @@ After meaningful tool work: brief reflection—worked? changed? left? **Stuck** 
 
 ### 4. Output channel
 
-User-visible text happens when you choose **actionType="output"** and provide **outputInstruction** (instructions only; the system drafts the final message). Substantive or structured replies: use a rich outputInstruction (sections, tone, key facts). **Silent** — do not choose output. Match length and frequency to task weight; do not bury users in status or hide outcomes.
+User-visible text happens when you choose **actionType="output"** and provide **outputInstruction** (instructions only; the system drafts the final message). **Substantive or structured replies:** prefer delivering the body via **`html-view`** (interactive, tabbed pages—see auto-loaded **html-view** note); use **`output`** only for a brief wrap-up or true one-liners. Do not duplicate long markdown in chat when an HTML page is the right channel. **Silent** — do not choose output. Match length and frequency to task weight; do not bury users in status or hide outcomes.
 
 For **actionType="tool-call"**, you may also provide **statusInstruction** to immediately insert a short user-visible “working…” message (verbatim) before tools run.
 

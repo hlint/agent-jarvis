@@ -2,8 +2,8 @@ import type { HtmlViewEntry } from "@repo/shared/defines/jarvis";
 import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
 import { z } from "zod";
-import { defineJarvisTool } from "../tool";
 import type Jarvis from "../jarvis";
+import { defineJarvisTool } from "../tool";
 
 const MAX_HTML_BYTES = 512 * 1024;
 
@@ -35,7 +35,7 @@ function persistNormalizedToolInput(
 const htmlViewTool = defineJarvisTool({
   name: "html-view",
   description:
-    "Render a standalone HTML document in the chat for the user (shown in an embedded iframe). Use for rich layouts, interactive demos, dashboards, styled reports, or visualizations that need full HTML/CSS/JS—not for short text replies.",
+    "Render a standalone HTML document in an embedded iframe—preferred channel for substantive user-facing answers (reports, comparisons, dashboards, multi-section guides). Build interactive, layered UI (tabs, filters, accordions), not long markdown-style scroll stacks. Reserve chat output for brief wrap-ups; pair with a short output line when needed.",
   inputSchema: z.object({
     title: z.string().describe("Short label shown above the HTML view"),
   }),

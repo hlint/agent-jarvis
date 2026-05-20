@@ -15,7 +15,8 @@ const IFRAME_SANDBOX =
   "allow-scripts allow-same-origin allow-forms allow-popups allow-modals";
 
 /** Shared viewport height for preview, source, and placeholder states. */
-const HTML_VIEW_HEIGHT = "h-[min(60vh,800px)] min-h-[320px] max-h-[800px]";
+const HTML_VIEW_HEIGHT =
+  "h-[min(calc(100vh-250px),800px)] min-h-[320px] max-h-[800px]";
 
 function findHtmlByReferenceEntryId(
   dialogHistory: DialogHistory,
@@ -88,6 +89,7 @@ export default function JarvisHtmlViewEntry(entry: HtmlViewEntry) {
         <div className="relative min-h-0 flex-1">
           <TabsContent
             value="preview"
+            keepMounted
             className="absolute inset-0 m-0 h-full data-hidden:hidden"
           >
             <iframe
@@ -99,6 +101,7 @@ export default function JarvisHtmlViewEntry(entry: HtmlViewEntry) {
           </TabsContent>
           <TabsContent
             value="source"
+            keepMounted
             className="absolute inset-0 m-0 h-full data-hidden:hidden"
           >
             <JarvisHtmlSource source={html} active={tab === "source"} />
