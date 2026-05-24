@@ -12,6 +12,8 @@ A **single, self-contained HTML document** submitted via `html-view` and shown t
 
 **Tool args:** `title` (short label), `content` (full HTML from `<!DOCTYPE html>`). Max ~**512KB** UTF-8.
 
+**Inline only:** put the full document in `content`—never `write-file` / `edit-file` HTML to disk first, then call `html-view` with the same markup. That doubles tokens for no benefit. Draft and revise by calling `html-view` directly (replace the whole `content` when iterating).
+
 ---
 
 ## When to use
@@ -24,6 +26,8 @@ A **single, self-contained HTML document** submitted via `html-view` and shown t
 | **`output`**    | One-liner or brief pointer (“see page above”); optional 1–2 sentences alongside a page |
 
 Do not duplicate the same long body in chat markdown.
+
+**Large or multi-part answers:** split into **several `html-view` calls** (one focused page per section—overview, metrics, appendix, etc.). When sections are independent, **call them in parallel** in one turn so the user sees results sooner; use a short `output` to link the pages.
 
 **Skip `html-view` for:** existing files (`attachment`), scraped pages (`web-extract`), or APIs that need `window.parent`, cookies, or `localStorage`.
 
@@ -202,6 +206,8 @@ Minimal **todo list** example: define **data and behavior first** in a `<script>
 
 ## Before submit
 
+- [ ] HTML only via `html-view` `content`—not written to workspace files first
 - [ ] Full document; single `<main>` for UI; starter template or equivalent structure; layout matches the task (not tabs by default); no `min-h-screen` on `html`/`body`
+- [ ] Big topics split into multiple pages; parallel calls when sections are independent
 - [ ] CDN scripts match task; contrast OK; no icon libraries; no parent / cookie / storage APIs; reasonable size
 - [ ] Substance here—not duplicated as long `output` markdown

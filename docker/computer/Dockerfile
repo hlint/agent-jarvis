@@ -67,6 +67,7 @@ RUN HOME=/usr/local/searxng python3 -m venv /usr/local/searxng/searx-pyenv \
 
 USER root
 
+# Copy SearXNG settings and WSGI script
 COPY ./searxng/settings.yml /etc/searxng/settings.yml
 COPY ./searxng/jarvis_searx_wsgi.py /usr/local/searxng/searxng-src/jarvis_searx_wsgi.py
 RUN chown searxng:searxng /etc/searxng/settings.yml \

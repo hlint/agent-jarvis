@@ -7,7 +7,7 @@ RUN bun ci && bun run compile
 # ------------------------------------------
 
 # COMPUTER
-FROM hlint/agent-jarvis-computer:1.0.0 AS computer
+FROM hlint/agent-jarvis-computer:1.0.1 AS computer
 
 # ------------------------------------------
 
@@ -22,21 +22,21 @@ ENV SEARXNG_PORT=4203
 ENV TITLE="Jarvis Computer"
 
 # Desktop Icon
-RUN mkdir -p /usr/local/share/default-desktop
-COPY ./docker/assets/desktop /usr/local/share/default-desktop
+COPY ./docker/jarvis/assets/desktop /usr/local/share/default-desktop
+
+# Default Agent Browser configuration
+COPY ./docker/jarvis/assets/browser/agent-browser.json /usr/local/share/default-agent-browser.config.json
 
 # Webtop Icon
 COPY ./apps/frontend/public/favicon.png /usr/share/selkies/www/icon.png
 
 # LinuxServer base uses s6-overlay: long-running services live under /etc/services.d/<name>/run (started at boot).
 # Agent Jarvis (Chat UI on JARVIS_SERVER_PORT).
-RUN mkdir -p /etc/services.d/agent-jarvis
-COPY ./docker/assets/agent-jarvis-run.sh /etc/services.d/agent-jarvis/run
+COPY ./docker/jarvis/assets/agent-jarvis-run.sh /etc/services.d/agent-jarvis/run
 RUN chmod +x /etc/services.d/agent-jarvis/run
 
 # SearXNG (Granian WSGI on SEARXNG_PORT).
-RUN mkdir -p /etc/services.d/searxng
-COPY ./docker/assets/searxng/searxng-run.sh /etc/services.d/searxng/run
+COPY ./docker/jarvis/assets/searxng/searxng-run.sh /etc/services.d/searxng/run
 RUN chmod +x /etc/services.d/searxng/run
 
 # Copy the built application

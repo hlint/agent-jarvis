@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Chromium
+Name=Jarvis Chat
 Comment=
-Exec=chromium --remote-debugging-port=9222
-Icon=chromium
+Exec=chromium --app=http://localhost:4202
+Icon=/agent-jarvis/html/favicon.png
 Path=
 Terminal=false
 StartupNotify=false
