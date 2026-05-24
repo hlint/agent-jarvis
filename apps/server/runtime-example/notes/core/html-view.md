@@ -96,7 +96,7 @@ Keep state in the **current window** (Alpine `x-data`, in-memory JS, DOM).
 
 ## Starter template
 
-Baseline single-page layout—swap in tabs, sidebar, or accordions when the task calls for it. Add ECharts or D3 `<script>` tags in `<head>` when needed.
+Minimal **todo list** example: define **data and behavior first** in a `<script>` (e.g. `renderData()`), then `<main x-data="renderData()">` and markup that binds to it. Add ECharts or D3 in `<head>` only when the task needs charts.
 
 ```html
 <!DOCTYPE html>
@@ -104,7 +104,7 @@ Baseline single-page layout—swap in tabs, sidebar, or accordions when the task
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Page title</title>
+    <title>Todo list</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <style type="text/tailwindcss">
@@ -122,50 +122,77 @@ Baseline single-page layout—swap in tabs, sidebar, or accordions when the task
     </style>
   </head>
   <body class="antialiased">
-    <main class="mx-auto max-w-4xl space-y-6 p-6">
+    <script>
+      function renderData() {
+        return {
+          nextId: 3,
+          draft: "",
+          todos: [
+            { id: 1, text: "Ship html-view page" },
+            { id: 2, text: "Reply in chat with a short wrap-up" },
+          ],
+          addTodo() {
+            const text = this.draft.trim();
+            if (!text) return;
+            this.todos.push({ id: this.nextId++, text });
+            this.draft = "";
+          },
+          removeTodo(id) {
+            this.todos = this.todos.filter((t) => t.id !== id);
+          },
+        };
+      }
+    </script>
+
+    <main class="mx-auto max-w-md space-y-4 p-6" x-data="renderData()">
       <header>
-        <h1 class="text-2xl font-semibold tracking-tight">Title</h1>
-        <p class="mt-2 max-w-2xl text-sm text-neutral-400">
-          One-line summary; keep the lead short—detail lives in sections below.
+        <h1 class="text-2xl font-semibold tracking-tight">✅ Todo</h1>
+        <p class="mt-1 text-sm text-neutral-400">
+          State and methods come from <code class="rounded bg-neutral-800 px-1">renderData()</code>.
         </p>
       </header>
 
-      <section class="grid gap-4 sm:grid-cols-3">
-        <article
-          class="rounded-xl border border-neutral-800 bg-neutral-900/80 p-4"
-        >
-          <p class="text-xs uppercase tracking-wide text-neutral-500">
-            📈 Metric
-          </p>
-          <p class="mt-1 text-2xl font-semibold tabular-nums">128</p>
-        </article>
-        <article
-          class="rounded-xl border border-neutral-800 bg-neutral-900/80 p-4 sm:col-span-2"
-        >
-          <p class="text-sm text-neutral-300">Key takeaway or call to action.</p>
-        </article>
-      </section>
-
-      <section class="rounded-xl border border-neutral-800 bg-neutral-900/80 p-4">
-        <h2 class="text-sm font-medium text-neutral-200">Details</h2>
-        <p class="mt-2 text-sm text-neutral-300">
-          Structured content—lists, steps, tables, or
-          <code class="rounded bg-neutral-800 px-1">inline code</code>—not a
-          wall of plain paragraphs.
-        </p>
-      </section>
-
-      <details
-        class="rounded-xl border border-neutral-800 bg-neutral-900/80 p-4"
+      <form
+        class="flex gap-2"
+        @submit.prevent="addTodo()"
       >
-        <summary class="cursor-pointer text-sm font-medium text-neutral-200">
-          🔽 Optional deep dive
-        </summary>
-        <p class="mt-3 text-sm text-neutral-400">
-          Extra material hidden until expanded—useful when the page should stay
-          scannable.
-        </p>
-      </details>
+        <input
+          type="text"
+          x-model="draft"
+          placeholder="New task…"
+          class="min-w-0 flex-1 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:border-neutral-600 focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="rounded-lg bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-950 hover:bg-white"
+        >
+          Add
+        </button>
+      </form>
+
+      <ul class="space-y-2" x-cloak>
+        <template x-for="todo in todos" :key="todo.id">
+          <li
+            class="flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900/80 px-3 py-2"
+          >
+            <span class="min-w-0 flex-1 text-sm text-neutral-200" x-text="todo.text"></span>
+            <button
+              type="button"
+              class="shrink-0 rounded-md px-2 py-1 text-xs text-neutral-400 hover:bg-neutral-800 hover:text-red-300"
+              @click="removeTodo(todo.id)"
+              title="Delete"
+            >
+              🗑️
+            </button>
+          </li>
+        </template>
+        <li
+          x-show="todos.length === 0"
+          class="rounded-lg border border-dashed border-neutral-800 px-3 py-6 text-center text-sm text-neutral-500"
+        >
+          No tasks yet.
+        </li>
+      </ul>
     </main>
   </body>
 </html>

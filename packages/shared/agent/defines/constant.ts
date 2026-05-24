@@ -1,4 +1,4 @@
-export const LLM_TIMEOUT_MS = 40_000; // 40 seconds
+export const LLM_TIMEOUT_MS = 120_000; // 120 seconds
 
 export const streamTextOptions = {
   timeout: LLM_TIMEOUT_MS,

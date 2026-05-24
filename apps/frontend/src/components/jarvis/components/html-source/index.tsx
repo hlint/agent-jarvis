@@ -21,9 +21,11 @@ const SHIKI_WRAPPER_CLASS = cn(
 export default function JarvisHtmlSource({
   source,
   active,
+  title,
 }: {
   source: string;
   active: boolean;
+  title?: string;
 }) {
   const [copied, setCopied] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export default function JarvisHtmlSource({
     );
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "file.html";
+    anchor.download = title ? `${title}.html` : "file.html";
     anchor.click();
     URL.revokeObjectURL(url);
   };

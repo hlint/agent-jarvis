@@ -13,10 +13,9 @@ const IFRAME_SANDBOX =
   "allow-scripts allow-same-origin allow-forms allow-popups allow-modals";
 
 /** Bounds for the html-view card; preview iframe sets height, source overlays the same box. */
-const HTML_VIEW_SHELL_CLASS =
-  "min-h-[320px] max-h-[calc(100vh-250px)] overflow-auto";
+const HTML_VIEW_SHELL_CLASS = "overflow-auto";
 /** iframe stays in flow (sizes the box); source overlays with absolute inset-0. */
-const HTML_VIEW_PANELS_CLASS = "relative min-h-[280px] w-full";
+const HTML_VIEW_PANELS_CLASS = "relative w-full";
 
 export default function JarvisHtmlViewEntry(entry: HtmlViewEntry) {
   const title = getHtmlViewEntryDisplayText(entry);
@@ -51,7 +50,7 @@ export default function JarvisHtmlViewEntry(entry: HtmlViewEntry) {
               title={title}
               srcDoc={previewHtml}
               sandbox={IFRAME_SANDBOX}
-              className="block w-full min-h-[280px] border-0 bg-transparent"
+              className="block w-full min-h-[280px] max-h-400vh border-0 bg-transparent"
             />
           </div>
           <div
@@ -61,7 +60,11 @@ export default function JarvisHtmlViewEntry(entry: HtmlViewEntry) {
             )}
             aria-hidden={tab !== "source"}
           >
-            <JarvisHtmlSource source={source} active={tab === "source"} />
+            <JarvisHtmlSource
+              source={source}
+              active={tab === "source"}
+              title={title}
+            />
           </div>
         </div>
       </Tabs>
