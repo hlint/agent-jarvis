@@ -30,18 +30,14 @@ const messageVariants = {
 };
 
 export default function JarvisMessages() {
-  const dialogHistory = useJarvisStore((state) => state.dialogHistory);
-  const entryHiddenMarks = useJarvisStore((state) => state.entryHiddenMarks);
-  const debugMode = useJarvisStore((state) => state.debugMode);
+  const visibleDialogHistory = useJarvisStore(
+    (state) => state.visibleDialogHistory,
+  );
   useAdjustIframeHeight();
   return (
-    <div className="flex flex-col gap-0 flex-1 px-3">
+    <div className="flex min-w-0 flex-col gap-0 flex-1 px-3">
       <AnimatePresence initial>
-        {dialogHistory.map((historyEntry) => {
-          const shouldHide = entryHiddenMarks[historyEntry.id];
-          if (!debugMode && shouldHide) {
-            return null;
-          }
+        {visibleDialogHistory.map((historyEntry) => {
           let entry: ReactNode;
           let compact = false;
           switch (historyEntry.role) {
@@ -90,9 +86,10 @@ export default function JarvisMessages() {
           }
           return (
             <motion.div
+              id={`entry-message-${historyEntry.id}`}
               key={historyEntry.id}
               variants={messageVariants}
-              className={cn(!compact && "my-4")}
+              className={cn(!compact && "my-4", "scroll-mt-16")}
               initial="initial"
               animate="animate"
               exit="exit"

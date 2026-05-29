@@ -7,9 +7,11 @@ import { applyDiff } from "@repo/shared/lib/state-sync";
 import { debounce } from "es-toolkit";
 import { toast } from "sonner";
 import { create } from "zustand";
+import { compute, computed } from "zustand-computed-state";
 import { api } from "@/lib/api";
 
 type State = {
+  isConnected: boolean;
   debugMode: boolean;
   handleScrollToBottom: (force?: boolean) => void;
   snapshotId: string;
@@ -20,10 +22,13 @@ type State = {
   inputMode: "text" | "voice";
   isUploading: boolean;
   inputText: string;
+  visibleDialogHistory: DialogHistory;
+  activeEntryId: string | null;
 };
 
 type Actions = {
   setDebugMode: (debugMode: boolean) => void;
+  setIsConnected: (isConnected: boolean) => void;
   pullFullDialogState: () => void;
   applyDialogHistoryPatch: (
     wsMessageDialogHistoryPatch: WsMessageDialogHistoryPatch,
@@ -37,100 +42,117 @@ type Actions = {
   setInputText: (inputText: string) => void;
   sendMessage: () => void;
   setChatStatus: (status: JarvisChatStatus) => void;
+  setActiveEntryId: (activeEntryId: string | null) => void;
 };
 
-const useJarvisStore = create<State & Actions>((set, get) => ({
-  debugMode: false,
-  inputMode: "text",
-  isUploading: false,
-  inputText: "",
-  status: "idle",
-  setInputMode: (inputMode) => set({ inputMode }),
-  handleScrollToBottom: () => {},
-  snapshotId: "",
-  isFirstPull: true,
-  dialogHistory: [],
-  entryHiddenMarks: {},
-  setDebugMode: (debugMode) => set({ debugMode }),
-  setIsUploading: (isUploading) => set({ isUploading }),
-  setInputText: (inputText) => set({ inputText }),
-  setChatStatus: (status) => set({ status }),
-  sendMessage: () => {
-    if (get().inputText.trim() === "") return;
-    api.jarvis["user-message"].post({ content: get().inputText });
-    set({ inputText: "" });
-    get().handleScrollToBottom(true);
-  },
-  pullFullDialogState: debounce(() => {
-    api.jarvis["dialog-state"].get().then((response) => {
-      if (response.data) {
-        const snapshotIdChanged = response.data.snapshotId !== get().snapshotId;
+const useJarvisStore = create<State & Actions>(
+  computed((set, get) => ({
+    isConnected: false,
+    setIsConnected: (isConnected) => set({ isConnected }),
+    debugMode: false,
+    inputMode: "text",
+    isUploading: false,
+    inputText: "",
+    status: "idle",
+    handleScrollToBottom: () => {},
+    snapshotId: "",
+    isFirstPull: true,
+    dialogHistory: [],
+    entryHiddenMarks: {},
+    activeEntryId: null,
+    setActiveEntryId: (activeEntryId) => set({ activeEntryId }),
+    ...compute(get, (state) => ({
+      visibleDialogHistory: state.dialogHistory.filter((entry) => {
+        const shouldHide = state.entryHiddenMarks[entry.id];
+        if (!state.debugMode && shouldHide) {
+          return false;
+        }
+        return true;
+      }),
+    })),
+    setInputMode: (inputMode) => set({ inputMode }),
+    setDebugMode: (debugMode) => set({ debugMode }),
+    setIsUploading: (isUploading) => set({ isUploading }),
+    setInputText: (inputText) => set({ inputText }),
+    setChatStatus: (status) => set({ status }),
+    sendMessage: () => {
+      if (get().inputText.trim() === "") return;
+      api.jarvis["user-message"].post({ content: get().inputText });
+      set({ inputText: "" });
+      get().handleScrollToBottom(true);
+    },
+    pullFullDialogState: debounce(() => {
+      api.jarvis["dialog-state"].get().then((response) => {
+        if (response.data) {
+          const snapshotIdChanged =
+            response.data.snapshotId !== get().snapshotId;
+          if (snapshotIdChanged) {
+            setTimeout(() => {
+              get().handleScrollToBottom(true);
+            }, 100);
+          }
+          set({
+            snapshotId: response.data.snapshotId,
+            dialogHistory: response.data.dialogHistory,
+            status: response.data.status,
+          });
+          get().setEntryHiddenMarks();
+          set({
+            isFirstPull: false,
+          });
+        } else {
+          toast.error("Failed to pull chat state");
+        }
+      });
+    }, 500),
+    applyDialogHistoryPatch: ({ fromId, toId, diff }) => {
+      if (get().snapshotId === fromId) {
+        const snapshotIdChanged = toId !== get().snapshotId;
         if (snapshotIdChanged) {
-          setTimeout(() => {
-            get().handleScrollToBottom(true);
-          }, 100);
+          get().handleScrollToBottom();
         }
         set({
-          snapshotId: response.data.snapshotId,
-          dialogHistory: response.data.dialogHistory,
-          status: response.data.status,
+          snapshotId: toId,
+          dialogHistory: applyDiff(get().dialogHistory, diff),
         });
         get().setEntryHiddenMarks();
-        set({
-          isFirstPull: false,
-        });
       } else {
-        toast.error("Failed to pull chat state");
+        get().pullFullDialogState();
       }
-    });
-  }, 500),
-  applyDialogHistoryPatch: ({ fromId, toId, diff }) => {
-    if (get().snapshotId === fromId) {
-      const snapshotIdChanged = toId !== get().snapshotId;
-      if (snapshotIdChanged) {
-        get().handleScrollToBottom();
-      }
-      set({
-        snapshotId: toId,
-        dialogHistory: applyDiff(get().dialogHistory, diff),
-      });
-      get().setEntryHiddenMarks();
-    } else {
-      get().pullFullDialogState();
-    }
-  },
-  setHandleScrollToBottom: (handleScrollToBottom: () => void) => {
-    set({ handleScrollToBottom });
-  },
-  setEntryHiddenMarks: () => {
-    const { dialogHistory, isFirstPull } = get();
-    for (const historyEntry of dialogHistory) {
-      const isCompleted =
-        historyEntry.role !== "user" &&
-        historyEntry.role !== "agent-reply" &&
-        historyEntry.role !== "attachment" &&
-        historyEntry.role !== "html-view" &&
-        historyEntry?.status !== "pending";
-      if (isCompleted) {
-        const setMark = (hidden: boolean) => {
-          set({
-            entryHiddenMarks: {
-              ...get().entryHiddenMarks,
-              [historyEntry.id]: hidden,
-            },
-          });
-        };
-        if (isFirstPull) {
-          setMark(true);
-        } else if (get().entryHiddenMarks[historyEntry.id] === undefined) {
-          setMark(false);
-          setTimeout(() => {
+    },
+    setHandleScrollToBottom: (handleScrollToBottom: () => void) => {
+      set({ handleScrollToBottom });
+    },
+    setEntryHiddenMarks: () => {
+      const { dialogHistory, isFirstPull } = get();
+      for (const historyEntry of dialogHistory) {
+        const isCompleted =
+          historyEntry.role !== "user" &&
+          historyEntry.role !== "agent-reply" &&
+          historyEntry.role !== "attachment" &&
+          historyEntry.role !== "html-view" &&
+          historyEntry?.status !== "pending";
+        if (isCompleted) {
+          const setMark = (hidden: boolean) => {
+            set({
+              entryHiddenMarks: {
+                ...get().entryHiddenMarks,
+                [historyEntry.id]: hidden,
+              },
+            });
+          };
+          if (isFirstPull) {
             setMark(true);
-          }, 100);
+          } else if (get().entryHiddenMarks[historyEntry.id] === undefined) {
+            setMark(false);
+            setTimeout(() => {
+              setMark(true);
+            }, 100);
+          }
         }
       }
-    }
-  },
-}));
+    },
+  })),
+);
 
 export default useJarvisStore;

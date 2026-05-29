@@ -112,9 +112,12 @@ const HTML_VIEW_INJECTION = `<style>
         // min-height: 0 !important;
         // overflow: hidden;
       }
-      html,
       * {
         scrollbar-width: thin;
+        transition: scrollbar-color 0.1s ease-in-out;
+        scrollbar-color: transparent transparent;
+      }
+			*:hover {
         scrollbar-color: oklch(1 0 0 / 20%) transparent;
       }
       ::-webkit-scrollbar {

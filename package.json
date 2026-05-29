@@ -1,6 +1,6 @@
 {
   "name": "agent-jarvis",
-  "version": "0.3.5",
+  "version": "0.3.6-pre",
   "private": true,
   "workspaces": [
     "apps/*",

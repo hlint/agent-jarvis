@@ -1,10 +1,2 @@
-- [ ] UI: Better WebSocket reconnect and status indication
-- [ ] UI: Navigate between the entries
-- [ ] Sub-agent?
-- [x] Production ready docker build
-- [ ] Better deployment documentation
-- [ ] Find skills -> notes? (skills add does not support --path yet)
-- [x] Lite version pre-install git, tmux and other tools
-- html view
-  - 强调其inline特性（或是支持引用文件？）
-  - 建议拆分为多页，并行生成
+- Sub-agent?
+- Better deployment documentation

@@ -25,21 +25,6 @@ export default async function processToolCalling(context: AgentContext) {
       "processToolCalling called without a tool-call thinkAction",
     );
   }
-  if (
-    lastThinkAction.statusInstruction != null &&
-    lastThinkAction.statusInstruction.trim() !== ""
-  ) {
-    const entry: HistoryEntry = {
-      id: shortId(),
-      role: "agent-reply",
-      status: "completed",
-      createdTime: timeFormat(),
-      createdAt: Date.now(),
-      content: lastThinkAction.statusInstruction,
-    };
-    dialogHistory.push(entry);
-    onDialogHistoryChange();
-  }
   const toolCalls = lastThinkAction.toolCalls;
   if (!toolCalls || toolCalls.length === 0) {
     return;

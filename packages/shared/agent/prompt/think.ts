@@ -72,8 +72,6 @@ Each round executes exactly one **actionType**:
 - **output**: run the output step to generate the **user-visible** assistant message for this round (based on **outputInstruction** + dialog/tool history).
 - **done**: stop the agent loop immediately.
 
-**Immediate status (tool-call only)**: You may optionally set **statusInstruction** when **actionType="tool-call"**. If provided, the system will immediately insert a user-visible assistant message whose content is exactly this string (verbatim), and then run **toolCalls**. **Write it in the user's expected language** (match the user's latest message / detected user language). Keep it short; do not include tool parameters.
-
 **Order semantics**: Same order runs in parallel. Only split into multiple orders when you need a hard sequence (dependency, safety, or history-shaping changes).
 
 Then: if **actionType** is not **done**, the loop continues → you are called again with the updated dialog (including tool results and/or the new assistant message).
@@ -87,10 +85,10 @@ Then: if **actionType** is not **done**, the loop continues → you are called a
 Output a single action object with required field **actionType** and optional fields depending on it:
 
 **actionType: "tool-call"**
-- Optionally include **statusInstruction** (short user-visible status) and/or **toolCalls**
+- Optionally include **toolCalls**
 - Each item: **toolName**, **brief**, and optionally **order**. Do NOT include tool input parameters for any tool; the system generates them where needed via dedicated steps.
 - **toolName** must be one of {tool-names}
-- **order** (default 1): **Default to parallel** (same order) when tools are independent (including "output" status text + backend tools). Use a higher order only when there is a clear reason: (1) **dependency** — a later tool needs earlier tool results; (2) **history-shaping** — a tool removes/rewrites context that should happen before later work; (3) **side-effect/safety** — isolate risky/noisy side effects after core work.
+- **order** (default 1): **Default to parallel** (same order) when tools are independent. Use a higher order only when there is a clear reason: (1) **dependency** — a later tool needs earlier tool results; (2) **history-shaping** — a tool removes/rewrites context that should happen before later work; (3) **side-effect/safety** — isolate risky/noisy side effects after core work.
 - Do not create duplicate tool calls.
 
 **actionType: "output"**

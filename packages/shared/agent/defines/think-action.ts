@@ -20,12 +20,6 @@ export const ToolCallItemSchema = z.object({
 export const ThinkActionSchema = z.discriminatedUnion("actionType", [
   z.object({
     actionType: z.literal("tool-call"),
-    statusInstruction: z
-      .string()
-      .optional()
-      .describe(
-        "Optional: instructions to immediately show a short user-visible status message before running toolCalls (e.g. 'Searching for information...').",
-      ),
     toolCalls: z
       .array(ToolCallItemSchema)
       .optional()

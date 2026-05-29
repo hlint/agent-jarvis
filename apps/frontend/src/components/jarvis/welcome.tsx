@@ -13,6 +13,11 @@ const staggerContainer = {
   animate: {
     transition: { staggerChildren: 0.06, delayChildren: 0.05 },
   },
+  exit: {
+    opacity: 0,
+    y: -10,
+    transition: { duration: 0.2, ease: "easeInOut" as const },
+  },
 };
 
 const staggerItem = {
@@ -88,7 +93,7 @@ export default function JarvisWelcome() {
 
   return (
     <motion.div
-      className="flex flex-col gap-8 items-center justify-center px-4 py-8"
+      className="flex flex-col gap-8 items-center justify-center px-4 py-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
@@ -103,34 +108,24 @@ export default function JarvisWelcome() {
           Hi, I'm Jarvis
         </h1>
       </motion.div>
-      <AnimatePresence mode="wait">
-        {!section && (
-          <motion.p
-            key="subtitle"
-            variants={fadeUp}
-            initial="initial"
-            animate="animate"
-            transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
-            className="text-lg text-muted-foreground"
-          >
-            How can I help you today?
-          </motion.p>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence mode="wait">
         {section ? (
           <motion.div
-            key="questions"
+            key={`questions-${selectedIndex}`}
             className="flex flex-col gap-6 items-center w-full max-w-md"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
-            exit={{ opacity: 0, y: -10 }}
+            exit="exit"
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >
             <motion.h2
-              variants={staggerItem}
+              variants={fadeUp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.2, ease: "easeInOut" }}
               className="text-lg font-medium text-muted-foreground"
             >
               {section.title}
@@ -167,27 +162,42 @@ export default function JarvisWelcome() {
         ) : (
           <motion.div
             key="sections"
-            className="flex flex-wrap justify-center gap-3 max-w-2xl"
+            className="flex flex-col gap-8 items-center w-full"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
-            exit={{ opacity: 0, y: 10 }}
+            exit="exit"
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >
-            {SECTIONS.map((sec, index) => (
-              <motion.button
-                key={sec.title}
-                variants={staggerItem}
-                type="button"
-                onClick={() => setSelectedIndex(index)}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                className="px-5 py-3 text-sm font-medium rounded-lg border border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5 transition-colors cursor-pointer"
-              >
-                {sec.title}
-              </motion.button>
-            ))}
+            <motion.p
+              variants={fadeUp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="text-lg text-muted-foreground"
+            >
+              How can I help you today?
+            </motion.p>
+            <motion.div
+              className="flex flex-col w-full md:flex-row flex-wrap md:justify-center gap-3 max-w-2xl"
+              variants={staggerContainer}
+            >
+              {SECTIONS.map((sec, index) => (
+                <motion.button
+                  key={sec.title}
+                  variants={staggerItem}
+                  type="button"
+                  onClick={() => setSelectedIndex(index)}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className="px-5 py-3 text-sm font-medium rounded-lg border border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5 transition-colors cursor-pointer"
+                >
+                  {sec.title}
+                </motion.button>
+              ))}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

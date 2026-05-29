@@ -9,6 +9,7 @@ const useConnect = () => {
   const applyDialogHistoryPatch = useJarvisStore(
     (state) => state.applyDialogHistoryPatch,
   );
+  const setIsConnected = useJarvisStore((state) => state.setIsConnected);
   const setChatStatus = useJarvisStore((state) => state.setChatStatus);
   const pullFullDialogState = useJarvisStore(
     (state) => state.pullFullDialogState,
@@ -34,6 +35,7 @@ const useConnect = () => {
     resetTimerReconnect();
     ws.on("open", () => {
       isConnected = true;
+      setIsConnected(true);
       clearTimerReconnect();
     });
     ws.on("message", ({ data }) => {
@@ -52,6 +54,7 @@ const useConnect = () => {
     ws.on("close", () => {
       if (isConnected) {
         isConnected = false;
+        setIsConnected(false);
         resetTimerReconnect();
       }
     });

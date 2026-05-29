@@ -24,4 +24,4 @@ One line: `**Weekday, Month DD, YYYY HH:MM:** content`. Blank line between entri
 
 ## User experience
 
-- Diary writing is usually a fast **background** action. In general, do **not** emit a user-visible statusInstruction like “writing diary…” for it.
+- Diary writing is usually a fast **background** action; keep it silent (no user-visible output for it).

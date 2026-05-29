@@ -133,10 +133,14 @@
   /* Slim, semi-transparent scrollbars, dark-mode friendly */
   * {
     scrollbar-width: thin;
+    transition: scrollbar-color 0.1s ease-in-out;
     scrollbar-color: oklch(1 0 0 / 25%) transparent;
   }
   .dark * {
-    scrollbar-color: oklch(1 0 0 / 20%) transparent;
+    scrollbar-color: transparent transparent;
+    &:hover {
+      scrollbar-color: oklch(1 0 0 / 20%) transparent;
+    }
   }
   ::-webkit-scrollbar {
     width: 6px;

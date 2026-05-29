@@ -1,6 +1,5 @@
 import { join } from "node:path";
 import type { HistoryEntry } from "@repo/shared/agent/defines/history";
-import type { ThinkAction } from "@repo/shared/agent/defines/think-action";
 import type {
   AttachmentEntry,
   JarvisChatStatus,
@@ -9,7 +8,6 @@ import { timeFormat } from "@repo/shared/lib/time";
 import { shortId } from "@repo/shared/lib/utils";
 import { getLanguageModel } from "@repo/shared/llm/get-model";
 import { generateText } from "ai";
-import { debounce } from "es-toolkit";
 import fs from "fs-extra";
 import { nanoid } from "nanoid";
 import JarvisConfig from "./config";
@@ -25,21 +23,6 @@ import Runner from "./runner";
 import { JarvisStateManager } from "./state";
 import JarvisWebSocket from "./web-socket";
 
-// TODO Verify this function.
-function isNothingToDo(action: ThinkAction | undefined) {
-  if (!action) return true;
-  if (action.actionType === "done") return true;
-  if (action.actionType === "output") return false;
-  const hasStatus =
-    action.statusInstruction != null && action.statusInstruction.trim() !== "";
-  const hasToolCalls = (action.toolCalls?.length ?? 0) > 0;
-  return !hasStatus && !hasToolCalls;
-}
-
-// If the system is inactive for N minutes, it will push a system-inactive event.
-const SYSTEM_INACTIVE_INTERVAL = 5 * 60 * 1000;
-const SYSTEM_INACTIVE_ENABLED = false;
-
 export default class Jarvis {
   public runner = new Runner(this);
   public webSocket = new JarvisWebSocket();
@@ -48,43 +31,6 @@ export default class Jarvis {
   public config = new JarvisConfig();
   public retryCount = 0;
   public websiteUrl: string = "";
-  private pushInactiveEvent = debounce(() => {
-    if (!SYSTEM_INACTIVE_ENABLED) {
-      return;
-    }
-    const dialogHistory = this.state.getState().dialogHistory;
-    const lastEntry = dialogHistory[dialogHistory.length - 1];
-    const secondLastEntry = dialogHistory[dialogHistory.length - 2];
-
-    // If last entry is error, or last and second-last are both silent (AI considers nothing to do), do not wake up
-    if (
-      !lastEntry ||
-      !secondLastEntry ||
-      lastEntry?.content?.startsWith(
-        "Runtime Error, Maximum retries reached",
-      ) ||
-      (lastEntry?.role === "agent-thinking" &&
-        isNothingToDo(lastEntry?.action as ThinkAction) &&
-        secondLastEntry?.role === "system-event" &&
-        secondLastEntry?.data?.type === "system-inactive")
-    ) {
-      return;
-    }
-
-    this.pushHistoryEntry({
-      id: nanoid(6),
-      role: "system-event",
-      createdAt: Date.now(),
-      createdTime: timeFormat(),
-      brief: "System Inactive",
-      content: "System inactive. User appears busy.",
-      status: "completed",
-      data: {
-        type: "system-inactive",
-      },
-    });
-    this.wakeUp();
-  }, SYSTEM_INACTIVE_INTERVAL);
 
   constructor() {
     this.init();
@@ -222,7 +168,6 @@ export default class Jarvis {
   }
 
   notifyDialogHistoryChanged() {
-    this.pushInactiveEvent();
     this.state.pushDiff();
   }
 
