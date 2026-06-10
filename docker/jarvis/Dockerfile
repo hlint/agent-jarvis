@@ -7,7 +7,7 @@ RUN bun ci && bun run compile
 # ------------------------------------------
 
 # COMPUTER
-FROM hlint/agent-jarvis-computer:1.1.0-pre AS computer
+FROM hlint/agent-jarvis-computer:1.1.0 AS computer
 
 # ------------------------------------------
 
