@@ -3,7 +3,8 @@
 A self-hosted AI assistant you run in Docker—complete with a shared desktop, an interactive whiteboard, and a filesystem you can read and edit yourself.
 
 ![preview](./docs/assets/preview.png)
-![demo-who-are-you](./docs/assets/demo-who-are-you.png)
+
+https://github.com/user-attachments/assets/9e3afb43-0b9f-4419-a2da-470cccd40bbb
 
 ## Why Choose Jarvis
 
