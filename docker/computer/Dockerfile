@@ -1,5 +1,6 @@
 # COMPUTER
-FROM lscr.io/linuxserver/webtop:ubuntu-xfce AS computer
+# Pin linuxserver/webtop ubuntu-xfce (2026-06-02, ls280). Bump after testing upstream.
+FROM lscr.io/linuxserver/webtop:ubuntu-xfce-version-be8fdec1 AS computer
 
 # Environment Variables
 ENV PUID=1000
@@ -72,3 +73,27 @@ COPY ./searxng/settings.yml /etc/searxng/settings.yml
 COPY ./searxng/jarvis_searx_wsgi.py /usr/local/searxng/searxng-src/jarvis_searx_wsgi.py
 RUN chown searxng:searxng /etc/searxng/settings.yml \
     && chown searxng:searxng /usr/local/searxng/searxng-src/jarvis_searx_wsgi.py
+
+# Headroom AI proxy (proxy+code). Keep HEADROOM_VERSION in sync with apps/server/package.json.
+ENV HEADROOM_VERSION=0.22.4
+
+# Webtop ships Python 3.14; headroom-ai wheels currently support through 3.13.
+RUN apt-get update && apt-get install -y --no-install-recommends software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y --no-install-recommends python3.12 python3.12-venv \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --system --gid 978 headroom \
+    && useradd --system --uid 978 --gid headroom --home-dir /usr/local/headroom --shell /usr/sbin/nologin headroom \
+    && mkdir -p /usr/local/headroom \
+    && chown -R headroom:headroom /usr/local/headroom
+
+USER headroom
+WORKDIR /usr/local/headroom
+
+RUN HOME=/usr/local/headroom python3.12 -m venv headroom-pyenv \
+    && HOME=/usr/local/headroom . headroom-pyenv/bin/activate \
+    && pip install -U pip \
+    && pip install --only-binary=:all: "headroom-ai[proxy,code]==${HEADROOM_VERSION}"
+
+USER root

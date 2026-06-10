@@ -6,7 +6,5 @@
       "duties": ["CHAT"]
     }
   ],
-  "tavilyApiKey": "",
-  "pexelsApiKey": "",
-  "ntfyTopic": ""
+  "tavilyApiKey": ""
 }

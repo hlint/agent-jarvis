@@ -1,31 +1,21 @@
 import { nanoid } from "nanoid";
-import type { AttachmentEntry, HtmlViewEntry } from "../defines/jarvis";
 
 export function shortId(): string {
   return nanoid(6);
 }
 
-export function getAttachmentEntryDisplayText(entry: AttachmentEntry): string {
-  const { data } = entry;
-  const isRemoteUrl = "url" in data;
-  const displayName =
-    ("originalName" in data ? data.originalName : undefined) ??
-    (isRemoteUrl
-      ? (() => {
-          try {
-            return (
-              new URL((data as { url: string }).url).pathname
-                .split("/")
-                .pop() ?? "Link"
-            );
-          } catch {
-            return "Link";
-          }
-        })()
-      : "File");
-  return displayName;
-}
-
-export function getHtmlViewEntryDisplayText(entry: HtmlViewEntry): string {
-  return entry.title?.trim() || "HTML view";
+/**
+ * Replace `{key}` placeholders in a template string with values from a map.
+ * Unmatched placeholders are left unchanged.
+ * @param template - String containing `{key}` placeholders.
+ * @param params - Map of placeholder names to replacement values.
+ * @example
+ * interpolateTemplate("Hello, ${name}!", { name: "John" }) // "Hello, John!"
+ * @returns The interpolated string.
+ */
+export function interpolateTemplate(
+  template: string,
+  params: Record<string, string>,
+) {
+  return template.replace(/\{\{([^{}]+)\}\}/g, (_, p1) => params[p1] ?? _);
 }

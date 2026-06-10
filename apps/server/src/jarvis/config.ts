@@ -5,9 +5,6 @@ import z from "zod";
 import { PATH_CONFIG } from "./defines";
 
 const configSchema = z.object({
-  tavilyApiKey: z.string().optional(),
-  pexelsApiKey: z.string().optional(),
-  ntfyTopic: z.string().optional(),
   providers: z.array(
     z.object({
       model: z.string(),
@@ -20,14 +17,13 @@ const configSchema = z.object({
           "IMAGE_RECOGNITION",
           "VIDEO_RECOGNITION",
           "OTHER_RECOGNITION",
-          "VOICE_GENERATION",
           "IMAGE_GENERATION",
-          "VIDEO_GENERATION",
         ]),
       ),
     }),
   ),
   providerOptions: z.record(z.string(), z.any()).optional(),
+  tavilyApiKey: z.string().optional(),
 });
 
 type Config = z.infer<typeof configSchema>;
@@ -43,12 +39,20 @@ export default class JarvisConfig {
     this.watchChanges();
   }
 
+  isWithComputer() {
+    return process.env.JARVIS_WITH_COMPUTER === "true";
+  }
+
   getConfig() {
     return this.config;
   }
 
   getAiProvider(dutyName: ProviderDuties) {
     return this.config.providers.find((t) => t.duties?.includes(dutyName));
+  }
+
+  isVoiceRecognitionAvailable() {
+    return !!this.getAiProvider("VOICE_RECOGNITION");
   }
 
   getProviderOptions() {

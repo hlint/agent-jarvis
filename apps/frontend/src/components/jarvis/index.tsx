@@ -1,69 +1,96 @@
-import { useEffect, useMemo, useRef } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import JarvisEntryNav from "./entry-nav";
-import JarvisInput from "./input";
-import JarvisMessages from "./messages";
-import JarvisTop from "./top";
-import useConnect from "./use-connect";
-import { useEntryScrollSpy } from "./use-entry-scroll-spy";
-import useJarvisStore from "./use-jarvis-store";
-import JarvisWelcome from "./welcome";
+import JarvisChatPanel from "./chat-panel.tsx";
+import useConnect from "./hooks/use-connect";
+import useJarvisStore from "./hooks/use-jarvis-store.ts";
+import usePushNotifications from "./hooks/use-push-notifications";
+import { SIDEBAR_WIDTH_CLASS } from "./layout/constants";
+import { useJarvisLayout } from "./layout/use-jarvis-layout";
+import JarvisSidebar from "./sidebar/index.tsx";
+import JarvisWhiteboardExpandButton from "./whiteboard/expand-button";
+import JarvisWhiteboardPanel from "./whiteboard/panel";
 
 export default function Jarvis() {
   useConnect();
-  const isDesktop = !useIsMobile(1024 + 280);
-  const visibleDialogHistory = useJarvisStore(
-    (state) => state.visibleDialogHistory,
+  usePushNotifications();
+  useJarvisLayout();
+
+  const isMobileMode = useJarvisStore((state) => state.isMobileMode);
+  const mobileSidebarOpen = useJarvisStore((state) => state.mobileSidebarOpen);
+  const setMobileSidebarOpen = useJarvisStore(
+    (state) => state.setMobileSidebarOpen,
   );
-  const isEmpty = visibleDialogHistory.length === 0;
-  const entryIdsStr = useMemo(
-    () => visibleDialogHistory.map((entry) => entry.id).join(","),
-    [visibleDialogHistory],
+  const mobileWhiteboardOpen = useJarvisStore(
+    (state) => state.mobileWhiteboardOpen,
   );
-  const setHandleScrollToBottom = useJarvisStore(
-    (state) => state.setHandleScrollToBottom,
+  const setMobileWhiteboardOpen = useJarvisStore(
+    (state) => state.setMobileWhiteboardOpen,
   );
-  const containerRef = useRef<HTMLDivElement>(null);
-  useEntryScrollSpy(containerRef, entryIdsStr);
-  useEffect(() => {
-    const scrollToBottom = (force: boolean = false) => {
-      if (containerRef.current) {
-        const isAtBottom =
-          containerRef.current.scrollTop + containerRef.current.clientHeight >=
-          containerRef.current.scrollHeight - 100;
-        if (force || isAtBottom) {
-          setTimeout(() => {
-            containerRef.current?.scrollTo({
-              top: containerRef.current?.scrollHeight,
-              behavior: "smooth",
-            });
-          }, 200);
-        }
-      }
-    };
-    setHandleScrollToBottom(scrollToBottom);
-    return () => {
-      setHandleScrollToBottom(() => {});
-    };
-  }, [setHandleScrollToBottom]);
+
   return (
-    <div
-      ref={containerRef}
-      className="h-screen overflow-y-auto w-full overflow-x-hidden flex justify-center gap-3 items-start"
-    >
-      {isDesktop && !isEmpty && <JarvisEntryNav />}
-      <div
+    <div className="relative flex h-dvh overflow-hidden">
+      <aside
         className={cn(
-          "w-full min-w-0 max-w-3xl flex-1 min-h-screen relative flex flex-col gap-6",
-          isEmpty && "justify-center",
+          "flex h-full min-h-0 flex-col overflow-hidden border-r border-border/60 bg-background",
+          SIDEBAR_WIDTH_CLASS,
+          isMobileMode
+            ? cn(
+                "absolute inset-y-0 left-0 z-50 shadow-xl transition-transform duration-300 ease-out",
+                mobileSidebarOpen
+                  ? "translate-x-0"
+                  : "pointer-events-none -translate-x-full",
+              )
+            : "shrink-0 ",
         )}
+        aria-hidden={isMobileMode && !mobileSidebarOpen}
       >
-        {!isEmpty && <JarvisTop />}
-        <div className="flex-1 lg:flex-none lg:min-h-[370px]">
-          {isEmpty ? <JarvisWelcome /> : <JarvisMessages />}
-        </div>
-        <JarvisInput />
+        <JarvisSidebar />
+      </aside>
+      <div className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden">
+        <JarvisChatPanel
+          className={cn(isMobileMode ? "absolute inset-0" : "min-w-0 flex-1")}
+        />
+        <JarvisWhiteboardExpandButton />
+        {isMobileMode && (
+          <div
+            className={cn(
+              "absolute inset-0 z-40",
+              !mobileSidebarOpen && "pointer-events-none",
+            )}
+            aria-hidden={!mobileSidebarOpen}
+          >
+            <button
+              type="button"
+              aria-label="Close menu"
+              tabIndex={mobileSidebarOpen ? 0 : -1}
+              className={cn(
+                "absolute inset-0 bg-foreground/40 transition-opacity duration-300",
+                mobileSidebarOpen ? "opacity-100" : "opacity-0",
+              )}
+              onClick={() => setMobileSidebarOpen(false)}
+            />
+          </div>
+        )}
+        {isMobileMode && (
+          <div
+            className={cn(
+              "absolute inset-0 z-40",
+              !mobileWhiteboardOpen && "pointer-events-none",
+            )}
+            aria-hidden={!mobileWhiteboardOpen}
+          >
+            <button
+              type="button"
+              aria-label="Close whiteboard"
+              tabIndex={mobileWhiteboardOpen ? 0 : -1}
+              className={cn(
+                "absolute inset-0 bg-foreground/40 transition-opacity duration-300",
+                mobileWhiteboardOpen ? "opacity-100" : "opacity-0",
+              )}
+              onClick={() => setMobileWhiteboardOpen(false)}
+            />
+          </div>
+        )}
+        <JarvisWhiteboardPanel />
       </div>
     </div>
   );

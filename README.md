@@ -1,29 +1,48 @@
 # Agent Jarvis
 
-An autonomous AI assistant that learns, remembers, and acts for you—with a persistent workspace and containerized deployment.
+A self-hosted AI assistant you run in Docker—complete with a shared desktop, an interactive whiteboard, and a filesystem you can read and edit yourself.
 
 ![preview](./docs/assets/preview.png)
+![demo-who-are-you](./docs/assets/demo-who-are-you.png)
 
-## What It Does
+## Why Choose Jarvis
 
-Jarvis is self-learning and proactive: reflects after tasks, logs insights, and anticipates needs. Diaries, notes, skills, and cron tasks live in a persistent workspace, so context carries over. It runs web search, file ops, shell commands, and browser automation end-to-end. Chat via the web UI.
+- **Docker desktop workstation** — The **Full** image ships a pre-debugged Ubuntu desktop with browser, code editor, local search, and chat UI already wired together. Open the desktop beside chat to work human-in-the-loop—step in for CAPTCHAs or logins, then let Jarvis continue. Scoped Docker volumes keep the agent sandboxed from your host; one `docker compose up`, lighter than a full VM.
 
-## Differs from other “Claws”
+- **Whiteboard for visual collaboration** — A side panel shows interactive pages Jarvis builds for you—charts, forms, dashboards, prototypes. View and interact on screen, then paste results back into chat. Each conversation keeps its own canvas.
 
-- **Single session** — One linear conversation, one shared context. No lanes or per-sender routing. Closer to talking to one person: coherent, predictable, human-like.
+- **Everything is files** — Memory, skills, projects, and scheduled jobs are plain text and folders you can open in any editor—no opaque database. Jarvis reads and updates them as it works; you can inspect, edit, back up, or version-control them directly.
 
-- **Lightweight** — Fast startup, minimal config. Markdown-based storage only. Pure TypeScript/Bun stack, no external services required; runs fully local.
+## Features
 
-- **Flexible deployment** — **Full** image: Ubuntu XFCE desktop (Webtop), Chromium, VS Code for browser automation. **Lite** image: Chat UI only, lighter footprint.
+| Area                  | Details                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| **Planning**          | Task board each turn—see what Jarvis intends to do before it acts                             |
+| **Files & shell**     | Read, write, and organize files; run terminal commands inside the workspace                   |
+| **Web**               | Search and extract web content; optional Tavily API; Full image bundles a local search engine |
+| **Browser (Full)**    | Automate websites on the shared desktop; step in anytime via VNC                              |
+| **Subagents**         | Background workers for heavy research; understands audio, images, PDFs, and video             |
+| **Automation**        | Recurring jobs defined in markdown; scheduler picks up changes automatically                  |
+| **Whiteboard**        | Side-panel charts, forms, and dashboards; one canvas per conversation; works on mobile        |
+| **Notifications**     | Sidebar alerts and optional browser push when tasks complete                                  |
+| **Image**             | Generate and edit images from chat                                                            |
+| **Memory**            | Persistent notes, reusable skill playbooks, and long-term project folders                     |
+| **Sessions**          | Multiple parallel conversations, file attachments, voice input, searchable history            |
+| **Long chats (Full)** | Automatic context compression keeps extended sessions usable                                  |
+| **Desktop (Full)**    | Linux desktop with browser, VS Code, and dev tools; state persists across restarts            |
+| **Chat UI**           | Real-time updates and visible progress as tools run                                           |
+| **AI providers**      | Mix LLMs and multimodal models; configuration hot-reloads without restart                     |
+| **Deployment**        | **Full** — integrated desktop (~4 GB RAM); **Lite** — chat only, lighter footprint            |
+| **Access control**    | Built-in password or reverse-proxy auth; scoped storage isolates the agent from your host     |
 
 ## Deploy with Docker
 
-- **Full** (desktop + browser automation, 4G RAM required): [`docker-compose.example.yml`](docker-compose.example.yml)
-- **Lite** (Chat UI only): [`docker-compose-lite.example.yml`](docker-compose-lite.example.yml)
+- **Full** (recommended — integrated desktop workstation; ~4 GB RAM): [`docker-compose.example.yml`](docker-compose.example.yml)
+- **Lite** (chat UI only, no desktop): [`docker-compose-lite.example.yml`](docker-compose-lite.example.yml)
 
-Create a deploy directory, set up the compose file and `config.json` (see [Configuration](docs/config.md)), then run `docker compose up -d`.
+Create a deploy directory, copy the compose file to `docker-compose.yml`, set up `config.json` (see [Configuration](docs/config.md)), then run `docker compose up -d`.
 
-See [Docker deployment](docs/docker.md) for more details.
+See [Docker deployment](docs/docker.md) for ports, volumes, and build instructions.
 
 ## Access Control
 
@@ -34,7 +53,26 @@ If the service is exposed to the internet, set up access control. Choose one app
 
 ## Local development
 
-1. `bun ci`
-2. `bun dev`
+1. Copy `config.example.json` to `config.json` and add at least one LLM provider.
+2. `bun ci`
+3. `bun dev`
 
-Open `http://localhost:3000` in your browser to access the Jarvis web server.
+Open `http://localhost:3000` for the UI (Vite dev server). The API runs on port `4000` and is proxied at `/jarvis`.
+
+To reset the local runtime workspace: `bun dev:reset`.
+
+## Project layout
+
+```
+apps/server/          Bun/Elysia backend and Jarvis agent
+apps/frontend/        React chat UI
+packages/shared/      Shared types and utilities
+apps/server/runtime-template/   Seed workspace copied on first boot
+runtime/              Live workspace (dev; created on first run)
+docs/                 Configuration and Docker guides
+```
+
+## Documentation
+
+- [Configuration](docs/config.md) — `config.json`, providers, Tavily
+- [Docker deployment](docs/docker.md) — Full vs Lite, ports, volumes, troubleshooting

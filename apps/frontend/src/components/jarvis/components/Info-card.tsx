@@ -1,4 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 import ReactJson from "react-json-view";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ export default function InfoCard({
   icon,
   tag,
   disableMarkdown,
+  initialExpanded = false,
 }: {
   brief?: string;
   status?: "pending" | "completed" | "failed";
@@ -22,8 +24,10 @@ export default function InfoCard({
   icon?: React.ReactNode;
   tag?: string;
   disableMarkdown?: boolean;
+  initialExpanded?: boolean;
 }) {
-  const [jsonExpanded, setJsonExpanded] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const [jsonExpanded, setJsonExpanded] = useState(initialExpanded);
   const preRef = useRef<HTMLPreElement>(null);
 
   // Scroll to bottom when jsonExpanded is false immediately
@@ -59,7 +63,7 @@ export default function InfoCard({
           ),
         }
       : {
-          className: "flex flex-row gap-2 items-center border-b px-1",
+          className: "flex flex-row gap-2 items-center px-1",
         };
 
   return (
@@ -93,7 +97,7 @@ export default function InfoCard({
                 ref={preRef}
                 className="text-xs leading-relaxed whitespace-pre-wrap text-foreground/50 font-mono m-0 px-7"
                 style={{
-                  height: "4.2em", // Approximately 3 lines
+                  maxHeight: "4.2em", // Approximately 3 lines
                   lineHeight: "1.4em",
                   overflowY: "hidden",
                   overflowX: "hidden",
@@ -128,7 +132,9 @@ export default function InfoCard({
                     <ReactJson
                       src={data}
                       collapsed={2}
-                      theme="monokai"
+                      theme={
+                        resolvedTheme === "dark" ? "monokai" : "rjv-default"
+                      }
                       style={{ backgroundColor: "transparent" }}
                     />
                   </div>

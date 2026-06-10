@@ -25,9 +25,7 @@ Agent Jarvis uses `config.json` for configuration. Copy `config.example.json` to
       "textVerbosity": "low"
     }
   },
-  "tavilyApiKey": "",
-  "pexelsApiKey": "",
-  "ntfyTopic": ""
+  "tavilyApiKey": ""
 }
 ```
 
@@ -37,12 +35,12 @@ Agent Jarvis uses `config.json` for configuration. Copy `config.example.json` to
 
 Each provider corresponds to one AI service and can handle one or more duties.
 
-| Field             | Type     | Required | Description                                        |
-| ----------------- | -------- | -------- | -------------------------------------------------- |
-| `model`           | string   | ✓        | Model ID in `provider:model-id` format             |
-| `apiKey`          | string   | ✓        | API key for this provider                          |
-| `baseURL`         | string   |          | Custom API endpoint for proxy or self-hosted usage |
-| `duties`          | string[] | ✓        | List of duties this provider handles               |
+| Field     | Type     | Required | Description                                        |
+| --------- | -------- | -------- | -------------------------------------------------- |
+| `model`   | string   | ✓        | Model ID in `provider:model-id` format             |
+| `apiKey`  | string   | ✓        | API key for this provider                          |
+| `baseURL` | string   |          | Custom API endpoint for proxy or self-hosted usage |
+| `duties`  | string[] | ✓        | List of duties this provider handles               |
 
 ### Model ID format
 
@@ -80,9 +78,7 @@ A provider can handle multiple duties. The system looks up a provider by duty ty
 | `IMAGE_RECOGNITION` | Understand image content                                    |
 | `VIDEO_RECOGNITION` | Understand video content                                    |
 | `OTHER_RECOGNITION` | Understand PDFs, documents, and other file types            |
-| `VOICE_GENERATION`  | Generate speech                                             |
 | `IMAGE_GENERATION`  | Generate images                                             |
-| `VIDEO_GENERATION`  | Generate video                                              |
 
 **Minimum config**: At least one provider with the `CHAT` duty is required.
 
@@ -143,11 +139,6 @@ For the full list of supported options per provider, see [AI SDK Provider Option
       "duties": ["CHAT", "IMAGE_RECOGNITION", "OTHER_RECOGNITION"]
     },
     {
-      "model": "openai:tts-1",
-      "apiKey": "sk-...",
-      "duties": ["VOICE_GENERATION"]
-    },
-    {
       "model": "openai:dall-e-3",
       "apiKey": "sk-...",
       "duties": ["IMAGE_GENERATION"]
@@ -177,15 +168,22 @@ For the full list of supported options per provider, see [AI SDK Provider Option
 
 ### tavilyApiKey
 
-[Tavily](https://tavily.com/) web search API key. When set, enables the built-in web search tool.
+[Tavily](https://tavily.com/) web search API key. When set, enables:
 
-### pexelsApiKey
+- `web_search_tavily` — general, news, and finance search
+- `web_extract` — extract readable content from URLs
 
-[Pexels](https://www.pexels.com/api/) stock image API key. When set, enables the image search tool (best for nature, cities, lifestyle, and similar generic queries).
+Without a Tavily key, these tools fail at execution time. The agent can still use file and shell tools.
 
-### ntfyTopic
+### Web search on Full Docker
 
-[ntfy.sh](https://ntfy.sh/) topic name. When set, enables the push notification tool to send messages to the given topic (subscribe via an ntfy client).
+The **Full** image (`JARVIS_WITH_COMPUTER=true`) also bundles **SearXNG** on port 4203 and exposes `web_search_searxng` for multi-engine technical search. SearXNG does not require a config key.
+
+---
+
+## Notifications
+
+In-app alerts use the `create_notification` tool (sidebar + optional **Web Push** via browser subscription). There is no ntfy or third-party push config in `config.json`.
 
 ---
 
@@ -210,8 +208,11 @@ For the full list of supported options per provider, see [AI SDK Provider Option
       "duties": ["IMAGE_GENERATION"]
     }
   ],
-  "tavilyApiKey": "tvly-...",
-  "pexelsApiKey": "...",
-  "ntfyTopic": "my-jarvis-alerts"
+  "providerOptions": {
+    "openai": {
+      "reasoningEffort": "low"
+    }
+  },
+  "tavilyApiKey": "tvly-..."
 }
 ```

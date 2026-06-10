@@ -7,13 +7,27 @@
     "compile:server": "rm -rf dist && bun compile:server:code && bun compile:server:assets && bun compile:server:copy && bun compile:server:output",
     "compile:server:assets": "cp -r ../frontend/dist/ dist/html",
     "compile:server:code": "bun build src/index.ts --outfile dist/jarvis.js --minify --target bun --production",
-    "compile:server:copy": "cp -r ./runtime-example dist/runtime-example && cp ../../README.md dist/README.md && cp ../../config.example.json dist/config.json",
-    "compile:server:output": "bestzip ../../output/dist.zip dist && rm -rf ../../output/dist && cp -r dist ../../output/dist",
+    "compile:server:copy": "cp -r ./runtime-template dist/runtime-template && cp ../../README.md dist/README.md && cp ../../config.example.json dist/config.json",
+    "compile:server:output": "mkdir -p ../../output && bestzip ../../output/dist.zip dist && rm -rf ../../output/dist && cp -r dist ../../output/dist",
     "dev": "IS_DEV=1 bun run --watch src/index.ts",
     "format": "biome check --write --unsafe . && NODE_NO_WARNINGS=1 sort-package-json",
     "start": "cd dist && bun index.js"
   },
   "dependencies": {
+    "@ai-sdk/alibaba": "^1.0.6",
+    "@ai-sdk/anthropic": "^3.0.46",
+    "@ai-sdk/azure": "^3.0.31",
+    "@ai-sdk/black-forest-labs": "^1.0.20",
+    "@ai-sdk/bytedance": "^1.0.0",
+    "@ai-sdk/deepseek": "^2.0.20",
+    "@ai-sdk/fal": "^2.0.21",
+    "@ai-sdk/google": "^3.0.30",
+    "@ai-sdk/google-vertex": "^4.0.61",
+    "@ai-sdk/huggingface": "^1.0.32",
+    "@ai-sdk/openai": "^3.0.27",
+    "@ai-sdk/togetherai": "^2.0.33",
+    "@ai-sdk/vercel": "^2.0.32",
+    "@ai-sdk/xai": "^3.0.57",
     "@eelkevdbos/elysia-basic-auth": "^2.0.1",
     "@elysiajs/cors": "^1.4.0",
     "@elysiajs/static": "latest",
@@ -26,10 +40,16 @@
     "elysia": "latest",
     "front-matter": "^4.0.2",
     "fs-extra": "^11.3.3",
+    "headroom-ai": "^0.22.4",
+    "mime-types": "^3.0.2",
     "pexels": "^1.4.0",
+    "vercel-minimax-ai-provider": "^0.0.2",
+    "web-push": "^3.6.7",
     "zod": "^4.2.0"
   },
   "devDependencies": {
+    "@types/mime-types": "^3.0.1",
+    "@types/web-push": "^3.6.4",
     "bun-types": "latest"
   }
 }

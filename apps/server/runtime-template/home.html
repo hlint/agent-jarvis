@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whiteboard</title>
+  <script
+    src="/jarvis/file?path=.jarvis/whiteboard/bootstrap.js"
+    data-jarvis-deps="tailwind,lucide"
+  ></script>
+</head>
+<body class="min-h-screen bg-background text-foreground antialiased">
+  <main class="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 py-8">
+    <header class="mb-8 text-center">
+      <div
+        class="mx-auto mb-4 flex size-12 items-center justify-center rounded-lg border border-border bg-card text-primary"
+        aria-hidden="true"
+      >
+        <i data-lucide="layout-dashboard" class="size-6"></i>
+      </div>
+      <h1 class="text-lg font-semibold tracking-tight">Whiteboard</h1>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Interactive HTML panel. Charts, forms, prototypes, and more appear here.
+      </p>
+    </header>
+
+    <section class="mb-6 rounded-lg border border-border bg-card p-4">
+      <p class="text-sm text-card-foreground">
+        No page is open yet. Chat with Jarvis on the left, or enter a path in the address bar.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">You can</h2>
+
+      <div class="rounded-lg border border-border bg-card p-4">
+        <h3 class="flex items-center gap-2 text-sm font-medium text-card-foreground">
+          <i data-lucide="folder-open" class="size-4 shrink-0 text-primary"></i>
+          Browse a page
+        </h3>
+        <p class="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Enter a runtime-relative path in the address bar, for example
+          <code class="rounded bg-muted px-1 py-0.5 text-[11px] text-foreground">workspace/demo.html</code>,
+          then press Enter to open.
+        </p>
+      </div>
+
+      <div class="rounded-lg border border-border bg-card p-4">
+        <h3 class="flex items-center gap-2 text-sm font-medium text-card-foreground">
+          <i data-lucide="message-square" class="size-4 shrink-0 text-primary"></i>
+          Ask Jarvis to open one
+        </h3>
+        <p class="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Describe the visualization or interactive UI you want; the Agent will create HTML and navigate the whiteboard to it.
+        </p>
+      </div>
+
+      <div class="rounded-lg border border-border bg-card p-4">
+        <h3 class="text-sm font-medium text-card-foreground">Common actions</h3>
+        <ul class="mt-2 space-y-1.5 text-xs text-muted-foreground">
+          <li class="flex items-center gap-2">
+            <i data-lucide="refresh-cw" class="size-3.5 shrink-0 text-primary"></i>
+            <span>Refresh — reload the current page</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <i data-lucide="home" class="size-3.5 shrink-0 text-primary"></i>
+            <span>Home — return to this page</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="mt-auto pt-8 text-center text-[11px] text-muted-foreground">
+      home.html
+    </footer>
+  </main>
+</body>
+</html>

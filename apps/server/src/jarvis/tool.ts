@@ -1,73 +1,89 @@
-import type { AgentTool } from "@repo/shared/agent/defines/tool";
-import type z from "zod";
-import attachmentTool from "./built-in-tools/attachement";
-import { contextPruneTool } from "./built-in-tools/context-prune";
-import { execTool } from "./built-in-tools/exec";
-import { fileTools } from "./built-in-tools/file";
-import htmlViewTool from "./built-in-tools/html-view";
-import imageGenerationTool from "./built-in-tools/image-generation";
-import imageSearchTool from "./built-in-tools/image-search";
-import multimodalSubagentTool from "./built-in-tools/multimodal-subagent";
-import notifyTool from "./built-in-tools/notify";
-import webExtractTool from "./built-in-tools/web-extract";
-import webSearchSearxngTool from "./built-in-tools/web-search-searxng";
-import webSearchTavilyTool from "./built-in-tools/web-search-tavily";
-import type Jarvis from "./jarvis";
+import type { ToolSet } from "ai";
+import type Jarvis from ".";
+import { isPlanPhase } from "./plan";
+import createListCronTasksTool from "./tools/cron";
+import createExecTool from "./tools/exec";
+import createFileTools from "./tools/file";
+import createHeadroomRetrieveTool from "./tools/headroom-retrieve";
+import createImageGenerationTool from "./tools/image-generation";
+import createMultimodalTool from "./tools/multimodal";
+import createNotificationTool from "./tools/notification";
+import createSetupPlanTool from "./tools/plan";
+import createSessionTools from "./tools/session";
+import createCallSubagentTool from "./tools/subagent";
+import createWebTools from "./tools/web";
+import createWhiteboardTools from "./tools/whiteboard";
 
-export const builtInTools = [
-  attachmentTool,
-  htmlViewTool,
-  webSearchTavilyTool,
-  webSearchSearxngTool,
-  webExtractTool,
-  imageSearchTool,
-  imageGenerationTool,
-  multimodalSubagentTool,
-  notifyTool,
-  execTool,
-  contextPruneTool,
-  ...fileTools,
-];
-
-export type JarvisTool<INPUT extends {}> = {
-  name: string;
-  description: string | ((jarvis: Jarvis) => string);
-  inputSchema: z.ZodSchema<INPUT>;
-  execute: (
-    input: INPUT & { content?: string; entryId?: string },
-    jarvis: Jarvis,
-  ) => Promise<any>;
-  /**
-   * When set, composite-encoded input is used: fenced json for short fields,
-   * then one newline after the fence, then plain text (merged into `content`).
-   * This string documents what that trailing segment means; prompts/parsers
-   * use it with the schema.
-   */
-  inputContentDescription?: string;
-};
-
-export function defineJarvisTool<INPUT extends {}>(
-  t: JarvisTool<INPUT>,
-): JarvisTool<INPUT> {
-  return t;
+function getToolDescription(tool: unknown): string {
+  if (
+    tool &&
+    typeof tool === "object" &&
+    "description" in tool &&
+    typeof tool.description === "string"
+  ) {
+    return tool.description.trim();
+  }
+  return "";
 }
 
-export function createAiTools(
-  jarvisTools: JarvisTool<any>[],
-  jarvis: Jarvis,
-): AgentTool[] {
-  return jarvisTools.map((jarvisTool) => ({
-    name: jarvisTool.name,
-    description:
-      typeof jarvisTool.description === "function"
-        ? jarvisTool.description(jarvis)
-        : jarvisTool.description,
-    inputSchema: jarvisTool.inputSchema,
-    execute: async (input) => {
-      return jarvisTool.execute(input, jarvis);
-    },
-    ...(jarvisTool.inputContentDescription
-      ? { inputContentDescription: jarvisTool.inputContentDescription }
-      : {}),
-  }));
+export default class JarvisTool {
+  private readonly jarvis: Jarvis;
+  constructor(jarvis: Jarvis) {
+    this.jarvis = jarvis;
+  }
+
+  getTools(sessionId: string): ToolSet {
+    const session = this.jarvis.session.getSession(sessionId);
+    if (!session || isPlanPhase(session)) {
+      return createSetupPlanTool(this.jarvis, sessionId);
+    }
+    return this.getFullTools(sessionId);
+  }
+
+  getDisabledToolsPromptForPlanPhase(sessionId: string): string {
+    const session = this.jarvis.session.getSession(sessionId);
+    if (!session || !isPlanPhase(session)) {
+      return "";
+    }
+
+    const lines = Object.entries(this.getFullTools(sessionId))
+      .filter(([name]) => name !== "setup_plan")
+      .map(([name, tool]) => `- **${name}**: ${getToolDescription(tool)}`);
+
+    if (lines.length === 0) {
+      return "";
+    }
+
+    return `<DISABLED_TOOLS>
+The tools below are registered for this session but **temporarily disabled** until \`setup_plan\` succeeds. You may reply with text only to finish without a board; if you call tools this turn, \`setup_plan\` must be first. Use the names and descriptions below when drafting your plan; you cannot invoke them on this loop iteration.
+
+${lines.join("\n")}
+</DISABLED_TOOLS>`;
+  }
+
+  private getFullTools(sessionId: string): ToolSet {
+    const session = this.jarvis.session.getSession(sessionId);
+    const isBasic = session?.type === "basic";
+
+    return {
+      ...createSetupPlanTool(this.jarvis, sessionId),
+      exec: createExecTool(),
+      create_notification: createNotificationTool(this.jarvis, sessionId),
+      ...(this.jarvis.config.isWithComputer()
+        ? { headroom_retrieve: createHeadroomRetrieveTool() }
+        : {}),
+      ...createFileTools(),
+      ...createWebTools(this.jarvis),
+      multimodal_subagent: createMultimodalTool(this.jarvis),
+      image_generation: createImageGenerationTool(this.jarvis, sessionId),
+      ...(isBasic ? createSessionTools(this.jarvis, sessionId) : {}),
+      ...(isBasic ? createWhiteboardTools(this.jarvis, sessionId) : {}),
+      ...(isBasic
+        ? {
+            call_subagent: createCallSubagentTool(this.jarvis, sessionId),
+            list_cron_tasks: createListCronTasksTool(this.jarvis),
+          }
+        : {}),
+    };
+  }
 }

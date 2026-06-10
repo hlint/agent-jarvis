@@ -7,6 +7,9 @@ export default function StatusIcon({
   status?: "pending" | "completed" | "failed";
   children?: React.ReactNode;
 }) {
+  if (children === null && status === "completed") {
+    return null;
+  }
   const icon = (() => {
     if (status === "failed") {
       return <TriangleAlertIcon className="size-4" />;
@@ -17,8 +20,6 @@ export default function StatusIcon({
     return <Loader2Icon className="size-4 animate-spin" />;
   })();
   return (
-    <div className="flex items-center justify-center shrink-0 min-h-6">
-      {icon}
-    </div>
+    <div className="flex items-center justify-center shrink-0">{icon}</div>
   );
 }

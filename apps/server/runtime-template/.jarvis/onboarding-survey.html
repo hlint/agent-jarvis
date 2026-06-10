@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get to know you</title>
+  <script
+    src="/jarvis/file?path=.jarvis/whiteboard/bootstrap.js"
+    data-jarvis-deps="tailwind,react,babel,zod,lucide"
+  ></script>
+</head>
+<body class="min-h-screen bg-background text-foreground antialiased">
+  <div id="root" class="mx-auto w-full max-w-md p-4"></div>
+  <script type="text/babel">
+    const { z } = Zod;
+    const LucideIcon = jarvis.LucideIcon;
+
+    const OTHER = { value: "other", label: "Other" };
+
+    const OPTIONS = {
+      timezone: [
+        { value: "auto", label: "Auto-detect" },
+        { value: "Asia/Shanghai", label: "China (UTC+8)" },
+        { value: "Asia/Tokyo", label: "Japan (UTC+9)" },
+        { value: "Asia/Seoul", label: "Korea (UTC+9)" },
+        { value: "Europe/London", label: "London (GMT/BST)" },
+        { value: "Europe/Paris", label: "Central Europe (CET)" },
+        { value: "America/Los_Angeles", label: "US Pacific (PT)" },
+        { value: "America/New_York", label: "US Eastern (ET)" },
+        { value: "UTC", label: "UTC" },
+      ],
+      primaryLanguage: [
+        { value: "en", label: "English" },
+        { value: "zh", label: "Chinese (Simplified)" },
+        { value: "ja", label: "Japanese" },
+        { value: "ko", label: "Korean" },
+        { value: "es", label: "Spanish" },
+        { value: "fr", label: "French" },
+        { value: "de", label: "German" },
+        OTHER,
+      ],
+      background: [
+        { value: "developer", label: "Developer" },
+        { value: "designer", label: "Designer" },
+        { value: "pm", label: "Product / Ops" },
+        { value: "student", label: "Student / self-taught" },
+        OTHER,
+      ],
+      techFocus: [
+        { value: "frontend", label: "Frontend" },
+        { value: "backend", label: "Backend" },
+        { value: "fullstack", label: "Full stack" },
+        { value: "mobile", label: "Mobile" },
+        { value: "data", label: "Data / AI" },
+        { value: "devops", label: "DevOps / infra" },
+        OTHER,
+      ],
+      currentFocus: [
+        { value: "daily-dev", label: "Day-to-day dev" },
+        { value: "learning", label: "Learning & exploring" },
+        { value: "automation", label: "Automation / productivity" },
+        { value: "project-mgmt", label: "Project management" },
+        { value: "personal", label: "Personal projects / hobbies" },
+        OTHER,
+      ],
+      communicationStyle: [
+        { value: "concise", label: "Concise & direct" },
+        { value: "friendly", label: "Friendly & detailed" },
+        { value: "adaptive", label: "Adapt to the task" },
+        OTHER,
+      ],
+      detailLevel: [
+        { value: "result-only", label: "Results only" },
+        { value: "brief", label: "Brief explanation" },
+        { value: "detailed", label: "Step-by-step detail" },
+        OTHER,
+      ],
+      tools: [
+        { value: "cursor", label: "Cursor / VS Code" },
+        { value: "terminal", label: "Terminal / CLI" },
+        { value: "github", label: "GitHub" },
+        { value: "docker", label: "Docker" },
+        { value: "notion", label: "Notion / notes" },
+        OTHER,
+      ],
+      constraints: [
+        { value: "none", label: "No special limits" },
+        { value: "no-delete", label: "Don't delete files or dirs" },
+        { value: "no-external", label: "Don't send externally (email, etc.)" },
+        { value: "no-prod", label: "Don't touch production" },
+        OTHER,
+      ],
+    };
+
+    const requireOther = (selected, note, path, message, ctx) => {
+      if (selected === "other" && !note?.trim()) {
+        ctx.addIssue({ code: "custom", path: [path], message });
+      }
+    };
+
+    const requireMultiOther = (values, note, path, message, ctx) => {
+      if (values.includes("other") && !note?.trim()) {
+        ctx.addIssue({ code: "custom", path: [path], message });
+      }
+    };
+
+    const STEPS = [
+      {
+        id: "basics",
+        title: "Basics",
+        fields: ["preferredName", "timezone", "primaryLanguage", "primaryLanguageOther"],
+        schema: z
+          .object({
+            preferredName: z.string().trim().max(30).optional(),
+            timezone: z.enum(OPTIONS.timezone.map(o => o.value), {
+              errorMap: () => ({ message: "Pick a timezone" }),
+            }),
+            primaryLanguage: z.enum(OPTIONS.primaryLanguage.map(o => o.value), {
+              errorMap: () => ({ message: "Pick a language" }),
+            }),
+            primaryLanguageOther: z.string().trim().max(60).optional(),
+          })
+          .superRefine((data, ctx) => {
+            requireOther(
+              data.primaryLanguage,
+              data.primaryLanguageOther,
+              "primaryLanguageOther",
+              "Specify your language",
+              ctx,
+            );
+          }),
+      },
+      {
+        id: "profile",
+        title: "Profile",
+        fields: [
+          "background",
+          "backgroundOther",
+          "techFocus",
+          "techFocusOther",
+          "currentFocus",
+          "currentFocusOther",
+        ],
+        schema: z
+          .object({
+            background: z.enum(OPTIONS.background.map(o => o.value), {
+              errorMap: () => ({ message: "Pick your background" }),
+            }),
+            backgroundOther: z.string().trim().max(60).optional(),
+            techFocus: z
+              .array(z.enum(OPTIONS.techFocus.map(o => o.value)))
+              .min(1, "Pick at least one"),
+            techFocusOther: z.string().trim().max(120).optional(),
+            currentFocus: z.enum(OPTIONS.currentFocus.map(o => o.value), {
+              errorMap: () => ({ message: "Pick one" }),
+            }),
+            currentFocusOther: z.string().trim().max(60).optional(),
+          })
+          .superRefine((data, ctx) => {
+            requireOther(
+              data.background,
+              data.backgroundOther,
+              "backgroundOther",
+              "Specify your background",
+              ctx,
+            );
+            requireMultiOther(
+              data.techFocus,
+              data.techFocusOther,
+              "techFocusOther",
+              "Specify your tech focus",
+              ctx,
+            );
+            requireOther(
+              data.currentFocus,
+              data.currentFocusOther,
+              "currentFocusOther",
+              "Specify your focus",
+              ctx,
+            );
+          }),
+      },
+      {
+        id: "style",
+        title: "Style",
+        fields: [
+          "communicationStyle",
+          "communicationStyleOther",
+          "detailLevel",
+          "detailLevelOther",
+        ],
+        schema: z
+          .object({
+            communicationStyle: z.enum(OPTIONS.communicationStyle.map(o => o.value), {
+              errorMap: () => ({ message: "Pick one" }),
+            }),
+            communicationStyleOther: z.string().trim().max(60).optional(),
+            detailLevel: z.enum(OPTIONS.detailLevel.map(o => o.value), {
+              errorMap: () => ({ message: "Pick one" }),
+            }),
+            detailLevelOther: z.string().trim().max(60).optional(),
+          })
+          .superRefine((data, ctx) => {
+            requireOther(
+              data.communicationStyle,
+              data.communicationStyleOther,
+              "communicationStyleOther",
+              "Specify your style",
+              ctx,
+            );
+            requireOther(
+              data.detailLevel,
+              data.detailLevelOther,
+              "detailLevelOther",
+              "Specify your preference",
+              ctx,
+            );
+          }),
+      },
+      {
+        id: "setup",
+        title: "Setup",
+        fields: ["tools", "toolsOther", "constraints", "constraintsOther"],
+        schema: z
+          .object({
+            tools: z
+              .array(z.enum(OPTIONS.tools.map(o => o.value)))
+              .min(1, "Pick at least one"),
+            toolsOther: z.string().trim().max(120).optional(),
+            constraints: z.enum(OPTIONS.constraints.map(o => o.value), {
+              errorMap: () => ({ message: "Pick one" }),
+            }),
+            constraintsOther: z.string().trim().max(120).optional(),
+          })
+          .superRefine((data, ctx) => {
+            requireMultiOther(
+              data.tools,
+              data.toolsOther,
+              "toolsOther",
+              "Specify your tools",
+              ctx,
+            );
+            requireOther(
+              data.constraints,
+              data.constraintsOther,
+              "constraintsOther",
+              "Specify your limits",
+              ctx,
+            );
+          }),
+      },
+    ];
+
+    const formSchema = z
+      .object({
+        preferredName: z.string().trim().max(30).optional(),
+        timezone: z.enum(OPTIONS.timezone.map(o => o.value)),
+        primaryLanguage: z.enum(OPTIONS.primaryLanguage.map(o => o.value)),
+        primaryLanguageOther: z.string().trim().max(60).optional(),
+        background: z.enum(OPTIONS.background.map(o => o.value)),
+        backgroundOther: z.string().trim().max(60).optional(),
+        techFocus: z.array(z.enum(OPTIONS.techFocus.map(o => o.value))).min(1),
+        techFocusOther: z.string().trim().max(120).optional(),
+        currentFocus: z.enum(OPTIONS.currentFocus.map(o => o.value)),
+        currentFocusOther: z.string().trim().max(60).optional(),
+        communicationStyle: z.enum(OPTIONS.communicationStyle.map(o => o.value)),
+        communicationStyleOther: z.string().trim().max(60).optional(),
+        detailLevel: z.enum(OPTIONS.detailLevel.map(o => o.value)),
+        detailLevelOther: z.string().trim().max(60).optional(),
+        tools: z.array(z.enum(OPTIONS.tools.map(o => o.value))).min(1),
+        toolsOther: z.string().trim().max(120).optional(),
+        constraints: z.enum(OPTIONS.constraints.map(o => o.value)),
+        constraintsOther: z.string().trim().max(120).optional(),
+      })
+      .superRefine((data, ctx) => {
+        requireOther(
+          data.primaryLanguage,
+          data.primaryLanguageOther,
+          "primaryLanguageOther",
+          "Specify your language",
+          ctx,
+        );
+        requireOther(
+          data.background,
+          data.backgroundOther,
+          "backgroundOther",
+          "Specify your background",
+          ctx,
+        );
+        requireMultiOther(
+          data.techFocus,
+          data.techFocusOther,
+          "techFocusOther",
+          "Specify your tech focus",
+          ctx,
+        );
+        requireOther(
+          data.currentFocus,
+          data.currentFocusOther,
+          "currentFocusOther",
+          "Specify your focus",
+          ctx,
+        );
+        requireOther(
+          data.communicationStyle,
+          data.communicationStyleOther,
+          "communicationStyleOther",
+          "Specify your style",
+          ctx,
+        );
+        requireOther(
+          data.detailLevel,
+          data.detailLevelOther,
+          "detailLevelOther",
+          "Specify your preference",
+          ctx,
+        );
+        requireMultiOther(
+          data.tools,
+          data.toolsOther,
+          "toolsOther",
+          "Specify your tools",
+          ctx,
+        );
+        requireOther(
+          data.constraints,
+          data.constraintsOther,
+          "constraintsOther",
+          "Specify your limits",
+          ctx,
+        );
+      });
+
+    function detectTimezone() {
+      try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+      } catch {
+        return "UTC";
+      }
+    }
+
+    function labelOf(list, value) {
+      return list.find(o => o.value === value)?.label ?? value;
+    }
+
+    function radioLabel(list, value, otherNote) {
+      if (value === "other") return otherNote?.trim() || "Other";
+      return labelOf(list, value);
+    }
+
+    function multiLabels(list, values, otherNote) {
+      return values.map(v => {
+        if (v === "other") return otherNote?.trim() || "Other";
+        return labelOf(list, v);
+      });
+    }
+
+    function pickForm(form, fields) {
+      const out = {};
+      fields.forEach(key => {
+        out[key] = form[key];
+      });
+      return out;
+    }
+
+    const emptyForm = {
+      preferredName: "",
+      timezone: "",
+      primaryLanguage: "",
+      primaryLanguageOther: "",
+      background: "",
+      backgroundOther: "",
+      techFocus: [],
+      techFocusOther: "",
+      currentFocus: "",
+      currentFocusOther: "",
+      communicationStyle: "",
+      communicationStyleOther: "",
+      detailLevel: "",
+      detailLevelOther: "",
+      tools: [],
+      toolsOther: "",
+      constraints: "",
+      constraintsOther: "",
+    };
+
+    function Section({ title, hint, children }) {
+      return (
+        <section className="space-y-2">
+          <div>
+            <h2 className="text-sm font-medium text-card-foreground">{title}</h2>
+            {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+          </div>
+          {children}
+        </section>
+      );
+    }
+
+    function FieldError({ error }) {
+      return error ? <p className="text-xs text-destructive">{error}</p> : null;
+    }
+
+    function OtherInput({ show, value, onChange, placeholder }) {
+      if (!show) return null;
+      return (
+        <input
+          className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          maxLength={120}
+        />
+      );
+    }
+
+    function Chip({ active, children, onClick }) {
+      return (
+        <button
+          type="button"
+          onClick={onClick}
+          className={
+            "rounded-md border px-2.5 py-1.5 text-xs transition-colors " +
+            (active
+              ? "border-primary bg-primary/15 text-primary"
+              : "border-border bg-background text-foreground hover:border-primary/40")
+          }
+        >
+          {children}
+        </button>
+      );
+    }
+
+    function RadioRow({ options, value, onChange }) {
+      return (
+        <div className="flex flex-wrap gap-2">
+          {options.map(opt => (
+            <Chip key={opt.value} active={value === opt.value} onClick={() => onChange(opt.value)}>
+              {opt.label}
+            </Chip>
+          ))}
+        </div>
+      );
+    }
+
+    function MultiRow({ options, values, onChange }) {
+      const toggle = val => {
+        onChange(values.includes(val) ? values.filter(v => v !== val) : [...values, val]);
+      };
+      return (
+        <div className="flex flex-wrap gap-2">
+          {options.map(opt => (
+            <Chip key={opt.value} active={values.includes(opt.value)} onClick={() => toggle(opt.value)}>
+              {opt.label}
+            </Chip>
+          ))}
+        </div>
+      );
+    }
+
+    function StepProgress({ step, total }) {
+      return (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>
+              Step {step + 1} of {total}
+            </span>
+            <span>{STEPS[step].title}</span>
+          </div>
+          <div className="flex gap-1">
+            {Array.from({ length: total }).map((_, i) => (
+              <div
+                key={i}
+                className={
+                  "h-1 flex-1 rounded-full transition-colors " +
+                  (i <= step ? "bg-primary" : "bg-muted")
+                }
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function StepBasics({ form, errors, set }) {
+      return (
+        <div className="space-y-4">
+          <Section title="What should I call you?" hint="Optional">
+            <input
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+              value={form.preferredName}
+              onChange={e => set("preferredName")(e.target.value)}
+              placeholder="Nickname"
+              maxLength={30}
+            />
+          </Section>
+          <Section title="Timezone">
+            <RadioRow options={OPTIONS.timezone} value={form.timezone} onChange={set("timezone")} />
+            <FieldError error={errors.timezone} />
+          </Section>
+          <Section title="Language">
+            <RadioRow
+              options={OPTIONS.primaryLanguage}
+              value={form.primaryLanguage}
+              onChange={set("primaryLanguage")}
+            />
+            <OtherInput
+              show={form.primaryLanguage === "other"}
+              value={form.primaryLanguageOther}
+              onChange={set("primaryLanguageOther")}
+              placeholder="Your language"
+            />
+            <FieldError error={errors.primaryLanguage || errors.primaryLanguageOther} />
+          </Section>
+        </div>
+      );
+    }
+
+    function StepProfile({ form, errors, set }) {
+      return (
+        <div className="space-y-4">
+          <Section title="Background">
+            <RadioRow options={OPTIONS.background} value={form.background} onChange={set("background")} />
+            <OtherInput
+              show={form.background === "other"}
+              value={form.backgroundOther}
+              onChange={set("backgroundOther")}
+              placeholder="Your background"
+            />
+            <FieldError error={errors.background || errors.backgroundOther} />
+          </Section>
+          <Section title="Tech focus" hint="Multi-select">
+            <MultiRow options={OPTIONS.techFocus} values={form.techFocus} onChange={set("techFocus")} />
+            <OtherInput
+              show={form.techFocus.includes("other")}
+              value={form.techFocusOther}
+              onChange={set("techFocusOther")}
+              placeholder="Other areas"
+            />
+            <FieldError error={errors.techFocus || errors.techFocusOther} />
+          </Section>
+          <Section title="Current focus">
+            <RadioRow
+              options={OPTIONS.currentFocus}
+              value={form.currentFocus}
+              onChange={set("currentFocus")}
+            />
+            <OtherInput
+              show={form.currentFocus === "other"}
+              value={form.currentFocusOther}
+              onChange={set("currentFocusOther")}
+              placeholder="What you're focused on"
+            />
+            <FieldError error={errors.currentFocus || errors.currentFocusOther} />
+          </Section>
+        </div>
+      );
+    }
+
+    function StepStyle({ form, errors, set }) {
+      return (
+        <div className="space-y-4">
+          <Section title="Communication">
+            <RadioRow
+              options={OPTIONS.communicationStyle}
+              value={form.communicationStyle}
+              onChange={set("communicationStyle")}
+            />
+            <OtherInput
+              show={form.communicationStyle === "other"}
+              value={form.communicationStyleOther}
+              onChange={set("communicationStyleOther")}
+              placeholder="Your style"
+            />
+            <FieldError error={errors.communicationStyle || errors.communicationStyleOther} />
+          </Section>
+          <Section title="Answer detail">
+            <RadioRow
+              options={OPTIONS.detailLevel}
+              value={form.detailLevel}
+              onChange={set("detailLevel")}
+            />
+            <OtherInput
+              show={form.detailLevel === "other"}
+              value={form.detailLevelOther}
+              onChange={set("detailLevelOther")}
+              placeholder="Your preference"
+            />
+            <FieldError error={errors.detailLevel || errors.detailLevelOther} />
+          </Section>
+        </div>
+      );
+    }
+
+    function StepSetup({ form, errors, set }) {
+      return (
+        <div className="space-y-4">
+          <Section title="Tools" hint="Multi-select">
+            <MultiRow options={OPTIONS.tools} values={form.tools} onChange={set("tools")} />
+            <OtherInput
+              show={form.tools.includes("other")}
+              value={form.toolsOther}
+              onChange={set("toolsOther")}
+              placeholder="Other tools"
+            />
+            <FieldError error={errors.tools || errors.toolsOther} />
+          </Section>
+          <Section title="Limits">
+            <RadioRow
+              options={OPTIONS.constraints}
+              value={form.constraints}
+              onChange={set("constraints")}
+            />
+            <OtherInput
+              show={form.constraints === "other"}
+              value={form.constraintsOther}
+              onChange={set("constraintsOther")}
+              placeholder="Your limits"
+            />
+            <FieldError error={errors.constraints || errors.constraintsOther} />
+          </Section>
+        </div>
+      );
+    }
+
+    const STEP_VIEWS = [StepBasics, StepProfile, StepStyle, StepSetup];
+
+    class SurveyErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, message: "" };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, message: error?.message || "Unknown error" };
+      }
+      componentDidCatch(error, info) {
+        console.error("[onboarding-survey]", error, info);
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+              <p className="text-sm font-medium text-destructive">Something went wrong</p>
+              <p className="text-xs text-muted-foreground">{this.state.message}</p>
+              <button
+                type="button"
+                onClick={() => this.setState({ hasError: false, message: "" })}
+                className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+              >
+                Try again
+              </button>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    window.addEventListener("error", event => {
+      console.error("[onboarding-survey]", event.error || event.message);
+    });
+    window.addEventListener("unhandledrejection", event => {
+      console.error("[onboarding-survey]", event.reason);
+    });
+
+    function App() {
+      const [form, setForm] = React.useState(emptyForm);
+      const [errors, setErrors] = React.useState({});
+      const [step, setStep] = React.useState(0);
+      const [copied, setCopied] = React.useState(false);
+      const isLast = step === STEPS.length - 1;
+
+      const set = key => value => {
+        setForm(f => ({ ...f, [key]: value }));
+        setErrors(er => ({ ...er, [key]: undefined }));
+        setCopied(false);
+      };
+
+      const validateStep = index => {
+        const current = STEPS[index];
+        const parsed = current.schema.safeParse(pickForm(form, current.fields));
+        if (parsed.success) {
+          setErrors({});
+          return true;
+        }
+        const next = {};
+        parsed.error.errors.forEach(err => {
+          const key = err.path[0];
+          if (key && !next[key]) next[key] = err.message;
+        });
+        setErrors(next);
+        return false;
+      };
+
+      const goNext = () => {
+        if (!validateStep(step)) return;
+        setStep(s => Math.min(s + 1, STEPS.length - 1));
+      };
+
+      const goBack = () => {
+        setErrors({});
+        setStep(s => Math.max(s - 1, 0));
+      };
+
+      const handleCopy = async () => {
+        if (!validateStep(step)) return;
+        const parsed = formSchema.safeParse(form);
+        if (!parsed.success) {
+          const next = {};
+          parsed.error.errors.forEach(err => {
+            const key = err.path[0];
+            if (key && !next[key]) next[key] = err.message;
+          });
+          setErrors(next);
+          return;
+        }
+        setErrors({});
+        const data = parsed.data;
+        const resolvedTimezone =
+          data.timezone === "auto" ? detectTimezone() : data.timezone;
+
+        const payload = {
+          _meta: { intent: "user-onboarding", version: 1 },
+          preferredName: data.preferredName || undefined,
+          timezone: resolvedTimezone,
+          timezoneInput: data.timezone,
+          timezoneLabel:
+            data.timezone === "auto"
+              ? `Auto (${resolvedTimezone})`
+              : labelOf(OPTIONS.timezone, data.timezone),
+          primaryLanguage: data.primaryLanguage,
+          primaryLanguageLabel: radioLabel(
+            OPTIONS.primaryLanguage,
+            data.primaryLanguage,
+            data.primaryLanguageOther,
+          ),
+          primaryLanguageOther:
+            data.primaryLanguage === "other" ? data.primaryLanguageOther : undefined,
+          background: data.background,
+          backgroundLabel: radioLabel(
+            OPTIONS.background,
+            data.background,
+            data.backgroundOther,
+          ),
+          backgroundOther: data.background === "other" ? data.backgroundOther : undefined,
+          techFocus: data.techFocus,
+          techFocusLabels: multiLabels(
+            OPTIONS.techFocus,
+            data.techFocus,
+            data.techFocusOther,
+          ),
+          techFocusOther: data.techFocus.includes("other")
+            ? data.techFocusOther
+            : undefined,
+          currentFocus: data.currentFocus,
+          currentFocusLabel: radioLabel(
+            OPTIONS.currentFocus,
+            data.currentFocus,
+            data.currentFocusOther,
+          ),
+          currentFocusOther:
+            data.currentFocus === "other" ? data.currentFocusOther : undefined,
+          communicationStyle: data.communicationStyle,
+          communicationStyleLabel: radioLabel(
+            OPTIONS.communicationStyle,
+            data.communicationStyle,
+            data.communicationStyleOther,
+          ),
+          communicationStyleOther:
+            data.communicationStyle === "other"
+              ? data.communicationStyleOther
+              : undefined,
+          detailLevel: data.detailLevel,
+          detailLevelLabel: radioLabel(
+            OPTIONS.detailLevel,
+            data.detailLevel,
+            data.detailLevelOther,
+          ),
+          detailLevelOther:
+            data.detailLevel === "other" ? data.detailLevelOther : undefined,
+          tools: data.tools,
+          toolsLabels: multiLabels(OPTIONS.tools, data.tools, data.toolsOther),
+          toolsOther: data.tools.includes("other") ? data.toolsOther : undefined,
+          constraints: data.constraints,
+          constraintsLabel: radioLabel(
+            OPTIONS.constraints,
+            data.constraints,
+            data.constraintsOther,
+          ),
+          constraintsOther:
+            data.constraints === "other" ? data.constraintsOther : undefined,
+          collectedAt: new Date().toISOString(),
+        };
+        const text = JSON.stringify(payload, null, 2);
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2500);
+        } catch {
+          setErrors({ _form: "Clipboard unavailable" });
+        }
+      };
+
+      const StepView = STEP_VIEWS[step];
+
+      return (
+        <div className="space-y-4 pb-2">
+          <header>
+            <h1 className="flex items-center gap-2 text-lg font-semibold">
+              <LucideIcon name="user-round" className="size-5 text-primary" />
+              Get to know you
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {isLast ? "Last step — copy & paste into chat" : "Tap through · ~1 min"}
+            </p>
+          </header>
+
+          <StepProgress step={step} total={STEPS.length} />
+
+          <div className="rounded-lg border border-border bg-card p-4">
+            <StepView form={form} errors={errors} set={set} />
+          </div>
+
+          {errors._form && <p className="text-sm text-destructive">{errors._form}</p>}
+
+          <div className="flex gap-2">
+            {step > 0 && (
+              <button
+                type="button"
+                onClick={goBack}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-border bg-card py-2.5 text-sm font-medium text-foreground hover:bg-muted/50"
+              >
+                <LucideIcon name="chevron-left" className="size-4" />
+                Back
+              </button>
+            )}
+            {isLast ? (
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+              >
+                <LucideIcon
+                  name={copied ? "clipboard-check" : "clipboard-copy"}
+                  className="size-4"
+                />
+                {copied ? "Copied" : "Copy JSON"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={goNext}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+              >
+                Next
+                <LucideIcon name="chevron-right" className="size-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(
+      <SurveyErrorBoundary>
+        <App />
+      </SurveyErrorBoundary>,
+    );
+  </script>
+</body>
+</html>
